@@ -1,30 +1,26 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'bluetooth_connection_provider.dart';
+part of 'ble_connection_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$bluetoothConnectionHash() =>
-    r'c43b6fac6808a64903cd6f32f970765d75a167d8';
+String _$bleConnectionHash() => r'171812881625f91b3cc28874d475e824939e9189';
 
-/// See also [BluetoothConnection].
-@ProviderFor(BluetoothConnection)
-final bluetoothConnectionProvider =
-    AutoDisposeNotifierProvider<
-      BluetoothConnection,
-      BluetoothConnectionState
-    >.internal(
-      BluetoothConnection.new,
-      name: r'bluetoothConnectionProvider',
+/// See also [BleConnection].
+@ProviderFor(BleConnection)
+final bleConnectionProvider =
+    AutoDisposeNotifierProvider<BleConnection, BleConnectionState>.internal(
+      BleConnection.new,
+      name: r'bleConnectionProvider',
       debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
           ? null
-          : _$bluetoothConnectionHash,
+          : _$bleConnectionHash,
       dependencies: null,
       allTransitiveDependencies: null,
     );
 
-typedef _$BluetoothConnection = AutoDisposeNotifier<BluetoothConnectionState>;
+typedef _$BleConnection = AutoDisposeNotifier<BleConnectionState>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

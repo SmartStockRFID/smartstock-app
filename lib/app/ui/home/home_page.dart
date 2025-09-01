@@ -1,7 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:smart_stock/app/ui/home/ble_status_widget.dart';
 import 'package:smart_stock/app/ui/home/bluetooth_status_widget.dart';
-import 'package:smart_stock/app/ui/home/conference_button_widget.dart';
 import 'package:smart_stock/app/ui/home/pistol_status_widget.dart';
 import 'package:smart_stock/app/ui/home/stock_status_widget.dart';
 
@@ -20,12 +20,8 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(title: const Text('Página inicial')),
       body: Column(
         children: [
-          Center(
-            child: Row(
-              children: [BluetoothStatusWidget(), PistolStatusWidget()],
-            ),
-          ),
-          Center(child: ConferenceButton()),
+          Center(child: Row(children: [BleStatusWidget()])),
+          Center(child: Text('Conference Button')),
           Center(child: StockStatusWidget()),
         ],
       ),
