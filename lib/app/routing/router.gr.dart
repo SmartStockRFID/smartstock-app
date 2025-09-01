@@ -11,6 +11,22 @@
 part of 'router.dart';
 
 /// generated route for
+/// [ConferenceConfirmationPage]
+class ConferenceConfirmationRoute extends PageRouteInfo<void> {
+  const ConferenceConfirmationRoute({List<PageRouteInfo>? children})
+    : super(ConferenceConfirmationRoute.name, initialChildren: children);
+
+  static const String name = 'ConferenceConfirmationRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const ConferenceConfirmationPage();
+    },
+  );
+}
+
+/// generated route for
 /// [ConferencePage]
 class ConferenceRoute extends PageRouteInfo<void> {
   const ConferenceRoute({List<PageRouteInfo>? children})

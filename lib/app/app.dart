@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:smart_stock/app/config/env.dart';
 import 'package:smart_stock/app/routing/router.dart';
+import 'package:smart_stock/app/ui/globals.dart';
+
+import 'package:forui/forui.dart';
 
 class App extends StatelessWidget {
   final _appRouter = AppRouter();
@@ -18,8 +21,11 @@ class App extends StatelessWidget {
 
     return MaterialApp.router(
       title: "SmartStock",
+      scaffoldMessengerKey: scaffoldMessengerKey,
       routerConfig: _appRouter.config(),
       theme: theme,
+      builder: (contenxt, child) =>
+          FTheme(data: FThemes.zinc.light, child: child!),
     );
   }
 }
