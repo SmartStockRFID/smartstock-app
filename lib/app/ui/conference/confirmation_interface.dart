@@ -11,12 +11,12 @@ class ConferenceConfirmationInterface extends StatelessWidget {
     return Column(
       spacing: 16.0,
       children: [
-        ResponsibleEmploye(),
+        const _ResponsibleEmploye(),
         Text(
-          "Confirme que você iniciará esta conferência",
+          'Confirme que você iniciará esta conferência',
           style: typography.sm.copyWith(color: context.theme.colors.primary),
         ),
-        ConnectionChecker(),
+        const _ConnectionChecker(),
       ],
     );
   }
@@ -26,24 +26,24 @@ class ConferenceConfirmationInterface extends StatelessWidget {
     return Column(
       children: [
         Text(
-          "Mantenha a pistola próxima durante toda a conferência. Se estiver offline, a sincronização ocorrerá quando a conexão for reestabelecida.",
+          'Mantenha a pistola próxima durante toda a conferência. Se estiver offline, a sincronização ocorrerá quando a conexão for reestabelecida.',
           style: typography.xs.copyWith(color: context.theme.colors.primary),
           textAlign: TextAlign.center,
         ),
-        SizedBox(height: 8.0),
+        const SizedBox(height: 8.0),
         FButton(
-          child: Text("INICIAR CONFERÊNCIA"),
+          child: const Text('INICIAR CONFERÊNCIA'),
           // isLoading: false,
           onPress: () {
-            context.router.push(ConferenceRoute());
+            context.router.push(const ConferenceRoute());
           },
         ),
-        SizedBox(height: 8.0),
+        const SizedBox(height: 8.0),
         FButton(
           style: FButtonStyle.secondary(),
-          child: const Text("VOLTAR"),
+          child: const Text('VOLTAR'),
           onPress: () {
-            context.router.pop(HomeRoute());
+            context.router.pop(const HomeRoute());
           },
         ),
       ],
@@ -62,8 +62,8 @@ class ConferenceConfirmationInterface extends StatelessWidget {
   }
 }
 
-class ResponsibleEmploye extends StatelessWidget {
-  const ResponsibleEmploye({super.key});
+class _ResponsibleEmploye extends StatelessWidget {
+  const _ResponsibleEmploye({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -75,28 +75,28 @@ class ResponsibleEmploye extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Funcionário responsável:"),
-            SizedBox(height: 4),
+            const Text('Funcionário responsável:'),
+            const SizedBox(height: 4),
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 FAvatar(
-                  image: NetworkImage(
-                    "https://plus.unsplash.com/premium_photo-1689568126014-06fea9d5d341?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8cGVyZmlsfGVufDB8fDB8fHww",
+                  image: const NetworkImage(
+                    'https://plus.unsplash.com/premium_photo-1689568126014-06fea9d5d341?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8cGVyZmlsfGVufDB8fDB8fHww',
                   ),
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Ricardo Silva",
+                      'Ricardo Silva',
                       style: typography.lg.copyWith(
                         color: context.theme.colors.primary,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    Text("ID: 123456 | Supervisor"),
+                    const Text('ID: 123456 | Supervisor'),
                   ],
                 ),
               ],
@@ -108,15 +108,15 @@ class ResponsibleEmploye extends StatelessWidget {
   }
 }
 
-class ConnectionChecker extends StatelessWidget {
-  const ConnectionChecker({super.key});
+class _ConnectionChecker extends StatelessWidget {
+  const _ConnectionChecker({super.key});
 
   @override
   Widget build(BuildContext context) {
     final typography = context.theme.typography;
     return FCard(
       title: Text(
-        "Verificação de conexão",
+        'Verificação de conexão',
         style: typography.sm.copyWith(
           color: context.theme.colors.primary,
           fontWeight: FontWeight.bold,
@@ -128,13 +128,13 @@ class ConnectionChecker extends StatelessWidget {
           Row(
             children: [
               Checkbox(value: true, onChanged: (value) {}),
-              Text("Bluetooth conectado com a pistola"),
+              const Text('Bluetooth conectado com a pistola'),
             ],
           ),
           Row(
             children: [
               Checkbox(value: true, onChanged: (value) {}),
-              Text("Lista de produtos atualizada"),
+              const Text('Lista de produtos atualizada'),
             ],
           ),
         ],

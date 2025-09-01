@@ -24,7 +24,7 @@ class _HomePageState extends State<HomePage> {
       child: Scaffold(
         appBar: baseAppBar(title: 'Página inicial'),
         backgroundColor: Colors.white,
-        body: Column(
+        body: const Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Center(
@@ -34,7 +34,7 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              padding: EdgeInsets.symmetric(horizontal: 8.0),
               child: Column(
                 spacing: 8,
                 children: [
@@ -59,18 +59,13 @@ class ConferenceButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final pistolConnection = ref.watch(bleConnectionProvider);
-    isConnected() => pistolConnection.fsm.currentState is ConnectedState;
+    bool isConnected() => pistolConnection.fsm.currentState is ConnectedState;
     return FButton(
-      child: Row(
-        children: [
-          Icon(FIcons.scanText, size: 16, color: Colors.white),
-          SizedBox(width: 4.0),
-          Text("Leitura"),
-        ],
-      ),
+      prefix: const Icon(FIcons.scanText, size: 16, color: Colors.white),
+      child: const Text('Leitura'),
       onPress: () {
         if (isConnected()) {
-          context.router.push(ConferenceConfirmationRoute());
+          context.router.push(const ConferenceConfirmationRoute());
         }
       },
     );
@@ -85,14 +80,8 @@ class LabelingButton extends ConsumerWidget {
     final pistolConnection = ref.watch(bleConnectionProvider);
     isConnected() => pistolConnection.fsm.currentState is ConnectedState;
     return FButton(
-      child: Row(
-        children: [
-          Icon(FIcons.squarePen, size: 16, color: Colors.white),
-          SizedBox(width: 4.0),
-          Text("Etiquetagem"),
-        ],
-      ),
-
+      prefix: const Icon(FIcons.squarePen, size: 16, color: Colors.white),
+      child: const Text('Etiquetagem'),
       onPress: () {
         if (isConnected()) {}
       },
@@ -106,16 +95,10 @@ class ResetButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final pistolConnection = ref.watch(bleConnectionProvider);
-    isConnected() => pistolConnection.fsm.currentState is ConnectedState;
+    bool isConnected() => pistolConnection.fsm.currentState is ConnectedState;
     return FButton(
-      child: Row(
-        children: [
-          Icon(FIcons.rotateCcw, size: 16, color: Colors.white),
-          SizedBox(width: 4.0),
-          Text("Regravação/Reset"),
-        ],
-      ),
-
+      prefix: const Icon(FIcons.rotateCcw, size: 16, color: Colors.white),
+      child: const Text('Regravação/Reset'),
       onPress: () {
         if (isConnected()) {}
       },
@@ -129,15 +112,10 @@ class ConferencesHistory extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FButton(
+      prefix: const Icon(FIcons.clipboardList, size: 16, color: Colors.black),
       onPress: () {},
       style: FButtonStyle.secondary(),
-      child: Row(
-        children: [
-          Icon(FIcons.clipboardList, size: 16, color: Colors.black),
-          SizedBox(width: 4.0),
-          Text("Histórico de conferências"),
-        ],
-      ),
+      child: const Text('Histórico de conferências'),
     );
   }
 }
