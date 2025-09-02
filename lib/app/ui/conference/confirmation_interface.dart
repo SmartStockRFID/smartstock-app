@@ -14,8 +14,12 @@ class ConferenceConfirmationInterface extends StatelessWidget {
         const _ResponsibleEmploye(),
         Text(
           'Confirme que você iniciará esta conferência',
-          style: typography.sm.copyWith(color: context.theme.colors.primary),
+          style: typography.sm.copyWith(
+            color: context.theme.colors.primary,
+            fontWeight: FontWeight.bold,
+          ),
         ),
+        const SizedBox(height: 8.0),
         const _ConnectionChecker(),
       ],
     );
@@ -88,10 +92,11 @@ class _ResponsibleEmploye extends StatelessWidget {
                 const SizedBox(width: 12),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
                       'Ricardo Silva',
-                      style: typography.lg.copyWith(
+                      style: typography.xl2.copyWith(
                         color: context.theme.colors.primary,
                         fontWeight: FontWeight.bold,
                       ),
