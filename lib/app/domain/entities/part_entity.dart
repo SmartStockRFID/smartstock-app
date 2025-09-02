@@ -1,27 +1,17 @@
 class CarPart {
   int id;
   String name;
-  String oemCode;
+  String productCode;
   String description;
   String location;
-  int quantity;
-  double costPrice;
-  double sellingPrice;
-  String carModel;
-  String carYear;
-  String? rfidUid;
+  int quantity = 0;
 
   CarPart({
     required this.id,
     required this.name,
-    required this.oemCode,
+    required this.productCode,
     required this.description,
     required this.location,
-    required this.quantity,
-    required this.costPrice,
-    required this.sellingPrice,
-    required this.carModel,
-    required this.carYear,
-    this.rfidUid,
+    // required this.quantity,
   });
 }
