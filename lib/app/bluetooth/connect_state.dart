@@ -6,15 +6,16 @@ import 'package:smart_stock/app/bluetooth/connection_manager.dart';
 import 'package:smart_stock/app/bluetooth/connnected_state.dart';
 import 'package:smart_stock/app/bluetooth/error_state.dart';
 import 'package:smart_stock/app/bluetooth/permission_denied_state.dart';
+import 'package:smart_stock/app/utils/logger.dart';
 
 class ConnectState extends RetryState {
   StreamSubscription<BluetoothAdapterState>? _adapterStateSubscription;
 
-  ConnectState() : super(origin: ErrorOrigin.connect);
+  ConnectState({required super.manager}) : super(origin: ErrorOrigin.connect);
 
   @override
   Future<BleState> processState() async {
-    final scanResult = connectionManager.lastScanResult;
+    final scanResult = manager.lastScanResult;
     if (scanResult == null) {
       throw FSMException('ConnectState chamado sem scanResult!');
     }
@@ -26,29 +27,25 @@ class ConnectState extends RetryState {
     _adapterStateSubscription = FlutterBluePlus.adapterState.listen((state) {
       if (state == BluetoothAdapterState.off && !promise.isCompleted) {
         logger.w('Bluetooth foi desligado durante a conexão.');
-        promise.complete(BluetoothOffState());
-      } else if (state == BluetoothAdapterState.unauthorized &&
-          !promise.isCompleted) {
+        promise.complete(BluetoothOffState(manager: manager));
+      } else if (state == BluetoothAdapterState.unauthorized && !promise.isCompleted) {
         logger.e('Permissão de Bluetooth revogada enquanto estava conectado.');
-        promise.complete(PermissionDeniedState());
+        promise.complete(PermissionDeniedState(manager: manager));
       }
     });
 
     try {
-      await device.connect(
-        autoConnect: false,
-        timeout: const Duration(seconds: 15),
-      );
+      await device.connect(autoConnect: false, timeout: const Duration(seconds: 15));
       if (device.isConnected && !promise.isCompleted) {
         logger.d('Dispositivo conectado com sucesso.');
-        connectionManager.connectedPistol = device;
-        promise.complete(ConnectedState(connectedPistol: device));
+        manager.connectedPistol = device;
+        promise.complete(ConnectedState(connectedPistol: device, manager: manager));
       }
     } catch (e) {
       logger.e('Falha ao conectar: $e');
       if (!promise.isCompleted) {
         // Let RetryState handle the error
-        throw e;
+        rethrow;
       }
     } finally {
       await _adapterStateSubscription?.cancel();

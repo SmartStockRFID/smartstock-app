@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:smart_stock/app/ui/providers/ble_connection_provider.dart';
 import 'package:smart_stock/app/ui/shared/base_list_widget.dart';
 
 class ConferencePageInterface extends StatelessWidget {
@@ -65,43 +67,53 @@ class ConferencePageInterface extends StatelessWidget {
   }
 }
 
-class _ConsoleWidget extends StatelessWidget {
-  const _ConsoleWidget({super.key});
+class _ConsoleWidget extends ConsumerWidget {
+  const _ConsoleWidget();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final pistolConnection = ref.watch(bleConnectionProvider);
     final typography = context.theme.typography;
-    return FCard(
-      child: Column(
-        children: [
-          Text(
-            'LENDO...',
-            style: typography.sm.copyWith(color: Colors.green, fontWeight: FontWeight.bold),
+
+    return StreamBuilder(
+      stream: pistolConnection.manager.rfidDataStream,
+      builder: (context, snapshot){
+        if(snapshot.data == null){
+          return Placeholder(child: Text('Aguardando leitura...'),);
+        }
+        return FCard(
+          child: Column(
+            children: [
+              Text(
+                'LENDO...',
+                style: typography.sm.copyWith(color: Colors.green, fontWeight: FontWeight.bold),
+              ),
+              Text(
+                snapshot.data ?? 'Produto X',
+                style: typography.xl4.copyWith(
+                  color: context.theme.colors.primary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const Text('Código OEM: 1234567890'),
+              Text(
+                'QUANTIDADE',
+                style: typography.lg.copyWith(color: Colors.grey, fontWeight: FontWeight.bold),
+              ),
+              Text(
+                '25',
+                style: typography.xl5.copyWith(color: Colors.grey, fontWeight: FontWeight.bold),
+              ),
+            ],
           ),
-          Text(
-            'Produto X',
-            style: typography.xl4.copyWith(
-              color: context.theme.colors.primary,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const Text('Código OEM: 1234567890'),
-          Text(
-            'QUANTIDADE',
-            style: typography.lg.copyWith(color: Colors.grey, fontWeight: FontWeight.bold),
-          ),
-          Text(
-            '25',
-            style: typography.xl5.copyWith(color: Colors.grey, fontWeight: FontWeight.bold),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
 
 class _ReadingHistoryWidget extends StatelessWidget {
-  const _ReadingHistoryWidget({super.key});
+  const _ReadingHistoryWidget();
 
   @override
   Widget build(BuildContext context) {

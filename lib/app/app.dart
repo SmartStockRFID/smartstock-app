@@ -20,7 +20,7 @@ class App extends StatelessWidget {
     Enviroment.validate();
 
     return MaterialApp.router(
-      title: "SmartStock",
+      title: 'SmartStock',
       scaffoldMessengerKey: scaffoldMessengerKey,
       routerConfig: _appRouter.config(),
       theme: theme,

@@ -30,14 +30,14 @@ class _StockStatusWidgetState extends ConsumerState<StockStatusWidget> {
 
     switch (stockState.reqStatus) {
       case RequestStatus.idle:
-        return Text("Requisição não iniciada!");
+        return const Text('Requisição não iniciada!');
       case RequestStatus.loading:
-        return Text("Buscando dados do estoque...");
+        return const Text('Buscando dados do estoque...');
       case RequestStatus.success:
-        return Text("Estoque com $productsCount peças");
+        return Text('Estoque com $productsCount peças');
       case RequestStatus.error:
         return Text(
-          stockState.errorMessage ?? "Erro durante busca do estoque.",
+          stockState.errorMessage ?? 'Erro durante busca do estoque.',
         );
     }
   }

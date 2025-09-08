@@ -1,25 +1,29 @@
 import 'dart:async';
+
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:smart_stock/app/bluetooth/base_ble_state.dart';
+import 'package:smart_stock/app/bluetooth/connection_manager.dart';
 import 'package:smart_stock/app/bluetooth/checking_ble_state.dart';
 import 'package:smart_stock/app/bluetooth/fsm_manager.dart';
-import 'package:smart_stock/app/bluetooth/base_ble_state.dart';
 import 'package:smart_stock/app/config/env.dart';
 
 part 'ble_connection_provider.g.dart';
 
-final Guid rfidServiceUUID = Guid(Enviroment.rfidServiceUUID());
+final Guid rfidServiceUUID = Guid(Enviroment.rfidServiceUUID()!);
 
 class BleConnectionState {
   final BleFSM fsm;
   final BleState currentState;
+  final ConnectionManager manager;
 
-  BleConnectionState({required this.fsm, required this.currentState});
+  BleConnectionState({required this.fsm, required this.currentState, required this.manager});
 
   BleConnectionState copyWith({BleState? currentState}) {
     return BleConnectionState(
       fsm: fsm,
       currentState: currentState ?? this.currentState,
+      manager: manager,
     );
   }
 }
@@ -32,7 +36,8 @@ class BleConnection extends _$BleConnection {
   @override
   BleConnectionState build() {
     final fsm = BleFSM();
-    final initialState = CheckingBleState();
+    final manager = ConnectionManager();
+    final initialState = CheckingBleState(manager: manager);
 
     _stateSubscription = fsm.stateStream.listen((newState) {
       if (!_disposed) {
@@ -48,6 +53,6 @@ class BleConnection extends _$BleConnection {
       fsm.dispose();
     });
 
-    return BleConnectionState(fsm: fsm, currentState: initialState);
+    return BleConnectionState(fsm: fsm, currentState: initialState, manager: manager);
   }
 }

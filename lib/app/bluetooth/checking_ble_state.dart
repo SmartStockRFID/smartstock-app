@@ -11,21 +11,22 @@ import 'package:smart_stock/app/utils/logger.dart';
 class CheckingBleState extends NormalBleState {
   StreamSubscription<BluetoothAdapterState>? _btSubscription;
 
+  CheckingBleState({required super.manager});
   @override
   Future<BleState> processState() async {
     if (await FlutterBluePlus.isSupported == false) {
-      return UnsupportedState();
+      return UnsupportedState(manager: manager);
     }
 
     final currentState = FlutterBluePlus.adapterStateNow;
 
     switch (currentState) {
       case BluetoothAdapterState.on:
-        return BluetoothOnState();
+        return BluetoothOnState(manager: manager);
       case BluetoothAdapterState.off:
-        return BluetoothOffState();
+        return BluetoothOffState(manager: manager);
       case BluetoothAdapterState.unauthorized:
-        return PermissionDeniedState();
+        return PermissionDeniedState(manager: manager);
       default:
         return _waitForNextState();
     }
@@ -41,9 +42,7 @@ class CheckingBleState extends NormalBleState {
           case BluetoothAdapterState.on:
           case BluetoothAdapterState.off:
           case BluetoothAdapterState.unauthorized:
-            logger.d(
-              'Estado do adaptador definido para $state, completando a promise.',
-            );
+            logger.d('Estado do adaptador definido para $state, completando a promise.');
             promise.complete(state);
             break;
           default:
@@ -59,14 +58,14 @@ class CheckingBleState extends NormalBleState {
     logger.d('Promise completa, decidindo para qual estado ir.');
     switch (finalState) {
       case BluetoothAdapterState.on:
-        return BluetoothOnState();
+        return BluetoothOnState(manager: manager);
       case BluetoothAdapterState.off:
-        return BluetoothOffState();
+        return BluetoothOffState(manager: manager);
       case BluetoothAdapterState.unauthorized:
-        return PermissionDeniedState();
+        return PermissionDeniedState(manager: manager);
       default:
         // Fallback, but should'nt happen
-        return ErrorState(previousState: ErrorOrigin.scan);
+        return ErrorState(previousState: ErrorOrigin.scan, manager: manager);
     }
   }
 

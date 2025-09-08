@@ -1,6 +1,6 @@
-import 'package:smart_stock/app/ui/themes/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:smart_stock/app/ui/themes/colors.dart';
 
 abstract final class AppTextStyles {
   static TextStyle get titleExtraLarge => GoogleFonts.rubik(

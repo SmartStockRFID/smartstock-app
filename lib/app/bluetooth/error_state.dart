@@ -7,16 +7,16 @@ enum ErrorOrigin { scan, connect, connected }
 class ErrorState extends NormalBleState {
   final ErrorOrigin previousState;
 
-  ErrorState({required this.previousState});
+  ErrorState({required this.previousState, required super.manager});
 
   @override
   Future<BleState> processState() async {
     switch (previousState) {
       case ErrorOrigin.scan:
-        return ScanState();
+        return ScanState(manager: manager);
       case ErrorOrigin.connect:
       case ErrorOrigin.connected:
-        return ConnectState();
+        return ConnectState(manager: manager);
     }
   }
 }

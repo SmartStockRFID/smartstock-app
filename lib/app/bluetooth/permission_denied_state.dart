@@ -8,6 +8,8 @@ import 'package:smart_stock/app/utils/logger.dart';
 class PermissionDeniedState extends NormalBleState {
   StreamSubscription<BluetoothAdapterState>? btSubscription;
 
+  PermissionDeniedState({required super.manager});
+
   @override
   Future<BleState> processState() async {
     logger.d('Processando PermissionDeniedState.');
@@ -34,10 +36,10 @@ class PermissionDeniedState extends NormalBleState {
     // Decide which state to go to AFTER the await has finished
     if (finalState == BluetoothAdapterState.on) {
       logger.d('Promise completa, transicionando para BluetoothOnState.');
-      return BluetoothOnState();
+      return BluetoothOnState(manager: manager);
     } else {
       logger.d('Promise completa, transicionando para BluetoothOffState.');
-      return BluetoothOffState();
+      return BluetoothOffState(manager: manager);
     }
   }
 

@@ -13,7 +13,7 @@ class ConferenceConfirmationPage extends StatelessWidget {
       child: Scaffold(
         backgroundColor: const Color.fromARGB(255, 240, 240, 240),
         appBar: baseAppBar(title: 'Iniciar conferência'),
-        body: ConferenceConfirmationInterface(),
+        body: const ConferenceConfirmationInterface(),
       ),
     );
   }

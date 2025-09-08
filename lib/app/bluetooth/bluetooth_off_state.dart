@@ -9,7 +9,7 @@ import 'package:smart_stock/app/utils/logger.dart';
 class BluetoothOffState extends NormalBleState {
   StreamSubscription<BluetoothAdapterState>? _btSubscription;
 
-  BluetoothOffState();
+  BluetoothOffState({required super.manager});
 
   @override
   Future<BleState> processState() async {
@@ -47,7 +47,7 @@ class BluetoothOffState extends NormalBleState {
     _btSubscription = null;
 
     logger.d('Promise completa, transicionando para BluetoothOnState.');
-    return BluetoothOnState();
+    return BluetoothOnState(manager: manager);
   }
 
   @override

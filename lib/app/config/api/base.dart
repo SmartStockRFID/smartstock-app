@@ -7,7 +7,7 @@ import 'package:smart_stock/app/config/env.dart';
 import 'package:smart_stock/app/config/exceptions.dart';
 
 class APIConnector {
-  static final String baseUrl = Enviroment.backendBaseURL();
+  static final String baseUrl = Enviroment.backendBaseURL()!;
   static const defaultHeaders = {'Content-Type': 'application/json', 'Accept': 'application/json'};
 
   /// Generic GET

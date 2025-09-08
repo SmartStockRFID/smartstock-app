@@ -1,3 +1,5 @@
+// lib/app/bluetooth/connnected_state.dart
+
 import 'dart:async';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:smart_stock/app/bluetooth/base_ble_state.dart';
@@ -11,7 +13,7 @@ class ConnectedState extends NormalBleState {
   StreamSubscription? _pistolSub;
   StreamSubscription? _adapterSub;
 
-  ConnectedState({required this.connectedPistol});
+  ConnectedState({required this.connectedPistol, required super.manager});
 
   @override
   Future<BleState> processState() async {
@@ -19,12 +21,24 @@ class ConnectedState extends NormalBleState {
 
     final promise = Completer<BleState>();
 
+    // --- ADIÇÃO IMPORTANTE ---
+    // Inicia a escuta das características assim que entramos neste estado.
+    try {
+      await manager.readCharacteristic(connectedPistol);
+      logger.d('✅ Assinatura de notificações ativada com sucesso!');
+    } catch (e) {
+      logger.e('❌ Falha ao ativar notificações: $e');
+      // Se falhar, voltamos ao estado anterior para tentar reconectar.
+      return BluetoothOnState(manager: manager);
+    }
+    // --- FIM DA ADIÇÃO ---
+
+
     // Ouve por mudanças no estado da conexão do dispositivo
     _pistolSub = connectedPistol.connectionState.listen((state) {
-      if (state == BluetoothConnectionState.disconnected &&
-          !promise.isCompleted) {
+      if (state == BluetoothConnectionState.disconnected && !promise.isCompleted) {
         logger.d('Dispositivo desconectado, retornando para BluetoothOnState');
-        promise.complete(BluetoothOnState());
+        promise.complete(BluetoothOnState(manager: manager));
       }
     });
 
@@ -32,11 +46,10 @@ class ConnectedState extends NormalBleState {
     _adapterSub = FlutterBluePlus.adapterState.listen((state) {
       if (state == BluetoothAdapterState.off && !promise.isCompleted) {
         logger.w('Bluetooth foi desligado enquanto estava conectado.');
-        promise.complete(BluetoothOffState());
-      } else if (state == BluetoothAdapterState.unauthorized &&
-          !promise.isCompleted) {
+        promise.complete(BluetoothOffState(manager: manager));
+      } else if (state == BluetoothAdapterState.unauthorized && !promise.isCompleted) {
         logger.e('Permissão de Bluetooth revogada enquanto estava conectado.');
-        promise.complete(PermissionDeniedState());
+        promise.complete(PermissionDeniedState(manager: manager));
       }
     });
 

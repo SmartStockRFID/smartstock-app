@@ -78,7 +78,7 @@ class LabelingButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final pistolConnection = ref.watch(bleConnectionProvider);
-    isConnected() => pistolConnection.fsm.currentState is ConnectedState;
+    bool isConnected() => pistolConnection.fsm.currentState is ConnectedState;
     return FButton(
       prefix: const Icon(FIcons.squarePen, size: 16, color: Colors.white),
       child: const Text('Etiquetagem'),

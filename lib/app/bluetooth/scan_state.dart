@@ -8,14 +8,14 @@ import 'package:smart_stock/app/bluetooth/connection_manager.dart';
 import 'package:smart_stock/app/bluetooth/error_state.dart';
 import 'package:smart_stock/app/bluetooth/permission_denied_state.dart';
 import 'package:smart_stock/app/config/env.dart';
+import 'package:smart_stock/app/utils/logger.dart';
 
-final Guid rfidServiceUUID = Guid(Enviroment.rfidServiceUUID());
+final Guid rfidServiceUUID = Guid(Enviroment.rfidServiceUUID()!);
 
 class ScanState extends RetryState {
   StreamSubscription? _scanSubscription;
   StreamSubscription? _adapterStateSubscription;
-
-  ScanState() : super(origin: ErrorOrigin.scan);
+  ScanState({required super.manager}) : super(origin: ErrorOrigin.scan);
 
   @override
   Future<BleState> processState() async {
@@ -30,11 +30,10 @@ class ScanState extends RetryState {
     _adapterStateSubscription = FlutterBluePlus.adapterState.listen((state) {
       if (state == BluetoothAdapterState.off && !promise.isCompleted) {
         logger.w('Bluetooth foi desligado durante o scan.');
-        promise.complete(BluetoothOffState());
-      } else if (state == BluetoothAdapterState.unauthorized &&
-          !promise.isCompleted) {
+        promise.complete(BluetoothOffState(manager: manager));
+      } else if (state == BluetoothAdapterState.unauthorized && !promise.isCompleted) {
         logger.e('Permissão de Bluetooth revogada durante o scan.');
-        promise.complete(PermissionDeniedState());
+        promise.complete(PermissionDeniedState(manager: manager));
       }
     });
 
@@ -42,8 +41,8 @@ class ScanState extends RetryState {
       if (results.isNotEmpty && !promise.isCompleted) {
         final scannedPistol = results.first;
         logger.d('Dispositivo encontrado: ${scannedPistol.device.name}');
-        connectionManager.lastScanResult = scannedPistol;
-        promise.complete(ConnectState());
+        manager.lastScanResult = scannedPistol;
+        promise.complete(ConnectState(manager: manager));
       }
     });
 
@@ -57,17 +56,15 @@ class ScanState extends RetryState {
         const Duration(seconds: 16),
         onTimeout: () {
           logger.w('Scan timeout - nenhum dispositivo encontrado.');
-          return ErrorState(previousState: ErrorOrigin.scan);
+          return ErrorState(previousState: ErrorOrigin.scan, manager: manager);
         },
       );
 
       return nextState;
     } on PlatformException catch (e) {
       if (e.message?.contains('Bluetooth must be turned on') ?? false) {
-        logger.e(
-          'Scan falhou pois o Bluetooth não está pronto. Indo para BluetoothOffState.',
-        );
-        return BluetoothOffState();
+        logger.e('Scan falhou pois o Bluetooth não está pronto. Indo para BluetoothOffState.');
+        return BluetoothOffState(manager: manager);
       }
       rethrow;
     } catch (e) {

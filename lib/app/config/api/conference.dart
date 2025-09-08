@@ -6,10 +6,10 @@ class ConferenceAPI {
 
   static Future<http.Response> startConference(String employeeUsername) async {
     final Map<String, dynamic> body = {'username_funcionario': employeeUsername};
-    return await APIConnector.post('conferencia/iniciar_conferencia', body);
+    return APIConnector.post('conferencia/iniciar_conferencia', body);
   }
 
   static Future<http.Response> getAllConferences() async {
-    return await APIConnector.get('conferencia/');
+    return APIConnector.get('conferencia');
   }
 }

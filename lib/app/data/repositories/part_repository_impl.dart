@@ -12,14 +12,14 @@ class CarPartRepositoryImpl implements CarPartRepository {
     final response = await CarPartAPI.getCarParts();
 
     if (response.statusCode == 200) {
-      List<dynamic> body = jsonDecode(response.body);
+      final List<dynamic> body = jsonDecode(response.body);
 
       final List<CarPart> parts = GetAllCarPartsDTO.fromJsonList(body);
 
       return parts;
     } else {
       throw APIException(
-        "Erro dentro de CarPartRepositoryImpl getAllCarParts.",
+        'Erro dentro de CarPartRepositoryImpl getAllCarParts.',
         code: response.statusCode,
       );
     }

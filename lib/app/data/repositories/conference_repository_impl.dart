@@ -18,7 +18,7 @@ class ConferenceRepositoryImpl implements ConferenceRepository {
     }
   }
 
-  // TODO: Fazer filtros de busca nessa rota
+  // TODO: Fazer filtros de busca nessa rotax
   @override
   Future<List<ConferenceMinimalDTO>> getAllConferences() async {
     final response = await ConferenceAPI.getAllConferences();

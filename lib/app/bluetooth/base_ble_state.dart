@@ -1,7 +1,6 @@
-import 'package:logger/logger.dart';
+import 'package:smart_stock/app/bluetooth/connection_manager.dart';
 import 'package:smart_stock/app/bluetooth/error_state.dart';
 import 'package:smart_stock/app/config/exceptions.dart';
-import 'package:smart_stock/app/ui/utils/toast_utils.dart';
 
 import '../utils/logger.dart';
 
@@ -10,12 +9,16 @@ class FSMException extends InternalSystemException {
 }
 
 abstract class BleState {
+  ConnectionManager manager;
+
+  BleState({required this.manager});
+
   Future<BleState> process();
   void dispose() {}
 }
 
 abstract class NormalBleState extends BleState {
-  final toast = ToastUtils();
+  NormalBleState({required super.manager});
 
   Future<BleState> processState();
 
@@ -24,21 +27,18 @@ abstract class NormalBleState extends BleState {
     try {
       return await processState();
     } on Exception catch (e) {
-      logger.e('Exception in ${runtimeType}: $e');
-      String errorMessage = e.toString().replaceFirst('Exception: ', '');
+      logger.e('Exception in $runtimeType: $e');
+      final String errorMessage = e.toString().replaceFirst('Exception: ', '');
       throw FSMException(errorMessage);
     }
   }
 }
 
 abstract class RetryState extends BleState {
-  final logger = Logger();
-  final toast = ToastUtils();
   late ErrorOrigin origin;
   final int _maxRetries;
 
-  RetryState({required this.origin, int maxRetries = 3})
-    : _maxRetries = maxRetries;
+  RetryState({required this.origin, int maxRetries = 3, required super.manager}) : _maxRetries = maxRetries;
 
   Future<BleState> processState();
 
@@ -49,7 +49,7 @@ abstract class RetryState extends BleState {
 
     while (attempt < _maxRetries) {
       try {
-        logger.d('Attempt ${attempt + 1}/$_maxRetries for ${runtimeType}');
+        logger.d('Attempt ${attempt + 1}/$_maxRetries for $runtimeType');
         return await processState();
       } on Exception catch (e) {
         logger.e('Attempt ${attempt + 1} failed: $e');
@@ -57,15 +57,15 @@ abstract class RetryState extends BleState {
         attempt++;
 
         if (attempt < _maxRetries) {
-          logger.d("Retrying ($attempt/$_maxRetries)...");
+          logger.d('Retrying ($attempt/$_maxRetries)...');
           await Future.delayed(Duration(seconds: attempt));
         } else {
-          logger.e("Max retries reached. Last exception: $lastException");
+          logger.e('Max retries reached. Last exception: $lastException');
           break;
         }
       }
     }
 
-    return ErrorState(previousState: origin);
+    return ErrorState(previousState: origin, manager: manager);
   }
 }

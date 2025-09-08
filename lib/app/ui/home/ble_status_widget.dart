@@ -78,12 +78,12 @@ class BleStatusWidget extends ConsumerWidget {
               child: Row(
                 children: [
                   Icon(icon, size: 48.0, color: color),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Text(
                     statusText,
                     style: TextStyle(fontWeight: FontWeight.bold, color: color),
                   ),
-                  SizedBox(height: 8, width: 16),
+                  const SizedBox(height: 8, width: 16),
                   ElevatedButton(
                     onPressed: () {
                       ToastUtils().showToast(

@@ -8,8 +8,7 @@ class BleFSM {
 
   bool _isProcessing = false;
 
-  final StreamController<BleState> _stateController =
-      StreamController<BleState>.broadcast();
+  final StreamController<BleState> _stateController = StreamController<BleState>.broadcast();
   Stream<BleState> get stateStream => _stateController.stream;
 
   void start(BleState initialState) {

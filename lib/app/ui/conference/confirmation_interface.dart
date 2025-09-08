@@ -67,7 +67,7 @@ class ConferenceConfirmationInterface extends StatelessWidget {
 }
 
 class _ResponsibleEmploye extends StatelessWidget {
-  const _ResponsibleEmploye({super.key});
+  const _ResponsibleEmploye();
 
   @override
   Widget build(BuildContext context) {
@@ -114,7 +114,7 @@ class _ResponsibleEmploye extends StatelessWidget {
 }
 
 class _ConnectionChecker extends StatelessWidget {
-  const _ConnectionChecker({super.key});
+  const _ConnectionChecker();
 
   @override
   Widget build(BuildContext context) {
