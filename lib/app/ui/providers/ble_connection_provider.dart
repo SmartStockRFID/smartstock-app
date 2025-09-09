@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:smart_stock/app/bluetooth/base_ble_state.dart';
-import 'package:smart_stock/app/bluetooth/connection_manager.dart';
 import 'package:smart_stock/app/bluetooth/checking_ble_state.dart';
+import 'package:smart_stock/app/bluetooth/connection_manager.dart';
 import 'package:smart_stock/app/bluetooth/fsm_manager.dart';
 import 'package:smart_stock/app/config/env.dart';
 

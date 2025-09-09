@@ -59,8 +59,8 @@ class ConnectionManager {
         }
       }
     } catch (e) {
-      logger.e("Failed to read characteristic: $e");
-      throw Exception("Failed to read data from pistol. Please try again.");
+      logger.e('Failed to read characteristic: $e');
+      throw Exception('Failed to read data from pistol. Please try again.');
     }
   }
 

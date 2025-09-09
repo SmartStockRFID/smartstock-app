@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:smart_stock/app/bluetooth/base_ble_state.dart';
 import 'package:smart_stock/app/bluetooth/bluetooth_off_state.dart';
-import 'package:smart_stock/app/bluetooth/connection_manager.dart';
 import 'package:smart_stock/app/bluetooth/connnected_state.dart';
 import 'package:smart_stock/app/bluetooth/error_state.dart';
 import 'package:smart_stock/app/bluetooth/permission_denied_state.dart';

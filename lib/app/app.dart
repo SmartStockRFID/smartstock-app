@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:forui/forui.dart';
 import 'package:smart_stock/app/config/env.dart';
 import 'package:smart_stock/app/routing/router.dart';
 import 'package:smart_stock/app/ui/globals.dart';
-
-import 'package:forui/forui.dart';
 
 class App extends StatelessWidget {
   final _appRouter = AppRouter();

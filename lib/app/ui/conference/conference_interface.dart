@@ -79,7 +79,7 @@ class _ConsoleWidget extends ConsumerWidget {
       stream: pistolConnection.manager.rfidDataStream,
       builder: (context, snapshot){
         if(snapshot.data == null){
-          return Placeholder(child: Text('Aguardando leitura...'),);
+          return const Placeholder(child: Text('Aguardando leitura...'),);
         }
         return FCard(
           child: Column(
