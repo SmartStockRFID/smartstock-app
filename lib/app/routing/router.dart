@@ -1,6 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:smart_stock/app/ui/conference/conference_page.dart';
-import 'package:smart_stock/app/ui/conference/confirmation_page.dart';
+import 'package:smart_stock/app/ui/conference_confirmation/confirmation_page.dart';
 import 'package:smart_stock/app/ui/home/home_page.dart';
 
 part 'router.gr.dart';
