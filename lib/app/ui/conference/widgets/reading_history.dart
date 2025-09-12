@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
+import 'package:logger/logger.dart';
 import 'package:smart_stock/app/ui/providers/conference_provider.dart';
 import 'package:smart_stock/app/ui/shared/base_list_widget.dart';
+import 'package:intl/intl.dart';
 
 class ReadingHistoryWidget extends StatelessWidget {
   final ConferenceManagerState confState;
@@ -43,7 +45,13 @@ class ReadingHistoryWidget extends StatelessWidget {
                           Text('OEM: ${reading.productOEM}'),
                         ],
                       ),
-                      const Row(children: [Text('10'), SizedBox(width: 16), Text('14:22:12')]),
+                      Row(
+                        children: [
+                          Text(reading.tagCount.toString()),
+                          const SizedBox(width: 16),
+                          Text(DateFormat.Hm().format(reading.readTags.last.readTimestamp)),
+                        ],
+                      ),
                     ],
                   ),
                 );

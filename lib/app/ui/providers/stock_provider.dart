@@ -14,17 +14,9 @@ class StockState {
   final RequestStatus reqStatus;
   final String? errorMessage;
 
-  const StockState({
-    this.reqStatus = RequestStatus.idle,
-    this.parts,
-    this.errorMessage,
-  });
+  const StockState({this.reqStatus = RequestStatus.idle, this.parts, this.errorMessage});
 
-  StockState copyWith({
-    List<CarPart>? parts,
-    RequestStatus? reqStatus,
-    String? errorMessage,
-  }) {
+  StockState copyWith({List<CarPart>? parts, RequestStatus? reqStatus, String? errorMessage}) {
     return StockState(
       parts: parts ?? this.parts,
       reqStatus: reqStatus ?? this.reqStatus,
@@ -37,10 +29,11 @@ class StockState {
 class Stock extends _$Stock {
   @override
   StockState build() {
+    _fetchData();
     return const StockState();
   }
 
-  Future<void> fetchData() async {
+  Future<void> _fetchData() async {
     state = state.copyWith(reqStatus: RequestStatus.loading);
     final respository = injector.get<CarPartRepository>();
     try {

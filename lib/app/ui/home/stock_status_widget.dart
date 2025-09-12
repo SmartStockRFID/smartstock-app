@@ -2,24 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_stock/app/ui/providers/stock_provider.dart';
 
-class StockStatusWidget extends ConsumerStatefulWidget {
+class StockStatusWidget extends ConsumerWidget {
   const StockStatusWidget({super.key});
 
   @override
-  ConsumerState<StockStatusWidget> createState() => _StockStatusWidgetState();
-}
-
-class _StockStatusWidgetState extends ConsumerState<StockStatusWidget> {
-  @override
-  void initState() {
-    super.initState();
-    Future.microtask(() {
-      ref.read(stockProvider.notifier).fetchData();
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final stockState = ref.watch(stockProvider);
 
     int productsCount = 0;
@@ -36,9 +23,7 @@ class _StockStatusWidgetState extends ConsumerState<StockStatusWidget> {
       case RequestStatus.success:
         return Text('Estoque com $productsCount peças');
       case RequestStatus.error:
-        return Text(
-          stockState.errorMessage ?? 'Erro durante busca do estoque.',
-        );
+        return Text(stockState.errorMessage ?? 'Erro durante busca do estoque.');
     }
   }
 }

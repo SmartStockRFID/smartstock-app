@@ -7,7 +7,6 @@ class ConsoleWidget extends StatelessWidget {
 
   const ConsoleWidget({required this.confState});
 
- 
   @override
   Widget build(BuildContext context) {
     final typography = context.theme.typography;
@@ -15,7 +14,32 @@ class ConsoleWidget extends StatelessWidget {
     return Builder(
       builder: (context) {
         if (confState.readings.isEmpty) {
-          return const Text('Aguardando tags...');
+          return FCard(
+            child: Column(
+              children: [
+                Text(
+                  'AGUARDANDO LEITURA...',
+                  style: typography.sm.copyWith(color: Colors.green, fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  '...',
+                  style: typography.xl4.copyWith(
+                    color: context.theme.colors.primary,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text('OEM: ---'),
+                Text(
+                  'QUANTIDADE TOTAL',
+                  style: typography.lg.copyWith(color: Colors.grey, fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  '--',
+                  style: typography.xl5.copyWith(color: Colors.grey, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          );
         }
 
         return FCard(
@@ -26,19 +50,19 @@ class ConsoleWidget extends StatelessWidget {
                 style: typography.sm.copyWith(color: Colors.green, fontWeight: FontWeight.bold),
               ),
               Text(
-                confState.readings.last.productOEM,
+                'Desconhecido',
                 style: typography.xl4.copyWith(
                   color: context.theme.colors.primary,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const Text('Código OEM: 1234567890'),
+              Text('OEM: ${confState.readings.last.productOEM}'),
               Text(
                 'QUANTIDADE TOTAL',
                 style: typography.lg.copyWith(color: Colors.grey, fontWeight: FontWeight.bold),
               ),
               Text(
-                '1',
+                confState.readings.last.tagCount.toString(),
                 style: typography.xl5.copyWith(color: Colors.grey, fontWeight: FontWeight.bold),
               ),
             ],

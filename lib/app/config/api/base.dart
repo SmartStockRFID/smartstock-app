@@ -23,8 +23,8 @@ class APIConnector {
     }
   }
 
-  /// Generic POST
-  static Future<http.Response> post(String endpoint, Map<String, dynamic> body) async {
+  /// Generic POST -> TODO: tipar esse dynamic melhor
+  static Future<http.Response> post(String endpoint, dynamic body) async {
     final url = Uri.parse('$baseUrl/$endpoint');
     try {
       final response = await http.post(url, headers: defaultHeaders, body: jsonEncode(body));
