@@ -15,7 +15,7 @@ dependencies:
   flutter_offline: ^5.0.0
   flutter_riverpod: ^2.6.1
   flutter_screenutil: ^5.9.3
-  forui: ^0.14.1
+  forui: ^0.15.1
   get_it: ^8.2.0
   google_fonts: ^6.3.1
   http: ^1.5.0

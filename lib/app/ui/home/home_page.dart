@@ -83,7 +83,9 @@ class LabelingButton extends ConsumerWidget {
       prefix: const Icon(FIcons.squarePen, size: 16, color: Colors.white),
       child: const Text('Etiquetagem'),
       onPress: () {
-        if (isConnected()) {}
+        if (isConnected()) {
+          context.router.push(const LabelingRoute());
+        }
       },
     );
   }

@@ -57,3 +57,19 @@ class HomeRoute extends PageRouteInfo<void> {
     },
   );
 }
+
+/// generated route for
+/// [LabelingPage]
+class LabelingRoute extends PageRouteInfo<void> {
+  const LabelingRoute({List<PageRouteInfo>? children})
+    : super(LabelingRoute.name, initialChildren: children);
+
+  static const String name = 'LabelingRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const LabelingPage();
+    },
+  );
+}
