@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:smart_stock/app/config/env.dart';
+import 'package:smart_stock/app/domain/objects/change_mode.dart';
 import 'package:smart_stock/app/utils/logger.dart';
 
 final Guid rfidCharacteristicUUID = Guid(Enviroment.rfidCharacteristicUUID()!);
@@ -40,7 +41,7 @@ class ConnectionManager {
               try {
                 _targetCharacteristic = characteristic;
                 await characteristic.setNotifyValue(true);
-                characteristic.onValueReceived.listen((value){
+                characteristic.onValueReceived.listen((value) {
                   final data = utf8.decode(value);
                   _rfidDataController.add(data);
                   logger.d('Data read successfully: $data');
@@ -64,19 +65,12 @@ class ConnectionManager {
     }
   }
 
- 
-}
-
-
-// ignore: avoid_classes_with_only_static_members
-abstract final class DataTransferManager {
-
-
-   static Future<void> writeCharacteristic(BluetoothDevice? connectedPistol) async {
+  
+  Future<void> enterOnReadMode(BluetoothDevice? connectedPistol) async {
     if (connectedPistol == null) {
       return;
     }
-    logger.d('Trying to writeData');
+    logger.d('Trying to enter on ReadMOde on ConnectionManager!');
     try {
       final List<BluetoothService> services = await connectedPistol.discoverServices();
       for (final BluetoothService service in services) {
@@ -85,17 +79,19 @@ abstract final class DataTransferManager {
             bool success = false;
             for (int attempt = 1; attempt <= 3; attempt++) {
               try {
-                const writeModeCommand = '*writeMode';
-                await characteristic.write(writeModeCommand.codeUnits, withoutResponse: false);
-                logger.d('Command written successfully: $writeModeCommand');
+                await characteristic.write(
+                  jsonEncode(ChangeOperationModeObject.read).codeUnits,
+                  withoutResponse: false,
+                );
+                logger.d('Change mode to Read successfully');
                 success = true;
                 break;
               } catch (e) {
-                logger.e('Write failed (attempt $attempt/3): $e');
+                logger.e('Write to ReadMOde failed (attempt $attempt/3): $e');
               }
             }
             if (!success) {
-              throw Exception('Failed to transfer data. Please try again.');
+              throw Exception('Failed to enter on mode ReadData. Please try again.');
             }
             await Future.delayed(const Duration(milliseconds: 50));
           }
@@ -104,5 +100,50 @@ abstract final class DataTransferManager {
     } catch (e) {}
   }
 
+
+  Future<void> writeCharacteristic(BluetoothDevice? connectedPistol, String productOEM) async {
+    if (connectedPistol == null) {
+      return;
+    }
+    logger.d('Trying to writeData on ConnectionManager!');
+    try {
+      final List<BluetoothService> services = await connectedPistol.discoverServices();
+      for (final BluetoothService service in services) {
+        for (final BluetoothCharacteristic characteristic in service.characteristics) {
+          if (characteristic.uuid == rfidCharacteristicUUID && characteristic.properties.write) {
+            bool success = false;
+            for (int attempt = 1; attempt <= 3; attempt++) {
+              try {
+                await characteristic.write(
+                  jsonEncode(ChangeOperationModeObject.write).codeUnits,
+                  withoutResponse: false,
+                );
+                logger.d('Change mode written successfully');
+
+
+                final writeData = {
+                  'type': 'writeData',
+                  'content': productOEM,
+                };
+                await characteristic.write(
+                  jsonEncode(writeData).codeUnits,
+                  withoutResponse: false,
+                );
+                logger.d('Command written successfully: $writeData');
+                success = true;
+                break;
+              } catch (e) {
+                logger.e('Write failed (attempt $attempt/3): $e');
+              }
+            }
+            if (!success) {
+              throw Exception('Failed to write data. Please try again.');
+            }
+            await Future.delayed(const Duration(milliseconds: 50));
+          }
+        }
+      }
+    } catch (e) {}
+  }
 
 }

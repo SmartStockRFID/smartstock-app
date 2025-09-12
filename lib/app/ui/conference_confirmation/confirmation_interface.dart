@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:smart_stock/app/config/assets.dart';
 import 'package:smart_stock/app/routing/router.dart';
+import 'package:smart_stock/app/ui/providers/ble_connection_provider.dart';
 import 'package:smart_stock/app/ui/providers/conference_provider.dart';
 import 'package:smart_stock/app/ui/providers/stock_provider.dart';
 import 'package:smart_stock/app/ui/shared/loading_widget.dart';
@@ -18,6 +19,8 @@ class _Footer extends ConsumerStatefulWidget {
 class _FooterState extends ConsumerState<_Footer> {
   @override
   Widget build(BuildContext context) {
+    final connectionManager = ref.watch(bleConnectionProvider);
+
     final confManager = ref.read(conferenceManagerProvider.notifier);
     final confState = ref.watch(conferenceManagerProvider);
 
@@ -47,7 +50,12 @@ class _FooterState extends ConsumerState<_Footer> {
           onPress: () async {
             if (confState.initReqStatus == RequestStatus.idle) {
               logger.d('initConference called by INICIAR button!');
-              await confManager.initConference();
+              await Future.wait([
+                confManager.initConference(),
+                connectionManager.manager.enterOnReadMode(
+                  connectionManager.manager.connectedPistol,
+                ),
+              ]);
             }
           },
         ),
