@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:smart_stock/app/ui/providers/conference_provider.dart';
+import 'package:smart_stock/app/ui/providers/stock_provider.dart';
 
-class ConsoleWidget extends StatelessWidget {
+class ConsoleWidget extends ConsumerWidget {
   final ConferenceManagerState confState;
 
   const ConsoleWidget({required this.confState});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final typography = context.theme.typography;
+    final stockState = ref.watch(stockProvider);
 
     return Builder(
       builder: (context) {
@@ -49,13 +52,44 @@ class ConsoleWidget extends StatelessWidget {
                 'LENDO...',
                 style: typography.sm.copyWith(color: Colors.green, fontWeight: FontWeight.bold),
               ),
-              Text(
-                'Desconhecido',
-                style: typography.xl4.copyWith(
-                  color: context.theme.colors.primary,
-                  fontWeight: FontWeight.bold,
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  stockState.when(
+                    data: (parts) {
+                      final productIndex = parts.indexWhere(
+                        (prod) => prod.productCode == confState.readings.last.productOEM,
+                      );
+                      return Text(
+                        parts[productIndex].name,
+                        style: typography.xl4.copyWith(
+                          color: context.theme.colors.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      );
+                    },
+                    error: (Object error, StackTrace stackTrace) {
+                      return Text(
+                        'Desconhecido',
+                        style: typography.xl4.copyWith(
+                          color: context.theme.colors.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      );
+                    },
+                    loading: () {
+                      return Text(
+                        'Procurando...',
+                        style: typography.xl4.copyWith(
+                          color: context.theme.colors.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      );
+                    },
+                  ),
+                ],
               ),
+
               Text('OEM: ${confState.readings.last.productOEM}'),
               Text(
                 'QUANTIDADE TOTAL',

@@ -5,6 +5,9 @@ import 'package:forui/forui.dart';
 import 'package:smart_stock/app/config/assets.dart';
 import 'package:smart_stock/app/routing/router.dart';
 import 'package:smart_stock/app/ui/providers/conference_provider.dart';
+import 'package:smart_stock/app/ui/providers/stock_provider.dart';
+import 'package:smart_stock/app/ui/shared/loading_widget.dart';
+import 'package:smart_stock/app/ui/shared/types.dart';
 import 'package:smart_stock/app/utils/logger.dart';
 
 class _Footer extends ConsumerStatefulWidget {
@@ -138,11 +141,12 @@ class _ResponsibleEmploye extends StatelessWidget {
   }
 }
 
-class _ConnectionChecker extends StatelessWidget {
+class _ConnectionChecker extends ConsumerWidget {
   const _ConnectionChecker();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final stockState = ref.watch(stockProvider);
     final typography = context.theme.typography;
     return FCard(
       title: Text(
@@ -163,7 +167,17 @@ class _ConnectionChecker extends StatelessWidget {
           ),
           Row(
             children: [
-              Checkbox(value: true, onChanged: (value) {}),
+              stockState.when(
+                data: (parts) {
+                  return Checkbox(value: true, onChanged: (value) {});
+                },
+                error: (e, stackTrace) {
+                  return const Icon(FIcons.x, size: 16.0, color: Colors.red);
+                },
+                loading: () {
+                  return const LoadingWidget();
+                },
+              ),
               const Text('Lista de produtos atualizada'),
             ],
           ),

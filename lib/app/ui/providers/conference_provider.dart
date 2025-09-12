@@ -3,11 +3,11 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:smart_stock/app/data/repositories/conference_repository_impl.dart';
 
 import 'package:smart_stock/app/domain/objects/reading_object.dart';
+import 'package:smart_stock/app/ui/shared/types.dart';
 import 'package:smart_stock/app/utils/logger.dart';
 
 part 'conference_provider.g.dart';
 
-enum RequestStatus { idle, loading, success, error }
 
 @immutable
 class ReadTag {

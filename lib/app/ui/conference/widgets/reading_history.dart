@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:logger/logger.dart';
 import 'package:smart_stock/app/ui/providers/conference_provider.dart';
+import 'package:smart_stock/app/ui/providers/stock_provider.dart';
 import 'package:smart_stock/app/ui/shared/base_list_widget.dart';
 import 'package:intl/intl.dart';
 
-class ReadingHistoryWidget extends StatelessWidget {
+class ReadingHistoryWidget extends ConsumerWidget {
   final ConferenceManagerState confState;
 
   const ReadingHistoryWidget({required this.confState});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final typography = context.theme.typography;
+    final stockState = ref.watch(stockProvider);
     return SizedBox(
       height: 200,
       child: DecoratedBox(
@@ -41,7 +44,27 @@ class ReadingHistoryWidget extends StatelessWidget {
                     children: [
                       Column(
                         children: [
-                          const Text('Produto desconhecido'),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              stockState.when(
+                                data: (parts) {
+                                  final productIndex = parts.indexWhere(
+                                    (prod) =>
+                                        prod.productCode == confState.readings.last.productOEM,
+                                  );
+                                  return Text(parts[productIndex].name);
+                                },
+                                error: (Object error, StackTrace stackTrace) {
+                                  return const Text('Desconhecido');
+                                },
+                                loading: () {
+                                  return const Text('Procurando...');
+                                },
+                              ),
+                            ],
+                          ),
+
                           Text('OEM: ${reading.productOEM}'),
                         ],
                       ),

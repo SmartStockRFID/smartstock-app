@@ -6,7 +6,7 @@ part of 'conference_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$conferenceManagerHash() => r'1fbed065ca6553dc034c7967398cd60f9d089e58';
+String _$conferenceManagerHash() => r'7bac74102751f271dc3cfb0a47f7c6daad4a93ed';
 
 /// See also [ConferenceManager].
 @ProviderFor(ConferenceManager)

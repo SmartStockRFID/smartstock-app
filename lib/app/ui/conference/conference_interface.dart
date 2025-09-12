@@ -9,6 +9,7 @@ import 'package:smart_stock/app/ui/conference/widgets/console_widget.dart';
 import 'package:smart_stock/app/ui/conference/widgets/reading_history.dart';
 import 'package:smart_stock/app/ui/providers/conference_ble_listener_provider.dart';
 import 'package:smart_stock/app/ui/providers/conference_provider.dart';
+import 'package:smart_stock/app/ui/shared/types.dart';
 import 'package:smart_stock/app/utils/logger.dart';
 
 class ConferencePageInterface extends ConsumerWidget {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_stock/app/ui/providers/stock_provider.dart';
+import 'package:smart_stock/app/utils/logger.dart';
 
 class StockStatusWidget extends ConsumerWidget {
   const StockStatusWidget({super.key});
@@ -9,21 +10,21 @@ class StockStatusWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final stockState = ref.watch(stockProvider);
 
-    int productsCount = 0;
-
-    if (stockState.reqStatus == RequestStatus.success) {
-      productsCount = stockState.parts?.length ?? 0;
-    }
-
-    switch (stockState.reqStatus) {
-      case RequestStatus.idle:
-        return const Text('Requisição não iniciada!');
-      case RequestStatus.loading:
-        return const Text('Buscando dados do estoque...');
-      case RequestStatus.success:
-        return Text('Estoque com $productsCount peças');
-      case RequestStatus.error:
-        return Text(stockState.errorMessage ?? 'Erro durante busca do estoque.');
-    }
+    return Column(
+      children: [
+        stockState.when(
+          data: (parts) {
+            return Text('Estoque com ${parts.length} peças');
+          },
+          error: (e, stackTrace) {
+            logger.e('Erro durante busca do estoque. $e, $stackTrace');
+            return const Text('Erro durante busca do estoque.');
+          },
+          loading: () {
+            return const Text('Buscando dados do estoque...');
+          },
+        ),
+      ],
+    );
   }
 }
