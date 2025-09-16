@@ -1,76 +1,10 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:smart_stock/app/config/assets.dart';
-import 'package:smart_stock/app/routing/router.dart';
-import 'package:smart_stock/app/ui/providers/ble_connection_provider.dart';
-import 'package:smart_stock/app/ui/providers/conference_provider.dart';
+import 'package:smart_stock/app/ui/conference_confirmation/widgets/footer_widget.dart';
 import 'package:smart_stock/app/ui/providers/stock_provider.dart';
 import 'package:smart_stock/app/ui/shared/loading_widget.dart';
-import 'package:smart_stock/app/ui/shared/types.dart';
-import 'package:smart_stock/app/utils/logger.dart';
-
-class _Footer extends ConsumerStatefulWidget {
-  @override
-  ConsumerState<_Footer> createState() => _FooterState();
-}
-
-class _FooterState extends ConsumerState<_Footer> {
-  @override
-  Widget build(BuildContext context) {
-    final connectionManager = ref.watch(bleConnectionProvider);
-
-    final confManager = ref.read(conferenceManagerProvider.notifier);
-    final confState = ref.watch(conferenceManagerProvider);
-
-    final typography = context.theme.typography;
-
-    if (confState.initReqStatus == RequestStatus.success) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          context.router.replaceAll([const ConferenceRoute()]);
-        }
-      });
-    }
-
-    return Column(
-      children: [
-        Text(
-          'Mantenha a pistola próxima durante toda a conferência. Se estiver offline, a sincronização ocorrerá quando a conexão for reestabelecida.',
-          style: typography.xs.copyWith(color: context.theme.colors.primary),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 8.0),
-        FButton(
-          child: confState.initReqStatus == RequestStatus.loading
-              ? const Text('INICIANDO...')
-              : const Text('INICIAR CONFERÊNCIA'),
-          // isLoading: false,
-          onPress: () async {
-            if (confState.initReqStatus == RequestStatus.idle) {
-              logger.d('initConference called by INICIAR button!');
-              await Future.wait([
-                confManager.initConference(),
-                connectionManager.manager.enterOnReadMode(
-                  connectionManager.manager.connectedPistol,
-                ),
-              ]);
-            }
-          },
-        ),
-        const SizedBox(height: 8.0),
-        FButton(
-          style: FButtonStyle.secondary(),
-          child: const Text('VOLTAR'),
-          onPress: () {
-            context.router.pop(const HomeRoute());
-          },
-        ),
-      ],
-    );
-  }
-}
 
 class ConferenceConfirmationInterface extends StatelessWidget {
   const ConferenceConfirmationInterface({super.key});
@@ -100,11 +34,13 @@ class ConferenceConfirmationInterface extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [_buildMainContent(context), _Footer()],
+        children: [_buildMainContent(context), Footer()],
       ),
     );
   }
 }
+
+
 
 class _ResponsibleEmploye extends StatelessWidget {
   const _ResponsibleEmploye();

@@ -71,14 +71,16 @@ class _FooterState extends ConsumerState<_Footer> {
               title: const Text('Conferência cancelada com sucesso!'),
               body: const Text(''),
               actions: [
-                FButton(onPress: () =>  context.router.popAndPush(const HomeRoute()), child: const Text('Continuar')),
+                FButton(
+                  onPress: () => context.router.popAndPush(const HomeRoute()),
+                  child: const Text('Continuar'),
+                ),
               ],
             ),
           );
         }
       });
-    }
-    else if (confState.finishReqStatus == RequestStatus.success) {
+    } else if (confState.finishReqStatus == RequestStatus.success) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           showFDialog(
@@ -97,7 +99,10 @@ class _FooterState extends ConsumerState<_Footer> {
               title: const Text('Conferência finalizada com sucesso!'),
               body: const Text(''),
               actions: [
-                FButton(onPress: () =>  context.router.popAndPush(const HomeRoute()), child: const Text('Continuar')),
+                FButton(
+                  onPress: () => context.router.popAndPush(const HomeRoute()),
+                  child: const Text('Continuar'),
+                ),
               ],
             ),
           );
@@ -128,7 +133,9 @@ class _FooterState extends ConsumerState<_Footer> {
               style: FButtonStyle.secondary(),
               prefix: const Icon(FIcons.pause, size: 16, color: Colors.black),
               child: const Text('PAUSAR'),
-              onPress: () => showFDialog(
+              onPress: () {
+                confManager.pauseConference();
+                showFDialog(
                 style: context.theme.dialogStyle
                     .copyWith(
                       barrierFilter: (animation) => ImageFilter.compose(
@@ -146,12 +153,16 @@ class _FooterState extends ConsumerState<_Footer> {
                   actions: [
                     FButton(
                       prefix: const Icon(FIcons.play, size: 16, color: Colors.white),
-                      onPress: () => Navigator.of(context).pop(),
+                        onPress: () {
+                          Navigator.of(context).pop();
+                          confManager.resumeConference();
+                        },
                       child: const Text('Continuar'),
                     ),
                   ],
                 ),
-              ),
+                );
+              },
             ),
             FButton(
               style: FButtonStyle.destructive(),
@@ -160,9 +171,47 @@ class _FooterState extends ConsumerState<_Footer> {
                   ? const Text('CANCELANDO')
                   : const Text('CANCELAR'),
               onPress: () async {
+                showFDialog(
+                  context: context,
+                  style: context.theme.dialogStyle
+                      .copyWith(
+                        barrierFilter: (animation) => ImageFilter.compose(
+                          outer: ImageFilter.blur(sigmaX: animation * 5, sigmaY: animation * 5),
+                          inner: ColorFilter.mode(context.theme.colors.barrier, BlendMode.srcOver),
+                        ),
+                      )
+                      .call,
+                  builder: (context, style, animation) => FDialog(
+                    style: style.call,
+                    animation: animation,
+                    title: const Text('Você tem certeza?'),
+                    body: const Column(
+                      children: [
+                        Text(
+                          'Essa ação não pode ser desfeita. Todo o progresso da conferência atual será perdido.',
+                        ),
+                        SizedBox(height: 15),
+                      ],
+                    ),
+                    actions: [
+                      FButton(
+                        style: FButtonStyle.outline(),
+                        onPress: () => Navigator.of(context).pop(),
+                        child: const Text('Voltar'),
+                      ),
+                      FButton(
+                        onPress: () async {
+                          Navigator.of(context).pop();
                 if (confState.cancelReqStatus == RequestStatus.idle) {
                   await confManager.cancelConference();
                 }
+                        },
+                        style: FButtonStyle.destructive(),
+                        child: const Text('Cancelar'),
+                      ),
+                    ],
+                  ),
+                );
               },
             ),
           ],
@@ -170,12 +219,48 @@ class _FooterState extends ConsumerState<_Footer> {
         const SizedBox(height: 8.0),
         FButton(
           onPress: () async {
-            logger.d('Press on FinishButton!');
+            showFDialog(
+              context: context,
+              style: context.theme.dialogStyle
+                  .copyWith(
+                    barrierFilter: (animation) => ImageFilter.compose(
+                      outer: ImageFilter.blur(sigmaX: animation * 5, sigmaY: animation * 5),
+                      inner: ColorFilter.mode(context.theme.colors.barrier, BlendMode.srcOver),
+                    ),
+                  )
+                  .call,
+              builder: (context, style, animation) => FDialog(
+                style: style.call,
+                animation: animation,
+                title: const Text('Certeza que terminou?'),
+                body: const Column(
+                  children: [
+                    Text(
+                      'Essa ação não pode ser desfeita. A conferềncia atual será dada como encerrada.',
+                    ),
+                    SizedBox(height: 15),
+                  ],
+                ),
+                actions: [
+                  FButton(
+                    style: FButtonStyle.outline(),
+                    onPress: () => Navigator.of(context).pop(),
+                    child: const Text('Voltar'),
+                  ),
+                  FButton(
+                    onPress: () async {
+                      Navigator.of(context).pop();
             if (confState.finishReqStatus == RequestStatus.idle) {
               logger.d('Chamei ne!');
 
               await confManager.finishConference();
             }
+                    },
+                    child: const Text('Encerrar'),
+                  ),
+                ],
+              ),
+            );
           },
           prefix: const Icon(FIcons.circleCheck, size: 16.0, color: Colors.white),
           child: confState.finishReqStatus == RequestStatus.loading

@@ -37,23 +37,21 @@ class ProductReadings {
   }
 }
 
-enum ConferenceState { NOT_STARTED, ACTIVE, PAUSED }
-
 @immutable
 class ConferenceManagerState {
   final List<ProductReadings> readings;
   final String? employeeUsername;
   final int? id;
-  final ConferenceState state;
+  final bool isPaused;
   final RequestStatus initReqStatus;
   final RequestStatus finishReqStatus;
   final RequestStatus cancelReqStatus;
 
   const ConferenceManagerState({
+    this.id,
     this.readings = const [],
     this.employeeUsername,
-    this.state = ConferenceState.NOT_STARTED,
-    this.id,
+    this.isPaused = false,
     this.initReqStatus = RequestStatus.idle,
     this.finishReqStatus = RequestStatus.idle,
     this.cancelReqStatus = RequestStatus.idle,
@@ -68,6 +66,7 @@ class ConferenceManagerState {
     RequestStatus? initReqStatus,
     RequestStatus? finishReqStatus,
     RequestStatus? cancelReqStatus,
+    bool? isPaused,
   }) {
     return ConferenceManagerState(
       readings: readings ?? this.readings,
@@ -76,6 +75,7 @@ class ConferenceManagerState {
       initReqStatus: initReqStatus ?? this.initReqStatus,
       finishReqStatus: finishReqStatus ?? this.finishReqStatus,
       cancelReqStatus: cancelReqStatus ?? this.cancelReqStatus,
+      isPaused: isPaused ?? this.isPaused,
     );
   }
 }
@@ -165,6 +165,10 @@ class ConferenceManager extends _$ConferenceManager {
   }
 
   void addNewReading(ReadingContentObject reading) {
+    if (state.isPaused) {
+      return;
+    }
+
     Vibration.vibrate(preset: VibrationPreset.quickSuccessAlert);
 
     final readTimestamp = DateTime.now();
@@ -195,5 +199,15 @@ class ConferenceManager extends _$ConferenceManager {
     }
 
     state = state.copyWith(readings: currentReadings);
+  }
+
+  void resumeConference() {
+    logger.d('Conferência retomada!');
+    state = state.copyWith(isPaused: false);
+  }
+
+  void pauseConference() {
+    logger.d('Conferência pausada!');
+    state = state.copyWith(isPaused: true);
   }
 }
