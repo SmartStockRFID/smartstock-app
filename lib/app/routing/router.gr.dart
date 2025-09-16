@@ -11,6 +11,38 @@
 part of 'router.dart';
 
 /// generated route for
+/// [ConferenceConfirmationPage]
+class ConferenceConfirmationRoute extends PageRouteInfo<void> {
+  const ConferenceConfirmationRoute({List<PageRouteInfo>? children})
+    : super(ConferenceConfirmationRoute.name, initialChildren: children);
+
+  static const String name = 'ConferenceConfirmationRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const ConferenceConfirmationPage();
+    },
+  );
+}
+
+/// generated route for
+/// [ConferencePage]
+class ConferenceRoute extends PageRouteInfo<void> {
+  const ConferenceRoute({List<PageRouteInfo>? children})
+    : super(ConferenceRoute.name, initialChildren: children);
+
+  static const String name = 'ConferenceRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const ConferencePage();
+    },
+  );
+}
+
+/// generated route for
 /// [HomePage]
 class HomeRoute extends PageRouteInfo<void> {
   const HomeRoute({List<PageRouteInfo>? children})
@@ -22,6 +54,22 @@ class HomeRoute extends PageRouteInfo<void> {
     name,
     builder: (data) {
       return const HomePage();
+    },
+  );
+}
+
+/// generated route for
+/// [LabelingPage]
+class LabelingRoute extends PageRouteInfo<void> {
+  const LabelingRoute({List<PageRouteInfo>? children})
+    : super(LabelingRoute.name, initialChildren: children);
+
+  static const String name = 'LabelingRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const LabelingPage();
     },
   );
 }
