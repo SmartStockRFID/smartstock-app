@@ -6,20 +6,49 @@ part of 'stock_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$stockHash() => r'f5895a231867bedec764b0aea0b106033c2d0bc6';
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
 
-/// See also [Stock].
 @ProviderFor(Stock)
-final stockProvider = AsyncNotifierProvider<Stock, List<CarPart>>.internal(
-  Stock.new,
-  name: r'stockProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$stockHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+const stockProvider = StockProvider._();
 
-typedef _$Stock = AsyncNotifier<List<CarPart>>;
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
+final class StockProvider extends $AsyncNotifierProvider<Stock, List<CarPart>> {
+  const StockProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'stockProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$stockHash();
+
+  @$internal
+  @override
+  Stock create() => Stock();
+}
+
+String _$stockHash() => r'41679e106cdf41dea0dd88e4875f85afdfb99d2a';
+
+abstract class _$Stock extends $AsyncNotifier<List<CarPart>> {
+  FutureOr<List<CarPart>> build();
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final created = build();
+    final ref = this.ref as $Ref<AsyncValue<List<CarPart>>, List<CarPart>>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<List<CarPart>>, List<CarPart>>,
+              AsyncValue<List<CarPart>>,
+              Object?,
+              Object?
+            >;
+    element.handleValue(ref, created);
+  }
+}
