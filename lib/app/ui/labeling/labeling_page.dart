@@ -11,6 +11,7 @@ class LabelingPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        backgroundColor: Colors.white,
         appBar: baseAppBar(title: 'Etiquetagem'),
         body: const LabelingPageInterface(),
       ),

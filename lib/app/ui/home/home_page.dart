@@ -4,10 +4,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:smart_stock/app/bluetooth/connnected_state.dart';
 import 'package:smart_stock/app/routing/router.dart';
+import 'package:smart_stock/app/ui/home/back_status_widget.dart';
 import 'package:smart_stock/app/ui/home/ble_status_widget.dart';
 import 'package:smart_stock/app/ui/home/stock_status_widget.dart';
 import 'package:smart_stock/app/ui/providers/ble_connection_provider.dart';
+import 'package:smart_stock/app/ui/providers/stock_provider.dart';
 import 'package:smart_stock/app/ui/shared/app_bar.dart';
+import 'package:smart_stock/app/ui/themes/custom_forui.dart';
 
 @RoutePage()
 class HomePage extends StatefulWidget {
@@ -24,44 +27,65 @@ class _HomePageState extends State<HomePage> {
       child: Scaffold(
         appBar: baseAppBar(title: 'Página inicial'),
         backgroundColor: Colors.white,
-        body: const Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [BleStatusWidget()],
+        body: const Padding(
+          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Center(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [BleStatusWidget(), BackendStatusWidget()],
+                ),
               ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8.0),
-              child: Column(
-                spacing: 8,
-                children: [
-                  ConferenceButton(),
-                  LabelingButton(),
-                  ResetButton(),
-                  ConferencesHistory(),
-                ],
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8.0),
+                child: Column(
+                  spacing: 15,
+                  children: [
+                    ConferenceButton(),
+                    LabelingButton(),
+                    // ResetButton(),
+                    // ConferencesHistory(),
+                  ],
+                ),
               ),
-            ),
-            Center(child: StockStatusWidget()),
-          ],
+              // Center(child: StockStatusWidget()),
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
+// TODO: Refator como NavigationButton talvez, mesmo que fique só nesse arquivo
 class ConferenceButton extends ConsumerWidget {
   const ConferenceButton({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final pistolConnection = ref.watch(bleConnectionProvider);
-    bool isConnected() => pistolConnection.fsm.currentState is ConnectedState;
+    final stockState = ref.watch(stockProvider);
+    bool isConnected() =>
+        pistolConnection.fsm.currentState is ConnectedState && stockState.hasValue;
     return FButton(
-      prefix: const Icon(FIcons.scanText, size: 16, color: Colors.white),
+      style: isConnected()
+          ? createLargeStyle(
+              context: context,
+              backgroundColor: context.theme.colors.primary,
+              foregroundColor: context.theme.colors.primaryForeground,
+            )
+          : createLargeStyle(
+              context: context,
+              backgroundColor: context.theme.colors.secondary,
+              foregroundColor: context.theme.colors.disable(
+                context.theme.colors.secondaryForeground,
+              ),
+            ),
+      prefix: isConnected()
+          ? const Icon(FIcons.scanText, size: 20, color: Colors.white)
+          : const Icon(FIcons.scanText, size: 20, color: Colors.grey),
       child: const Text('Leitura'),
       onPress: () {
         if (isConnected()) {
@@ -78,46 +102,32 @@ class LabelingButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final pistolConnection = ref.watch(bleConnectionProvider);
-    bool isConnected() => pistolConnection.fsm.currentState is ConnectedState;
+    final stockState = ref.watch(stockProvider);
+    bool isConnected() =>
+        pistolConnection.fsm.currentState is ConnectedState && stockState.hasValue;
     return FButton(
-      prefix: const Icon(FIcons.squarePen, size: 16, color: Colors.white),
+      style: isConnected()
+          ? createLargeStyle(
+              context: context,
+              backgroundColor: context.theme.colors.primary,
+              foregroundColor: context.theme.colors.primaryForeground,
+            )
+          : createLargeStyle(
+              context: context,
+              backgroundColor: context.theme.colors.secondary,
+              foregroundColor: context.theme.colors.disable(
+                context.theme.colors.secondaryForeground,
+              ),
+            ),
+      prefix: isConnected()
+          ? const Icon(FIcons.squarePen, size: 20, color: Colors.white)
+          : const Icon(FIcons.squarePen, size: 20, color: Colors.grey),
       child: const Text('Etiquetagem'),
       onPress: () {
         if (isConnected()) {
           context.router.push(const LabelingRoute());
         }
       },
-    );
-  }
-}
-
-class ResetButton extends ConsumerWidget {
-  const ResetButton({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final pistolConnection = ref.watch(bleConnectionProvider);
-    bool isConnected() => pistolConnection.fsm.currentState is ConnectedState;
-    return FButton(
-      prefix: const Icon(FIcons.rotateCcw, size: 16, color: Colors.white),
-      child: const Text('Regravação/Reset'),
-      onPress: () {
-        if (isConnected()) {}
-      },
-    );
-  }
-}
-
-class ConferencesHistory extends StatelessWidget {
-  const ConferencesHistory({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return FButton(
-      prefix: const Icon(FIcons.clipboardList, size: 16, color: Colors.black),
-      onPress: () {},
-      style: FButtonStyle.secondary(),
-      child: const Text('Histórico de conferências'),
     );
   }
 }

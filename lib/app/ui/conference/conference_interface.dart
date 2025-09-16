@@ -10,6 +10,7 @@ import 'package:smart_stock/app/ui/conference/widgets/reading_history.dart';
 import 'package:smart_stock/app/ui/providers/conference_ble_listener_provider.dart';
 import 'package:smart_stock/app/ui/providers/conference_provider.dart';
 import 'package:smart_stock/app/ui/shared/types.dart';
+import 'package:smart_stock/app/ui/themes/custom_forui.dart';
 import 'package:smart_stock/app/utils/logger.dart';
 
 class ConferencePageInterface extends ConsumerWidget {
@@ -100,6 +101,11 @@ class _FooterState extends ConsumerState<_Footer> {
               body: const Text(''),
               actions: [
                 FButton(
+                  style: createLargeStyle(
+                    context: context,
+                    backgroundColor: context.theme.colors.primary,
+                    foregroundColor: context.theme.colors.primaryForeground,
+                  ),
                   onPress: () => context.router.popAndPush(const HomeRoute()),
                   child: const Text('Continuar'),
                 ),
@@ -114,7 +120,7 @@ class _FooterState extends ConsumerState<_Footer> {
       children: [
         Text.rich(
           TextSpan(
-            style: TextStyle(fontWeight: FontWeight.bold),
+            style: const TextStyle(fontWeight: FontWeight.bold),
             children: [
               const TextSpan(text: 'Total de itens: '),
               TextSpan(
@@ -136,31 +142,31 @@ class _FooterState extends ConsumerState<_Footer> {
               onPress: () {
                 confManager.pauseConference();
                 showFDialog(
-                style: context.theme.dialogStyle
-                    .copyWith(
-                      barrierFilter: (animation) => ImageFilter.compose(
-                        outer: ImageFilter.blur(sigmaX: animation * 5, sigmaY: animation * 5),
-                        inner: ColorFilter.mode(context.theme.colors.barrier, BlendMode.srcOver),
-                      ),
-                    )
-                    .call,
-                context: context,
-                builder: (context, style, animation) => FDialog(
-                  style: style,
-                  animation: animation,
-                  title: const Text('Conferência pausada'),
-                  body: const Text('Não se preocupe, esse evento será registrado.'),
-                  actions: [
-                    FButton(
-                      prefix: const Icon(FIcons.play, size: 16, color: Colors.white),
+                  style: context.theme.dialogStyle
+                      .copyWith(
+                        barrierFilter: (animation) => ImageFilter.compose(
+                          outer: ImageFilter.blur(sigmaX: animation * 5, sigmaY: animation * 5),
+                          inner: ColorFilter.mode(context.theme.colors.barrier, BlendMode.srcOver),
+                        ),
+                      )
+                      .call,
+                  context: context,
+                  builder: (context, style, animation) => FDialog(
+                    style: style,
+                    animation: animation,
+                    title: const Text('Conferência pausada'),
+                    body: const Text('Não se preocupe, esse evento será registrado.'),
+                    actions: [
+                      FButton(
+                        prefix: const Icon(FIcons.play, size: 16, color: Colors.white),
                         onPress: () {
                           Navigator.of(context).pop();
                           confManager.resumeConference();
                         },
-                      child: const Text('Continuar'),
-                    ),
-                  ],
-                ),
+                        child: const Text('Continuar'),
+                      ),
+                    ],
+                  ),
                 );
               },
             ),
@@ -202,9 +208,9 @@ class _FooterState extends ConsumerState<_Footer> {
                       FButton(
                         onPress: () async {
                           Navigator.of(context).pop();
-                if (confState.cancelReqStatus == RequestStatus.idle) {
-                  await confManager.cancelConference();
-                }
+                          if (confState.cancelReqStatus == RequestStatus.idle) {
+                            await confManager.cancelConference();
+                          }
                         },
                         style: FButtonStyle.destructive(),
                         child: const Text('Cancelar'),
@@ -250,11 +256,9 @@ class _FooterState extends ConsumerState<_Footer> {
                   FButton(
                     onPress: () async {
                       Navigator.of(context).pop();
-            if (confState.finishReqStatus == RequestStatus.idle) {
-              logger.d('Chamei ne!');
-
-              await confManager.finishConference();
-            }
+                      if (confState.finishReqStatus == RequestStatus.idle) {
+                        await confManager.finishConference();
+                      }
                     },
                     child: const Text('Encerrar'),
                   ),
@@ -263,6 +267,11 @@ class _FooterState extends ConsumerState<_Footer> {
             );
           },
           prefix: const Icon(FIcons.circleCheck, size: 16.0, color: Colors.white),
+          style: createLargeStyle(
+            context: context,
+            backgroundColor: context.theme.colors.primary,
+            foregroundColor: context.theme.colors.primaryForeground,
+          ),
           child: confState.finishReqStatus == RequestStatus.loading
               ? const Text('FINALIZANDO')
               : const Text('FINALIZAR'),

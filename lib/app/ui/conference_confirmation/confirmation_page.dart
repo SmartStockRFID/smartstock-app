@@ -11,7 +11,7 @@ class ConferenceConfirmationPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: const Color.fromARGB(255, 240, 240, 240),
+        backgroundColor: Colors.white,
         appBar: baseAppBar(title: 'Iniciar conferência'),
         body: const ConferenceConfirmationInterface(),
       ),

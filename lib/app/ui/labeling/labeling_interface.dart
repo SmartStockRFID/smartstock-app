@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
-import 'package:forui/widgets/select.dart';
 import 'package:smart_stock/app/domain/entities/part_entity.dart';
 import 'package:smart_stock/app/ui/providers/label_controller.dart';
 import 'package:smart_stock/app/ui/providers/stock_provider.dart';
+import 'package:smart_stock/app/ui/themes/custom_forui.dart';
 import 'package:smart_stock/app/utils/logger.dart';
 
 class LabelingPageInterface extends ConsumerStatefulWidget {
@@ -20,7 +20,6 @@ class _LabelingPageInterfaceState extends ConsumerState<LabelingPageInterface>
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     selectController = FSelectController<CarPart>(vsync: this);
   }
@@ -30,32 +29,36 @@ class _LabelingPageInterfaceState extends ConsumerState<LabelingPageInterface>
     // final writeState = ref.watch(createProductControllerProvider);
     final typography = context.theme.typography;
 
-    return Column(
-      children: [
-        FCard(
-          title: Text(
-            'Produto',
-            textAlign: TextAlign.center,
-            style: typography.sm.copyWith(
-              color: context.theme.colors.primary,
-              fontWeight: FontWeight.bold,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          FCard(
+            title: Text(
+              'Produto',
+              textAlign: TextAlign.center,
+              style: typography.sm.copyWith(
+                color: context.theme.colors.primary,
+                fontWeight: FontWeight.bold,
+              ),
             ),
+            child: SearchCarPart(selectController: selectController),
           ),
-          child: SearchCarPart(selectController: selectController),
-        ),
-        const Padding(padding: EdgeInsetsGeometry.symmetric(vertical: 8.0)),
-        FButton(
-          onPress: () {
-            logger.d('${selectController.value?.name}');
-            ref
-                .read(labelControllerProvider.notifier)
-                .writeOnTag(productOem: selectController.value?.productCode ?? '');
-          },
-          prefix: const Icon(FIcons.save, size: 16.0, color: Colors.white),
-          style: FButtonStyle.primary(),
-          child: const Text('Escrever na Etiqueta'),
-        ),
-      ],
+          const Padding(padding: EdgeInsetsGeometry.symmetric(vertical: 8.0)),
+          FButton(
+            onPress: () {
+              logger.d('${selectController.value?.name}');
+              ref
+                  .read(labelControllerProvider.notifier)
+                  .writeOnTag(productOem: selectController.value?.productCode ?? '');
+            },
+            prefix: const Icon(FIcons.save, size: 20, color: Colors.white),
+            style: createLargeStyle(context: context, backgroundColor: context.theme.colors.primary, foregroundColor: context.theme.colors.primaryForeground),
+            child: const Text('GRAVAR ETIQUETA'),
+          ),
+        ],
+      ),
     );
   }
 
