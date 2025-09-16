@@ -5,9 +5,10 @@ import 'package:smart_stock/app/data/repositories/conference_repository_impl.dar
 import 'package:smart_stock/app/domain/objects/reading_object.dart';
 import 'package:smart_stock/app/ui/shared/types.dart';
 import 'package:smart_stock/app/utils/logger.dart';
+import 'package:vibration/vibration.dart';
+import 'package:vibration/vibration_presets.dart';
 
 part 'conference_provider.g.dart';
-
 
 @immutable
 class ReadTag {
@@ -164,6 +165,8 @@ class ConferenceManager extends _$ConferenceManager {
   }
 
   void addNewReading(ReadingContentObject reading) {
+    Vibration.vibrate(preset: VibrationPreset.quickSuccessAlert);
+
     final readTimestamp = DateTime.now();
     final currentReadings = List<ProductReadings>.from(state.readings);
 

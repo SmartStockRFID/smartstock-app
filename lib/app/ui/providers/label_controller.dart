@@ -1,6 +1,8 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:smart_stock/app/ui/providers/ble_connection_provider.dart';
 import 'package:smart_stock/app/utils/logger.dart';
+import 'package:vibration/vibration.dart';
+import 'package:vibration/vibration_presets.dart';
 
 part 'label_controller.g.dart';
 
@@ -21,6 +23,9 @@ class LabelController extends _$LabelController {
         bleConnection.manager.connectedPistol,
         productOem,
       );
+
+      Vibration.vibrate(preset: VibrationPreset.quickSuccessAlert);
+
       logger.d('Deu bom no writeOnTag!');
 
       state = const AsyncValue.data(null);
