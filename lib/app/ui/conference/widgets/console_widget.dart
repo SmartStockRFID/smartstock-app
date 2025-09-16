@@ -61,7 +61,7 @@ class ConsoleWidget extends ConsumerWidget {
                         (prod) => prod.productCode == confState.readings.last.productOEM,
                       );
                       return Text(
-                        parts[productIndex].name,
+                        productIndex != -1 ? parts[productIndex].name : 'DESCONHECIDO',
                         style: typography.xl4.copyWith(
                           color: context.theme.colors.primary,
                           fontWeight: FontWeight.bold,

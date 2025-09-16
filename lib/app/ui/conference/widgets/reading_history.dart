@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
-import 'package:logger/logger.dart';
+import 'package:intl/intl.dart';
 import 'package:smart_stock/app/ui/providers/conference_provider.dart';
 import 'package:smart_stock/app/ui/providers/stock_provider.dart';
 import 'package:smart_stock/app/ui/shared/base_list_widget.dart';
-import 'package:intl/intl.dart';
 
 class ReadingHistoryWidget extends ConsumerWidget {
   final ConferenceManagerState confState;
@@ -50,10 +49,11 @@ class ReadingHistoryWidget extends ConsumerWidget {
                               stockState.when(
                                 data: (parts) {
                                   final productIndex = parts.indexWhere(
-                                    (prod) =>
-                                        prod.productCode == confState.readings.last.productOEM,
+                                    (prod) => prod.productCode == reading.productOEM,
                                   );
-                                  return Text(parts[productIndex].name);
+                                  return Text(
+                                    productIndex != -1 ? parts[productIndex].name : 'Desconhecido',
+                                  );
                                 },
                                 error: (Object error, StackTrace stackTrace) {
                                   return const Text('Desconhecido');
