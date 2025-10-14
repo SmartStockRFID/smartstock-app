@@ -34,7 +34,18 @@ class ConferenceConfirmationInterface extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [_buildMainContent(context), Footer()],
+        children: [
+          const SingleChildScrollView(
+            child: Column(
+              children: [
+                _ResponsibleEmployee(),
+                SizedBox(height: 16),
+                _ConnectionChecker(),
+              ],
+            ),
+          ),
+          Footer(),
+        ],
       ),
     );
   }

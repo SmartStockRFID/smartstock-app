@@ -36,7 +36,7 @@ class BaseList<T> extends StatelessWidget {
               data.isEmpty
                   ? Expanded(child: Center(child: Text(emptyMessage)))
                   : Expanded(
-                      child: ListView.builder(
+                      child: ListView.separated(
                         padding: const EdgeInsets.only(top: 12),
                         itemCount: data.length,
                         itemBuilder: (BuildContext context, int index) {
@@ -45,6 +45,7 @@ class BaseList<T> extends StatelessWidget {
                             child: itemBuilder(data[index]),
                           );
                         },
+                        separatorBuilder: (context, index) => const Divider(),
                       ),
                     ),
           ],

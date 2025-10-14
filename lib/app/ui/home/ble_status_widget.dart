@@ -30,7 +30,7 @@ class BleStatusWidget extends ConsumerWidget {
 
         if (currentState is BluetoothOffState) {
           color = Colors.red;
-          statusText = 'Bluetooth Desligado';
+          statusText = 'Desligado';
           icon = FIcons.bluetoothOff;
         } else if (currentState is CheckingBleState) {
           color = Colors.orange;
@@ -46,7 +46,7 @@ class BleStatusWidget extends ConsumerWidget {
           icon = FIcons.bluetoothOff;
         } else if (currentState is UnsupportedState) {
           color = Colors.black;
-          statusText = 'Não Suportado';
+          statusText = 'Sem suporte';
           icon = FIcons.bluetoothOff;
         } else if (currentState is BluetoothOnState) {
           color = Colors.blue;

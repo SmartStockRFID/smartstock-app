@@ -22,7 +22,7 @@ class ConferenceMinimalDTO {
       if (jsonItem is Map<String, dynamic>) {
         return ConferenceMinimalDTO.fromJson(jsonItem);
       } else {
-        throw FormatException('Item inválido na lista de conferências: $jsonItem');
+        throw FormatException('Item inválido na lista de inventários: $jsonItem');
       }
     }).toList();
   }

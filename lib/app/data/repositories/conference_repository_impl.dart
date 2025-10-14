@@ -18,7 +18,7 @@ class ConferenceRepositoryImpl implements ConferenceRepository {
       final data = jsonDecode(response.body);
       return ConferenceMinimalDTO.fromJson(data);
     } else {
-      throw Exception('Erro ao iniciar conferência: ${response.statusCode}');
+      throw Exception('Erro ao iniciar inventário: ${response.statusCode}');
     }
   }
 
@@ -28,7 +28,7 @@ class ConferenceRepositoryImpl implements ConferenceRepository {
     final response = await ConferenceAPI.getAllConferences();
 
     if (response.statusCode != 200) {
-      throw HttpException('Falha ao obter conferências: ${response.statusCode} - ${response.body}');
+      throw HttpException('Falha ao obter inventários: ${response.statusCode} - ${response.body}');
     }
     List<dynamic> dataList;
     try {
@@ -61,7 +61,7 @@ class ConferenceRepositoryImpl implements ConferenceRepository {
     logger.d('mandei vei :)');
 
     if (response.statusCode != 200) {
-      throw HttpException('Falha ao postar conferências: ${response.statusCode} - ${response.body}');
+      throw HttpException('Falha ao postar inventários: ${response.statusCode} - ${response.body}');
     }
   }
 
@@ -69,7 +69,7 @@ class ConferenceRepositoryImpl implements ConferenceRepository {
     final response = await ConferenceAPI.finishConference(conferenceId);
 
     if (response.statusCode != 200) {
-      throw HttpException('Falha ao finalizar conferência: ${response.statusCode} - ${response.body}');
+      throw HttpException('Falha ao finalizar inventário: ${response.statusCode} - ${response.body}');
     }
   }
 
@@ -77,7 +77,7 @@ class ConferenceRepositoryImpl implements ConferenceRepository {
     final response = await ConferenceAPI.cancelConference(conferenceId);
 
     if (response.statusCode != 200) {
-      throw HttpException('Falha ao cancelar conferência: ${response.statusCode} - ${response.body}');
+      throw HttpException('Falha ao cancelar inventário: ${response.statusCode} - ${response.body}');
     }
   }
 }

@@ -22,7 +22,7 @@ class ReadingHistoryWidget extends ConsumerWidget {
         child: Column(
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
                   'Histórico de Leitura',
@@ -38,44 +38,38 @@ class ReadingHistoryWidget extends ConsumerWidget {
               widthPercentage: 0.9,
               itemBuilder: (reading) {
                 return FCard(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              stockState.when(
-                                data: (parts) {
-                                  final productIndex = parts.indexWhere(
-                                    (prod) => prod.productCode == reading.productOEM,
-                                  );
-                                  return Text(
-                                    productIndex != -1 ? parts[productIndex].name : 'Desconhecido',
-                                  );
-                                },
-                                error: (Object error, StackTrace stackTrace) {
-                                  return const Text('Desconhecido');
-                                },
-                                loading: () {
-                                  return const Text('Procurando...');
-                                },
-                              ),
-                            ],
-                          ),
-
-                          Text('OEM: ${reading.productOEM}'),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Text(reading.tagCount.toString()),
-                          const SizedBox(width: 16),
-                          Text(DateFormat.Hm().format(reading.readTags.last.readTimestamp)),
-                        ],
-                      ),
-                    ],
+                  child: ListTile(
+                    contentPadding: EdgeInsets.zero, // Remove o padding padrão
+                    title: stockState.when(
+                      data: (parts) {
+                        final productIndex = parts.indexWhere(
+                          (prod) => prod.productCode == reading.productOEM,
+                        );
+                        return Text(
+                          productIndex != -1 ? parts[productIndex].name : 'Desconhecido',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        );
+                      },
+                      error: (Object error, StackTrace stackTrace) {
+                        return const Text('Desconhecido');
+                      },
+                      loading: () {
+                        return const Text('Procurando...');
+                      },
+                    ),
+                    subtitle: Text('OEM: ${reading.productOEM}'),
+                    trailing: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          '${reading.tagCount} un',
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(DateFormat.Hm().format(reading.readTags.last.readTimestamp)),
+                      ],
+                    ),
                   ),
                 );
               },

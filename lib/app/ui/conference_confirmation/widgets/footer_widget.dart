@@ -31,11 +31,24 @@ class _FooterState extends ConsumerState<Footer> {
         }
       });
     }
+    final disabledPriBackgroundColor = context.theme.colors.primary;
+    final disabledPriForegroundColor = context.theme.colors.disable(
+      context.theme.colors.primaryForeground,
+    );
+
+    final disabledSecBackgroundColor = context.theme.colors.secondary;
+    final disabledSecForegroundColor = context.theme.colors.disable(
+      context.theme.colors.secondaryForeground,
+    );
+
+    final canClick =
+        confState.initReqStatus == RequestStatus.idle &&
+        confState.initReqStatus != RequestStatus.error;
 
     return Column(
       children: [
         Text(
-          'Mantenha a pistola próxima durante toda a conferência. Se estiver offline, a sincronização ocorrerá quando a conexão for reestabelecida.',
+          'Mantenha a pistola próxima durante todo o inventário. Se estiver offline, a sincronização ocorrerá quando a conexão for reestabelecida.',
           style: typography.xs.copyWith(color: context.theme.colors.primary),
           textAlign: TextAlign.center,
         ),
@@ -43,12 +56,14 @@ class _FooterState extends ConsumerState<Footer> {
         FButton(
           style: createLargeStyle(
             context: context,
-            backgroundColor: context.theme.colors.primary,
-            foregroundColor: context.theme.colors.primaryForeground,
+            backgroundColor: canClick ? context.theme.colors.primary : disabledPriBackgroundColor,
+            foregroundColor: canClick
+                ? context.theme.colors.primaryForeground
+                : disabledPriForegroundColor,
           ),
           child: confState.initReqStatus == RequestStatus.loading
               ? const Text('INICIANDO...')
-              : const Text('INICIAR CONFERÊNCIA'),
+              : const Text('INICIAR INVENTÁRIO'),
           // isLoading: false,
           onPress: () async {
             if (confState.initReqStatus == RequestStatus.idle) {
@@ -66,12 +81,16 @@ class _FooterState extends ConsumerState<Footer> {
         FButton(
           style: createLargeStyle(
             context: context,
-            backgroundColor: context.theme.colors.secondary,
-            foregroundColor: context.theme.colors.secondaryForeground,
+            backgroundColor: canClick ? context.theme.colors.secondary : disabledSecBackgroundColor,
+            foregroundColor: canClick
+                ? context.theme.colors.secondaryForeground
+                : disabledSecForegroundColor,
           ),
           child: const Text('VOLTAR'),
           onPress: () {
-            context.router.pop(const HomeRoute());
+            if (confState.initReqStatus != RequestStatus.loading) {
+              context.router.pop(const HomeRoute());
+            }
           },
         ),
       ],

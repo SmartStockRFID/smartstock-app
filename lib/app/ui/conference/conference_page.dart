@@ -23,7 +23,7 @@ class Page extends ConsumerWidget {
 
     return SafeArea(
       child: Scaffold(
-        appBar: baseAppBar(title: 'Conferência ${confState.id}'),
+        appBar: baseAppBar(title: 'Inventário nº ${confState.id}'),
         backgroundColor: Colors.white,
         body: const ConferencePageInterface(),
       ),

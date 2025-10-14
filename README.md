@@ -7,7 +7,7 @@
 
 
 Aplicativo móvel desenvolvido em Flutter para conexão com a pistola RFID 🏷️<br> 
- Projetado para se conectar a uma pistola RFID via Bluetooth Low Energy (BLE) para otimizar a contagem e conferência de produtos.
+ Projetado para se conectar a uma pistola RFID via Bluetooth Low Energy (BLE) para otimizar a contagem e inventário de produtos.
 
 
 ## 🚀 Começando
