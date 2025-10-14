@@ -6,6 +6,7 @@ import 'package:smart_stock/app/bluetooth/connnected_state.dart';
 import 'package:smart_stock/app/routing/router.dart';
 import 'package:smart_stock/app/ui/home/back_status_widget.dart';
 import 'package:smart_stock/app/ui/home/ble_status_widget.dart';
+import 'package:smart_stock/app/ui/home/status_panel_widget.dart';
 import 'package:smart_stock/app/ui/home/stock_status_widget.dart';
 import 'package:smart_stock/app/ui/providers/ble_connection_provider.dart';
 import 'package:smart_stock/app/ui/providers/stock_provider.dart';
@@ -28,19 +29,14 @@ class _HomePageState extends State<HomePage> {
         appBar: baseAppBar(title: 'Página inicial'),
         backgroundColor: Colors.white,
         body: const Padding(
-          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 12),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Center(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [BleStatusWidget(), BackendStatusWidget()],
-                ),
+                child: StatusPanelWidget(),
               ),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 8.0),
-                child: Column(
+                Column(
                   spacing: 15,
                   children: [
                     ConferenceButton(),
@@ -49,7 +45,7 @@ class _HomePageState extends State<HomePage> {
                     // ConferencesHistory(),
                   ],
                 ),
-              ),
+           
               // Center(child: StockStatusWidget()),
             ],
           ),

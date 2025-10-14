@@ -12,7 +12,7 @@ class ConferenceConfirmationPage extends StatelessWidget {
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.white,
-        appBar: baseAppBar(title: 'Iniciar conferência'),
+        appBar: baseAppBar(title: 'Iniciar inventário'),
         body: const ConferenceConfirmationInterface(),
       ),
     );

@@ -14,16 +14,50 @@ class ConferencePage extends StatelessWidget {
   }
 }
 
-class Page extends ConsumerWidget {
+class Page extends ConsumerStatefulWidget {
   const Page({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<Page> createState() => _PageState();
+}
+
+class _PageState extends ConsumerState<Page> with SingleTickerProviderStateMixin {
+  late final AnimationController _animationController;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 700),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final confState = ref.watch(conferenceManagerProvider);
 
     return SafeArea(
       child: Scaffold(
-        appBar: baseAppBar(title: 'Inventário nº ${confState.id}'),
+        appBar: baseAppBar(
+          widgetTitle: Row(
+            mainAxisSize: MainAxisSize.min, // Para a Row não ocupar a linha toda
+            children: [
+              Text('Inventário ${confState.id}'),
+              const SizedBox(width: 8),
+              FadeTransition(
+                opacity: _animationController,
+                child: const Icon(Icons.circle, color: Colors.green, size: 12),
+              ),
+            ],
+          ),
+        ),
         backgroundColor: Colors.white,
         body: const ConferencePageInterface(),
       ),
