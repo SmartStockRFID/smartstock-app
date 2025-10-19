@@ -62,12 +62,9 @@ class StatusPanelWidget extends ConsumerWidget {
 
     return CustomCard(
       title: Text(
-              "Status da conexão",
-              style: typography.base.copyWith(
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-              ),
-            ),
+        "Status da conexão",
+        style: typography.base.copyWith(fontWeight: FontWeight.bold, color: Colors.black87),
+      ),
       child: Column(
         children: [
           _StatusItem(color: bleStatus.color, icon: bleStatus.icon, text: bleStatus.text),
@@ -75,7 +72,7 @@ class StatusPanelWidget extends ConsumerWidget {
           _StatusItem(color: stockStatus.color, icon: stockStatus.icon, text: stockStatus.text),
           const SizedBox(height: 20),
           FButton(
-            style: FButtonStyle.primary(),
+            style: FButtonStyle.outline(),
             onPress: stockState.isLoading || stockState.isRefreshing
                 ? null
                 : () => stockNotifier.refresh(),

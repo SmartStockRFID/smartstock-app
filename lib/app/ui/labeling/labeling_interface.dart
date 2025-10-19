@@ -54,7 +54,11 @@ class _LabelingPageInterfaceState extends ConsumerState<LabelingPageInterface>
                   .writeOnTag(productOem: selectController.value?.productCode ?? '');
             },
             prefix: const Icon(FIcons.save, size: 20, color: Colors.white),
-            style: createLargeStyle(context: context, backgroundColor: context.theme.colors.primary, foregroundColor: context.theme.colors.primaryForeground),
+            style: createLargeStyle(
+              context: context,
+              backgroundColor: context.theme.colors.primary,
+              foregroundColor: context.theme.colors.primaryForeground,
+            ),
             child: const Text('GRAVAR ETIQUETA'),
           ),
         ],
@@ -94,7 +98,11 @@ class SearchCarPart extends ConsumerWidget {
                     ? parts
                     : parts.where((p) => p.name.toLowerCase().startsWith(query.toLowerCase())),
                 contentBuilder: (context, _, parts) => [
-                  for (final part in parts) FSelectItem(value: part, title: Text(part.name)),
+                  for (final part in parts)
+                    FSelectItem(
+                      value: part,
+                      title: Text(part.name, style: const TextStyle(color: Colors.black)),
+                    ),
                 ],
                 contentLoadingBuilder: (context, style) => const Text('Buscando produtos...'),
                 contentErrorBuilder: (context, error, stackTrace) =>

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:smart_stock/app/bluetooth/connnected_state.dart';
+import 'package:smart_stock/app/config/assets.dart';
 import 'package:smart_stock/app/routing/router.dart';
 import 'package:smart_stock/app/ui/home/back_status_widget.dart';
 import 'package:smart_stock/app/ui/home/ble_status_widget.dart';
@@ -26,26 +27,37 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        appBar: baseAppBar(title: 'Página inicial'),
+        appBar: baseAppBar(
+          widgetTitle: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // const Text("Newland Toyota"),
+              // const SizedBox(width: 10),
+              Image.asset(
+                Assets.toyotaLogo,
+                // TODO: Ajeitar a proporção
+                height: MediaQuery.of(context).size.height / 15,
+              ),
+            ],
+          ),
+        ),
         backgroundColor: Colors.white,
         body: const Padding(
           padding: EdgeInsets.symmetric(vertical: 12, horizontal: 12),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Center(
-                child: StatusPanelWidget(),
+              Center(child: StatusPanelWidget()),
+              Column(
+                spacing: 15,
+                children: [
+                  ConferenceButton(),
+                  LabelingButton(),
+                  // ResetButton(),
+                  // ConferencesHistory(),
+                ],
               ),
-                Column(
-                  spacing: 15,
-                  children: [
-                    ConferenceButton(),
-                    LabelingButton(),
-                    // ResetButton(),
-                    // ConferencesHistory(),
-                  ],
-                ),
-           
+
               // Center(child: StockStatusWidget()),
             ],
           ),

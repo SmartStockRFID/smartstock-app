@@ -97,9 +97,7 @@ class _CurrentItem extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final stockState = ref.watch(stockProvider);
-    final lastReading = confState.readings.isNotEmpty
-        ? confState.readings.last
-        : null;
+    final lastReading = confState.readings.isNotEmpty ? confState.readings.last : null;
 
     return CustomCard(
       title: const Text('Item Atual'),
@@ -232,7 +230,6 @@ class _Footer extends ConsumerStatefulWidget {
   ConsumerState<_Footer> createState() => _FooterState();
 }
 
-
 class _FooterState extends ConsumerState<_Footer> {
   @override
   Widget build(BuildContext context) {
@@ -327,8 +324,8 @@ class _FooterState extends ConsumerState<_Footer> {
               onPress: () => confManager.pauseConference(),
             ),
             FButton(
-              style: FButtonStyle.destructive(),
-              prefix: const Icon(FIcons.square, size: 16.0, color: Colors.white),
+              style: FButtonStyle.outline(),
+              prefix: const Icon(FIcons.square, size: 16.0, color: Colors.black),
               child: confState.cancelReqStatus == RequestStatus.loading
                   ? const Text('CANCELANDO')
                   : const Text('CANCELAR'),
@@ -392,7 +389,9 @@ class _FooterState extends ConsumerState<_Footer> {
           style: createLargeStyle(
             context: context,
             backgroundColor: canClick ? context.theme.colors.primary : disabledPriBackgroundColor,
-            foregroundColor: canClick ? context.theme.colors.primaryForeground : disabledPriForegroundColor,
+            foregroundColor: canClick
+                ? context.theme.colors.primaryForeground
+                : disabledPriForegroundColor,
           ),
           child: confState.finishReqStatus == RequestStatus.loading
               ? const Text('FINALIZANDO...')
