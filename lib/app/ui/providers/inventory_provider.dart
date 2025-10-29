@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:smart_stock/app/config/assets.dart';
-import 'package:smart_stock/app/data/repositories/conference_repository_impl.dart';
+import 'package:smart_stock/app/data/repositories/inventory_repository_impl.dart';
 
 import 'package:smart_stock/app/domain/objects/reading_object.dart';
 import 'package:smart_stock/app/ui/shared/types.dart';
@@ -10,7 +10,7 @@ import 'package:vibration/vibration.dart';
 import 'package:vibration/vibration_presets.dart';
 import 'package:audioplayers/audioplayers.dart';
 
-part 'conference_provider.g.dart';
+part 'inventory_provider.g.dart';
 
 @immutable
 class ReadTag {
@@ -40,7 +40,7 @@ class ProductReadings {
 }
 
 @immutable
-class ConferenceManagerState {
+class InventoryManagerState {
   final List<ProductReadings> readings;
   final String? employeeUsername;
   final int? id;
@@ -49,7 +49,7 @@ class ConferenceManagerState {
   final RequestStatus finishReqStatus;
   final RequestStatus cancelReqStatus;
 
-  const ConferenceManagerState({
+  const InventoryManagerState({
     this.id,
     this.readings = const [],
     this.employeeUsername,
@@ -61,7 +61,7 @@ class ConferenceManagerState {
 
   int get readingsCount => readings.fold(0, (acc, r) => acc + r.tagCount);
 
-  ConferenceManagerState copyWith({
+  InventoryManagerState copyWith({
     List<ProductReadings>? readings,
     String? employeeUsername,
     int? id,
@@ -70,7 +70,7 @@ class ConferenceManagerState {
     RequestStatus? cancelReqStatus,
     bool? isPaused,
   }) {
-    return ConferenceManagerState(
+    return InventoryManagerState(
       readings: readings ?? this.readings,
       employeeUsername: employeeUsername ?? this.employeeUsername,
       id: id ?? this.id,
@@ -87,14 +87,14 @@ class ConferenceManager extends _$ConferenceManager {
   final _audioPlayer = AudioPlayer();
 
   @override
-  ConferenceManagerState build() {
+  InventoryManagerState build() {
     _audioPlayer.setReleaseMode(ReleaseMode.stop);
-    return const ConferenceManagerState();
+    return const InventoryManagerState();
   }
 
   void resetState() {
     logger.d('resetState called!');
-    state = const ConferenceManagerState();
+    state = const InventoryManagerState();
   }
 
   Future<void> initConference() async {
@@ -103,7 +103,7 @@ class ConferenceManager extends _$ConferenceManager {
     try {
       final hasActiveConf = await _getActiveReading();
       if (!hasActiveConf) {
-        final confDetails = await ConferenceRepositoryImpl().initConference(
+        final confDetails = await InventoryRepositoryImpl().initInventory(
           state.employeeUsername ?? 'Ryan',
         );
         state = state.copyWith(
@@ -123,7 +123,7 @@ class ConferenceManager extends _$ConferenceManager {
 
   // Como que eu pego esse retorno para eu conseguir controlar na tela de interface se eu exibo Retomar ou Iniciar?
   Future<bool> _getActiveReading() async {
-    final confs = await ConferenceRepositoryImpl().getAllConferences();
+    final confs = await InventoryRepositoryImpl().getAllInventories();
     final activeConfIndex = confs.indexWhere((conf) => conf.status == 'iniciada');
     if (activeConfIndex != -1) {
       final confDetails = confs[activeConfIndex];
@@ -144,11 +144,11 @@ class ConferenceManager extends _$ConferenceManager {
       try {
         logger.d('Calling finishConference...');
         try {
-          await ConferenceRepositoryImpl().postReadings(state.id!, state.readings);
+          await InventoryRepositoryImpl().postReadings(state.id!, state.readings);
         } catch (err) {
           logger.e('Erro ao buscar produtos da conferência!');
         }
-        await ConferenceRepositoryImpl().finishConference(state.id!);
+        await InventoryRepositoryImpl().finishConference(state.id!);
         logger.d('finishConference successfully ended!');
         state = state.copyWith(finishReqStatus: RequestStatus.success);
         await Future.delayed(const Duration(seconds: 1));
@@ -164,7 +164,7 @@ class ConferenceManager extends _$ConferenceManager {
     if (state.id != null) {
       state = state.copyWith(cancelReqStatus: RequestStatus.loading);
       try {
-        await ConferenceRepositoryImpl().cancelConference(state.id!);
+        await InventoryRepositoryImpl().cancelConference(state.id!);
       } catch (error) {
         logger.e('Error calling cancelConference on ConferenceManager: $error');
         state = state.copyWith(cancelReqStatus: RequestStatus.error);
@@ -174,49 +174,51 @@ class ConferenceManager extends _$ConferenceManager {
       // resetState();
     }
   }
-void addNewReading(ReadingContentObject reading) {
-  if (reading.productOEM == 'Error reading data.') {
-    return;
-  }
-  if (state.isPaused) {
-    return;
-  }
 
-  final readTimestamp = DateTime.now();
-  final currentReadings = List<ProductReadings>.from(state.readings);
-  bool wasNewTagAdded = false;
+  void addNewReading(ReadingContentObject reading) {
+    if (reading.productOEM == 'Error reading data.') {
+      return;
+    }
+    if (state.isPaused) {
+      return;
+    }
 
-  final productIndex = currentReadings.indexWhere(
-    (product) => product.productOEM == reading.productOEM,
-  );
+    final readTimestamp = DateTime.now();
+    final currentReadings = List<ProductReadings>.from(state.readings);
+    bool wasNewTagAdded = false;
 
-  if (productIndex == -1) {
-    wasNewTagAdded = true;
-    currentReadings.add(
-      ProductReadings(
-        readTags: [ReadTag(tagUid: reading.tagUid, readTimestamp: readTimestamp)],
-        productOEM: reading.productOEM,
-      ),
+    final productIndex = currentReadings.indexWhere(
+      (product) => product.productOEM == reading.productOEM,
     );
-  } else {
-    final existingProduct = currentReadings[productIndex];
-    if (!existingProduct.hasTag(reading.tagUid)) {
+
+    if (productIndex == -1) {
       wasNewTagAdded = true;
-      currentReadings[productIndex] = existingProduct.copyWith(
-        readTags: [
-          ...existingProduct.readTags,
-          ReadTag(tagUid: reading.tagUid, readTimestamp: readTimestamp),
-        ],
+      currentReadings.add(
+        ProductReadings(
+          readTags: [ReadTag(tagUid: reading.tagUid, readTimestamp: readTimestamp)],
+          productOEM: reading.productOEM,
+        ),
       );
+    } else {
+      final existingProduct = currentReadings[productIndex];
+      if (!existingProduct.hasTag(reading.tagUid)) {
+        wasNewTagAdded = true;
+        currentReadings[productIndex] = existingProduct.copyWith(
+          readTags: [
+            ...existingProduct.readTags,
+            ReadTag(tagUid: reading.tagUid, readTimestamp: readTimestamp),
+          ],
+        );
+      }
+    }
+
+    if (wasNewTagAdded) {
+      _audioPlayer.play(AssetSource(Assets.scannerBeep));
+      Vibration.vibrate(preset: VibrationPreset.quickSuccessAlert);
+      state = state.copyWith(readings: currentReadings);
     }
   }
 
-  if (wasNewTagAdded) {
-    _audioPlayer.play(AssetSource(Assets.scannerBeep));
-    Vibration.vibrate(preset: VibrationPreset.quickSuccessAlert);
-    state = state.copyWith(readings: currentReadings);
-  }
-}
   void resumeConference() {
     logger.d('Inventário retomado!');
     state = state.copyWith(isPaused: false);

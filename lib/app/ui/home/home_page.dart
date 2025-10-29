@@ -75,8 +75,8 @@ class ConferenceButton extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final pistolConnection = ref.watch(bleConnectionProvider);
     final stockState = ref.watch(stockProvider);
-    bool isConnected() =>
-        pistolConnection.fsm.currentState is ConnectedState && stockState.hasValue;
+    bool isConnected() => true;
+    // pistolConnection.fsm.currentState is ConnectedState && stockState.hasValue;
     return FButton(
       style: isConnected()
           ? createLargeStyle(
@@ -112,7 +112,8 @@ class LabelingButton extends ConsumerWidget {
     final pistolConnection = ref.watch(bleConnectionProvider);
     final stockState = ref.watch(stockProvider);
     bool isConnected() =>
-        pistolConnection.fsm.currentState is ConnectedState && stockState.hasValue;
+    true;
+        // pistolConnection.fsm.currentState is ConnectedState && stockState.hasValue;
     return FButton(
       style: isConnected()
           ? createLargeStyle(

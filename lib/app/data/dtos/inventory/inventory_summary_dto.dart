@@ -1,12 +1,12 @@
-class ConferenceMinimalDTO {
+class InventorySummaryDTO {
   final int id;
   final String employeeUsername;
   final String status;
 
-  ConferenceMinimalDTO({required this.id, required this.employeeUsername, required this.status});
+  InventorySummaryDTO({required this.id, required this.employeeUsername, required this.status});
 
-  factory ConferenceMinimalDTO.fromJson(Map<String, dynamic> json) {
-    return ConferenceMinimalDTO(
+  factory InventorySummaryDTO.fromJson(Map<String, dynamic> json) {
+    return InventorySummaryDTO(
       id: json['id'],
       employeeUsername: json['username_funcionario'],
       status: json['status'],
@@ -17,10 +17,10 @@ class ConferenceMinimalDTO {
     return {'id': id, 'username_funcionario': employeeUsername, 'status': status};
   }
 
-  static List<ConferenceMinimalDTO> fromJsonList(List<dynamic> jsonList) {
+  static List<InventorySummaryDTO> fromJsonList(List<dynamic> jsonList) {
     return jsonList.map((jsonItem) {
       if (jsonItem is Map<String, dynamic>) {
-        return ConferenceMinimalDTO.fromJson(jsonItem);
+        return InventorySummaryDTO.fromJson(jsonItem);
       } else {
         throw FormatException('Item inválido na lista de inventários: $jsonItem');
       }

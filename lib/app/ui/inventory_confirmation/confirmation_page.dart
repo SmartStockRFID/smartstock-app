@@ -1,6 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:smart_stock/app/ui/conference_confirmation/confirmation_interface.dart';
+import 'package:smart_stock/app/ui/inventory_confirmation/confirmation_interface.dart';
 import 'package:smart_stock/app/ui/shared/app_bar.dart';
 
 @RoutePage()

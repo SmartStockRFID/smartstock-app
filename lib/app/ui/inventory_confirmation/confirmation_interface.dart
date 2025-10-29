@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:smart_stock/app/ui/providers/conference_provider.dart';
+import 'package:smart_stock/app/ui/providers/inventory_provider.dart';
 import 'package:smart_stock/app/ui/shared/custom_card.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:smart_stock/app/config/assets.dart';
-import 'package:smart_stock/app/ui/conference_confirmation/widgets/footer_widget.dart';
+import 'package:smart_stock/app/ui/inventory_confirmation/widgets/footer_widget.dart';
 import 'package:smart_stock/app/ui/providers/stock_provider.dart';
 
 class ConferenceConfirmationInterface extends StatelessWidget {

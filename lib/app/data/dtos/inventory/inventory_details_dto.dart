@@ -1,10 +1,10 @@
-import 'package:smart_stock/app/domain/entities/conference_entity.dart';
+import 'package:smart_stock/app/domain/entities/inventory_entity.dart';
 import 'package:smart_stock/app/domain/entities/event_entity.dart';
 import 'package:smart_stock/app/domain/entities/reading_entity.dart';
 
 // ignore: avoid_classes_with_only_static_members
-class ConferenceDetailsDTO {
-  static Conference fromJson(Map<String, dynamic> json) {
+class InventoryDetailsDTO {
+  static Inventory fromJson(Map<String, dynamic> json) {
     final readings = (json['leituras'] as List)
         .map(
           (e) => Reading(
@@ -27,7 +27,7 @@ class ConferenceDetailsDTO {
         )
         .toList();
 
-    return Conference(
+    return Inventory(
       id: json['id'],
       employeeUsername: json['username_funcionario'],
       status: json['status'],
@@ -36,12 +36,12 @@ class ConferenceDetailsDTO {
     );
   }
 
-  static Map<String, dynamic> toJson(Conference conference) {
+  static Map<String, dynamic> toJson(Inventory inventory) {
     return {
-      'id': conference.id,
-      'username_funcionario': conference.employeeUsername,
-      'status': conference.status,
-      'leituras': conference.readings
+      'id': inventory.id,
+      'username_funcionario': inventory.employeeUsername,
+      'status': inventory.status,
+      'leituras': inventory.readings
           .map(
             (r) => {
               'codigo_produto': r.productCode,
@@ -51,7 +51,7 @@ class ConferenceDetailsDTO {
             },
           )
           .toList(),
-      'eventos': conference.events
+      'eventos': inventory.events
           .map(
             (e) => {
               'tipo': e.type,

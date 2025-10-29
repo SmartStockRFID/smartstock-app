@@ -9,8 +9,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:intl/intl.dart';
 import 'package:smart_stock/app/routing/router.dart';
-import 'package:smart_stock/app/ui/providers/conference_ble_listener_provider.dart';
-import 'package:smart_stock/app/ui/providers/conference_provider.dart';
+import 'package:smart_stock/app/ui/providers/inventory_ble_listener_provider.dart';
+import 'package:smart_stock/app/ui/providers/inventory_provider.dart';
 import 'package:smart_stock/app/ui/providers/stock_provider.dart';
 import 'package:smart_stock/app/ui/shared/types.dart';
 import 'package:smart_stock/app/ui/themes/custom_forui.dart';
@@ -21,7 +21,7 @@ class ConferencePageInterface extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.watch(conferenceBleListenerProvider);
+    ref.watch(inventoryBleListenerProvider);
     final confState = ref.watch(conferenceManagerProvider);
 
     return Padding(
@@ -32,8 +32,8 @@ class ConferencePageInterface extends ConsumerWidget {
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  _Scoreboard(confState: confState),
-                  const SizedBox(height: 16),
+                  // _Scoreboard(confState: confState),
+                  // const SizedBox(height: 16),
                   _CurrentItem(confState: confState),
                   const SizedBox(height: 16),
                   _ReadingHistory(confState: confState),
@@ -50,7 +50,7 @@ class ConferencePageInterface extends ConsumerWidget {
 
 class _Scoreboard extends ConsumerWidget {
   const _Scoreboard({required this.confState});
-  final ConferenceManagerState confState;
+  final InventoryManagerState confState;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -92,7 +92,7 @@ class _ScoreboardItem extends StatelessWidget {
 
 class _CurrentItem extends ConsumerWidget {
   const _CurrentItem({required this.confState});
-  final ConferenceManagerState confState;
+  final InventoryManagerState confState;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -171,7 +171,7 @@ class _CurrentItem extends ConsumerWidget {
 
 class _ReadingHistory extends ConsumerWidget {
   const _ReadingHistory({required this.confState});
-  final ConferenceManagerState confState;
+  final InventoryManagerState confState;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -235,7 +235,7 @@ class _FooterState extends ConsumerState<_Footer> {
   Widget build(BuildContext context) {
     final confManager = ref.read(conferenceManagerProvider.notifier);
 
-    ref.listen<ConferenceManagerState>(conferenceManagerProvider, (previous, next) {
+    ref.listen<InventoryManagerState>(conferenceManagerProvider, (previous, next) {
       final wasPaused = previous?.isPaused ?? false;
       if (!wasPaused && next.isPaused) {
         showFDialog(
@@ -260,7 +260,7 @@ class _FooterState extends ConsumerState<_Footer> {
       }
     });
 
-    ref.listen<ConferenceManagerState>(conferenceManagerProvider, (previous, next) {
+    ref.listen<InventoryManagerState>(conferenceManagerProvider, (previous, next) {
       final wasNotSuccess = previous?.cancelReqStatus != RequestStatus.success;
       if (wasNotSuccess && next.cancelReqStatus == RequestStatus.success) {
         showFDialog(
@@ -280,7 +280,7 @@ class _FooterState extends ConsumerState<_Footer> {
       }
     });
 
-    ref.listen<ConferenceManagerState>(conferenceManagerProvider, (previous, next) {
+    ref.listen<InventoryManagerState>(conferenceManagerProvider, (previous, next) {
       final wasNotSuccess = previous?.finishReqStatus != RequestStatus.success;
       if (wasNotSuccess && next.finishReqStatus == RequestStatus.success) {
         showFDialog(

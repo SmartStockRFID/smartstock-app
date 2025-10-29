@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'conference_provider.dart';
+part of 'inventory_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator
@@ -13,7 +13,7 @@ part of 'conference_provider.dart';
 const conferenceManagerProvider = ConferenceManagerProvider._();
 
 final class ConferenceManagerProvider
-    extends $NotifierProvider<ConferenceManager, ConferenceManagerState> {
+    extends $NotifierProvider<ConferenceManager, InventoryManagerState> {
   const ConferenceManagerProvider._()
     : super(
         from: null,
@@ -33,29 +33,28 @@ final class ConferenceManagerProvider
   ConferenceManager create() => ConferenceManager();
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(ConferenceManagerState value) {
+  Override overrideWithValue(InventoryManagerState value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<ConferenceManagerState>(value),
+      providerOverride: $SyncValueProvider<InventoryManagerState>(value),
     );
   }
 }
 
-String _$conferenceManagerHash() => r'53f769c449fce34dbcdea6820344a5cbc4b2bdf2';
+String _$conferenceManagerHash() => r'899ead73b9912021729ccea8b2ec402dc9129809';
 
-abstract class _$ConferenceManager extends $Notifier<ConferenceManagerState> {
-  ConferenceManagerState build();
+abstract class _$ConferenceManager extends $Notifier<InventoryManagerState> {
+  InventoryManagerState build();
   @$mustCallSuper
   @override
   void runBuild() {
     final created = build();
-    final ref =
-        this.ref as $Ref<ConferenceManagerState, ConferenceManagerState>;
+    final ref = this.ref as $Ref<InventoryManagerState, InventoryManagerState>;
     final element =
         ref.element
             as $ClassProviderElement<
-              AnyNotifier<ConferenceManagerState, ConferenceManagerState>,
-              ConferenceManagerState,
+              AnyNotifier<InventoryManagerState, InventoryManagerState>,
+              InventoryManagerState,
               Object?,
               Object?
             >;

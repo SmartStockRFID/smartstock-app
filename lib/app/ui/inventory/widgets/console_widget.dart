@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
-import 'package:smart_stock/app/ui/providers/conference_provider.dart';
+import 'package:smart_stock/app/ui/providers/inventory_provider.dart';
 import 'package:smart_stock/app/ui/providers/stock_provider.dart';
 
 class ConsoleWidget extends ConsumerStatefulWidget {
-  final ConferenceManagerState confState;
+  final InventoryManagerState confState;
 
   const ConsoleWidget({required this.confState});
 

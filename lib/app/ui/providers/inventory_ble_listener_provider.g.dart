@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'conference_ble_listener_provider.dart';
+part of 'inventory_ble_listener_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator
@@ -9,28 +9,28 @@ part of 'conference_ble_listener_provider.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
-@ProviderFor(ConferenceBleListener)
-const conferenceBleListenerProvider = ConferenceBleListenerProvider._();
+@ProviderFor(InventoryBleListener)
+const inventoryBleListenerProvider = InventoryBleListenerProvider._();
 
-final class ConferenceBleListenerProvider
-    extends $NotifierProvider<ConferenceBleListener, void> {
-  const ConferenceBleListenerProvider._()
+final class InventoryBleListenerProvider
+    extends $NotifierProvider<InventoryBleListener, void> {
+  const InventoryBleListenerProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'conferenceBleListenerProvider',
+        name: r'inventoryBleListenerProvider',
         isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$conferenceBleListenerHash();
+  String debugGetCreateSourceHash() => _$inventoryBleListenerHash();
 
   @$internal
   @override
-  ConferenceBleListener create() => ConferenceBleListener();
+  InventoryBleListener create() => InventoryBleListener();
 
   /// {@macro riverpod.override_with_value}
   Override overrideWithValue(void value) {
@@ -41,10 +41,10 @@ final class ConferenceBleListenerProvider
   }
 }
 
-String _$conferenceBleListenerHash() =>
-    r'00b8805955b0682f574807511fbfb14757d41da5';
+String _$inventoryBleListenerHash() =>
+    r'0decba12c16eb886e5de9689527091cdb0da0276';
 
-abstract class _$ConferenceBleListener extends $Notifier<void> {
+abstract class _$InventoryBleListener extends $Notifier<void> {
   void build();
   @$mustCallSuper
   @override
