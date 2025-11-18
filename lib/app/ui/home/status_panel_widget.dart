@@ -19,34 +19,34 @@ class StatusPanelWidget extends ConsumerWidget {
   // Função para mapear o estado do BLE para a UI
   ({IconData icon, Color color, String text}) _getBleStatus(BleState? currentState) {
     if (currentState is ConnectedState) {
-      return (icon: FIcons.bluetoothConnected, color: Colors.green, text: 'Pistola Conectada');
+      return (icon: FIcons.bluetoothConnected, color: Colors.green, text: 'Pistola');
     }
     if (currentState is CheckingBleState ||
         currentState is ScanState ||
         currentState is ConnectState) {
-      return (icon: FIcons.bluetoothSearching, color: Colors.orange, text: 'Procurando Pistola...');
+      return (icon: FIcons.bluetoothSearching, color: Colors.orange, text: 'Pistola');
     }
     if (currentState is BluetoothOffState ||
         currentState is PermissionDeniedState ||
         currentState is ErrorState) {
-      return (icon: FIcons.bluetoothOff, color: Colors.red, text: 'Atenção Necessária');
+      return (icon: FIcons.bluetoothOff, color: Colors.red, text: 'Pistola');
     }
     // Estado padrão/inicial
-    return (icon: FIcons.bluetooth, color: Colors.grey, text: 'Verificando Bluetooth...');
+    return (icon: FIcons.bluetooth, color: Colors.grey, text: 'Pistola');
   }
 
   // Função para mapear o estado do Backend para a UI
   ({IconData icon, Color color, String text}) _getStockStatus(AsyncValue stockState) {
     if (stockState.hasValue && !stockState.isLoading) {
-      return (icon: FIcons.clipboardList, color: Colors.green, text: 'Estoque Sincronizado');
+      return (icon: FIcons.clipboardList, color: Colors.green, text: 'Estoque');
     }
     if (stockState.isLoading || stockState.isRefreshing) {
-      return (icon: FIcons.clipboardList, color: Colors.orange, text: 'Sincronizando Estoque...');
+      return (icon: FIcons.clipboardList, color: Colors.orange, text: 'Estoque');
     }
     if (stockState.hasError) {
-      return (icon: FIcons.clipboardList, color: Colors.red, text: 'Erro de Sincronização');
+      return (icon: FIcons.clipboardList, color: Colors.red, text: 'Estoque');
     }
-    return (icon: FIcons.clipboardList, color: Colors.grey, text: 'Aguardando Sincronia');
+    return (icon: FIcons.clipboardList, color: Colors.grey, text: 'Estoque');
   }
 
   @override
@@ -62,21 +62,36 @@ class StatusPanelWidget extends ConsumerWidget {
 
     return CustomCard(
       title: Text(
-        "Status da conexão",
+        'Status da conexão',
         style: typography.base.copyWith(fontWeight: FontWeight.bold, color: Colors.black87),
       ),
       child: Column(
         children: [
-          _StatusItem(color: bleStatus.color, icon: bleStatus.icon, text: bleStatus.text),
-          const Divider(height: 24, thickness: 1, indent: 8, endIndent: 8),
-          _StatusItem(color: stockStatus.color, icon: stockStatus.icon, text: stockStatus.text),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _StatusItem(color: bleStatus.color, icon: bleStatus.icon, text: bleStatus.text),
+              const VerticalDivider(
+                thickness: 1,
+                indent: 8,
+                endIndent: 8,
+                width: 12,
+                color: Colors.black,
+              ),
+              _StatusItem(color: stockStatus.color, icon: stockStatus.icon, text: stockStatus.text),
+            ],
+          ),
           const SizedBox(height: 20),
           FButton(
             style: FButtonStyle.outline(),
             onPress: stockState.isLoading || stockState.isRefreshing
                 ? null
                 : () => stockNotifier.refresh(),
-            child: const Text('Sincronizar Novamente'),
+            child: Text(
+              stockState.isLoading || stockState.isRefreshing
+                  ? 'Atualizando...'
+                  : 'Atualizar Estoque',
+            ),
           ),
         ],
       ),
@@ -98,11 +113,9 @@ class _StatusItem extends StatelessWidget {
       children: [
         Icon(icon, color: color, size: 32),
         const SizedBox(width: 16),
-        Expanded(
-          child: Text(
-            text,
-            style: typography.bodyLarge?.copyWith(color: color, fontWeight: FontWeight.w600),
-          ),
+        Text(
+          text,
+          style: typography.bodyLarge?.copyWith(fontWeight: FontWeight.w600, color: Colors.grey),
         ),
       ],
     );

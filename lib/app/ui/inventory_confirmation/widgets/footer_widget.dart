@@ -19,15 +19,15 @@ class _FooterState extends ConsumerState<Footer> {
   Widget build(BuildContext context) {
     final connectionManager = ref.watch(bleConnectionProvider);
 
-    final confManager = ref.read(conferenceManagerProvider.notifier);
-    final confState = ref.watch(conferenceManagerProvider);
+    final inventoryManager = ref.read(conferenceManagerProvider.notifier);
+    final inventoryState = ref.watch(conferenceManagerProvider);
 
     final typography = context.theme.typography;
 
-    if (confState.initReqStatus == RequestStatus.success) {
+    if (inventoryState.initReqStatus == RequestStatus.success) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
-          context.router.replaceAll([const ConferenceRoute()]);
+          context.router.replaceAll([const InventoryRoute()]);
         }
       });
     }
@@ -42,14 +42,14 @@ class _FooterState extends ConsumerState<Footer> {
     );
 
     final canClick =
-        confState.initReqStatus == RequestStatus.idle &&
-        confState.initReqStatus != RequestStatus.error;
+        inventoryState.initReqStatus == RequestStatus.idle &&
+        inventoryState.initReqStatus != RequestStatus.error;
 
     return Column(
       children: [
         Text(
           'Mantenha a pistola próxima durante todo o inventário. Se estiver offline, a sincronização ocorrerá quando a conexão for reestabelecida.',
-          style: typography.xs.copyWith(color: context.theme.colors.primary),
+          style: typography.xs,
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 8.0),
@@ -61,15 +61,15 @@ class _FooterState extends ConsumerState<Footer> {
                 ? context.theme.colors.primaryForeground
                 : disabledPriForegroundColor,
           ),
-          child: confState.initReqStatus == RequestStatus.loading
+          child: inventoryState.initReqStatus == RequestStatus.loading
               ? const Text('INICIANDO...')
               : const Text('INICIAR INVENTÁRIO'),
           // isLoading: false,
           onPress: () async {
-            if (confState.initReqStatus == RequestStatus.idle) {
+            if (inventoryState.initReqStatus == RequestStatus.idle) {
               logger.d('initConference called by INICIAR button!');
               await Future.wait([
-                confManager.initConference(),
+                inventoryManager.initConference(),
                 connectionManager.manager.enterOnReadMode(
                   connectionManager.manager.connectedPistol,
                 ),
@@ -88,8 +88,8 @@ class _FooterState extends ConsumerState<Footer> {
           ),
           child: const Text('VOLTAR'),
           onPress: () {
-            if (confState.initReqStatus != RequestStatus.loading) {
-              context.router.pop(const HomeRoute());
+            if (inventoryState.initReqStatus != RequestStatus.loading) {
+              context.router.replaceAll([const HomeRoute()]);
             }
           },
         ),

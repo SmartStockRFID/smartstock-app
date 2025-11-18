@@ -14,8 +14,8 @@ class InventoryAPI {
   }
 
   // TODO: Trocar esse dynamic por um tipo verdadeiro
-  static Future<http.Response> postReading(int conferenceId, dynamic readings) async {
-    return APIConnector.post('conferencia/$conferenceId/leitura', readings);
+  static Future<http.Response> postReading(int inventoryId, dynamic readings) async {
+    return APIConnector.post('conferencia/$inventoryId/leitura', readings);
   }
 
   static Future<http.Response> finishInventory(int inventoryId) async {

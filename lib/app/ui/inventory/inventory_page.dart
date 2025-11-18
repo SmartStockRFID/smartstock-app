@@ -6,8 +6,8 @@ import 'package:smart_stock/app/ui/providers/inventory_provider.dart';
 import 'package:smart_stock/app/ui/shared/app_bar.dart';
 
 @RoutePage()
-class ConferencePage extends StatelessWidget {
-  const ConferencePage({super.key});
+class InventoryPage extends StatelessWidget {
+  const InventoryPage({super.key});
   @override
   Widget build(BuildContext context) {
     return const Page();

@@ -1,14 +1,14 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/widgets.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:smart_stock/app/config/assets.dart';
-import 'package:smart_stock/app/data/repositories/inventory_repository_impl.dart';
-
+import 'package:smart_stock/app/config/dependencies.dart';
+import 'package:smart_stock/app/data/repositories/inventory_repository.dart';
 import 'package:smart_stock/app/domain/objects/reading_object.dart';
 import 'package:smart_stock/app/ui/shared/types.dart';
 import 'package:smart_stock/app/utils/logger.dart';
 import 'package:vibration/vibration.dart';
 import 'package:vibration/vibration_presets.dart';
-import 'package:audioplayers/audioplayers.dart';
 
 part 'inventory_provider.g.dart';
 
@@ -103,7 +103,7 @@ class ConferenceManager extends _$ConferenceManager {
     try {
       final hasActiveConf = await _getActiveReading();
       if (!hasActiveConf) {
-        final confDetails = await InventoryRepositoryImpl().initInventory(
+        final confDetails = await injector.get<InventoryRepository>().initInventory(
           state.employeeUsername ?? 'Ryan',
         );
         state = state.copyWith(
@@ -123,7 +123,7 @@ class ConferenceManager extends _$ConferenceManager {
 
   // Como que eu pego esse retorno para eu conseguir controlar na tela de interface se eu exibo Retomar ou Iniciar?
   Future<bool> _getActiveReading() async {
-    final confs = await InventoryRepositoryImpl().getAllInventories();
+    final confs = await injector.get<InventoryRepository>().getAllInventories();
     final activeConfIndex = confs.indexWhere((conf) => conf.status == 'iniciada');
     if (activeConfIndex != -1) {
       final confDetails = confs[activeConfIndex];
@@ -144,11 +144,11 @@ class ConferenceManager extends _$ConferenceManager {
       try {
         logger.d('Calling finishConference...');
         try {
-          await InventoryRepositoryImpl().postReadings(state.id!, state.readings);
+          await injector.get<InventoryRepository>().postReadings(state.id!, state.readings);
         } catch (err) {
           logger.e('Erro ao buscar produtos da conferência!');
         }
-        await InventoryRepositoryImpl().finishConference(state.id!);
+        await injector.get<InventoryRepository>().finishInventory(state.id!);
         logger.d('finishConference successfully ended!');
         state = state.copyWith(finishReqStatus: RequestStatus.success);
         await Future.delayed(const Duration(seconds: 1));
@@ -164,7 +164,7 @@ class ConferenceManager extends _$ConferenceManager {
     if (state.id != null) {
       state = state.copyWith(cancelReqStatus: RequestStatus.loading);
       try {
-        await InventoryRepositoryImpl().cancelConference(state.id!);
+        await injector.get<InventoryRepository>().cancelInventory(state.id!);
       } catch (error) {
         logger.e('Error calling cancelConference on ConferenceManager: $error');
         state = state.copyWith(cancelReqStatus: RequestStatus.error);

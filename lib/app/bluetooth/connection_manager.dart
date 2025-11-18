@@ -65,7 +65,6 @@ class ConnectionManager {
     }
   }
 
-  
   Future<void> enterOnReadMode(BluetoothDevice? connectedPistol) async {
     if (connectedPistol == null) {
       return;
@@ -100,7 +99,6 @@ class ConnectionManager {
     } catch (e) {}
   }
 
-
   Future<void> writeCharacteristic(BluetoothDevice? connectedPistol, String productOEM) async {
     if (connectedPistol == null) {
       return;
@@ -120,15 +118,8 @@ class ConnectionManager {
                 );
                 logger.d('Change mode written successfully');
 
-
-                final writeData = {
-                  'type': 'writeData',
-                  'content': productOEM,
-                };
-                await characteristic.write(
-                  jsonEncode(writeData).codeUnits,
-                  withoutResponse: false,
-                );
+                final writeData = {'type': 'writeData', 'content': productOEM};
+                await characteristic.write(jsonEncode(writeData).codeUnits, withoutResponse: false);
                 logger.d('Command written successfully: $writeData');
                 success = true;
                 break;
@@ -145,5 +136,4 @@ class ConnectionManager {
       }
     } catch (e) {}
   }
-
 }

@@ -38,6 +38,7 @@ class InventoryRepositoryImpl implements InventoryRepository {
     return InventorySummaryDTO.fromJsonList(dataList);
   }
 
+  @override
   Future<void> postReadings(int inventoryId, List<ProductReadings> readings) async {
     logger.d('Entrei em postReadings :)');
     final List<Map<String, dynamic>> processedReadings = [];
@@ -61,7 +62,8 @@ class InventoryRepositoryImpl implements InventoryRepository {
     }
   }
 
-  Future<void> finishConference(int inventoryId) async {
+  @override
+  Future<void> finishInventory(int inventoryId) async {
     final response = await InventoryAPI.finishInventory(inventoryId);
 
     if (response.statusCode != 200) {
@@ -71,7 +73,8 @@ class InventoryRepositoryImpl implements InventoryRepository {
     }
   }
 
-  Future<void> cancelConference(int inventoryId) async {
+  @override
+  Future<void> cancelInventory(int inventoryId) async {
     final response = await InventoryAPI.cancelInventory(inventoryId);
 
     if (response.statusCode != 200) {

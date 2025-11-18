@@ -11,38 +11,6 @@
 part of 'router.dart';
 
 /// generated route for
-/// [ConferenceConfirmationPage]
-class ConferenceConfirmationRoute extends PageRouteInfo<void> {
-  const ConferenceConfirmationRoute({List<PageRouteInfo>? children})
-    : super(ConferenceConfirmationRoute.name, initialChildren: children);
-
-  static const String name = 'ConferenceConfirmationRoute';
-
-  static PageInfo page = PageInfo(
-    name,
-    builder: (data) {
-      return const ConferenceConfirmationPage();
-    },
-  );
-}
-
-/// generated route for
-/// [ConferencePage]
-class ConferenceRoute extends PageRouteInfo<void> {
-  const ConferenceRoute({List<PageRouteInfo>? children})
-    : super(ConferenceRoute.name, initialChildren: children);
-
-  static const String name = 'ConferenceRoute';
-
-  static PageInfo page = PageInfo(
-    name,
-    builder: (data) {
-      return const ConferencePage();
-    },
-  );
-}
-
-/// generated route for
 /// [HomePage]
 class HomeRoute extends PageRouteInfo<void> {
   const HomeRoute({List<PageRouteInfo>? children})
@@ -59,6 +27,38 @@ class HomeRoute extends PageRouteInfo<void> {
 }
 
 /// generated route for
+/// [InventoryConfirmationPage]
+class InventoryConfirmationRoute extends PageRouteInfo<void> {
+  const InventoryConfirmationRoute({List<PageRouteInfo>? children})
+    : super(InventoryConfirmationRoute.name, initialChildren: children);
+
+  static const String name = 'InventoryConfirmationRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const InventoryConfirmationPage();
+    },
+  );
+}
+
+/// generated route for
+/// [InventoryPage]
+class InventoryRoute extends PageRouteInfo<void> {
+  const InventoryRoute({List<PageRouteInfo>? children})
+    : super(InventoryRoute.name, initialChildren: children);
+
+  static const String name = 'InventoryRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const InventoryPage();
+    },
+  );
+}
+
+/// generated route for
 /// [LabelingPage]
 class LabelingRoute extends PageRouteInfo<void> {
   const LabelingRoute({List<PageRouteInfo>? children})
@@ -70,6 +70,22 @@ class LabelingRoute extends PageRouteInfo<void> {
     name,
     builder: (data) {
       return const LabelingPage();
+    },
+  );
+}
+
+/// generated route for
+/// [MainLayoutPage]
+class MainLayoutRoute extends PageRouteInfo<void> {
+  const MainLayoutRoute({List<PageRouteInfo>? children})
+    : super(MainLayoutRoute.name, initialChildren: children);
+
+  static const String name = 'MainLayoutRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const MainLayoutPage();
     },
   );
 }
