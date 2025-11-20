@@ -31,28 +31,17 @@ class _FooterState extends ConsumerState<Footer> {
         }
       });
     }
-    final disabledPriBackgroundColor = context.theme.colors.primary;
+    final disabledPriBackgroundColor = context.theme.colors.disable(context.theme.colors.primary);
     final disabledPriForegroundColor = context.theme.colors.disable(
       context.theme.colors.primaryForeground,
     );
-
-    final disabledSecBackgroundColor = context.theme.colors.secondary;
-    final disabledSecForegroundColor = context.theme.colors.disable(
-      context.theme.colors.secondaryForeground,
-    );
-
     final canClick =
         inventoryState.initReqStatus == RequestStatus.idle &&
         inventoryState.initReqStatus != RequestStatus.error;
 
     return Column(
+      spacing: 12,
       children: [
-        Text(
-          'Mantenha a pistola próxima durante todo o inventário. Se estiver offline, a sincronização ocorrerá quando a conexão for reestabelecida.',
-          style: typography.xs,
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 8.0),
         FButton(
           style: createLargeStyle(
             context: context,
@@ -61,10 +50,12 @@ class _FooterState extends ConsumerState<Footer> {
                 ? context.theme.colors.primaryForeground
                 : disabledPriForegroundColor,
           ),
-          child: inventoryState.initReqStatus == RequestStatus.loading
-              ? const Text('INICIANDO...')
-              : const Text('INICIAR INVENTÁRIO'),
-          // isLoading: false,
+          child: Text(
+            inventoryState.initReqStatus == RequestStatus.loading
+                ? 'INICIANDO...'
+                : 'INICIAR INVENTÁRIO',
+            style: context.theme.typography.xl2.copyWith(color: Colors.white),
+          ),
           onPress: () async {
             if (inventoryState.initReqStatus == RequestStatus.idle) {
               logger.d('initConference called by INICIAR button!');
@@ -77,20 +68,11 @@ class _FooterState extends ConsumerState<Footer> {
             }
           },
         ),
-        const SizedBox(height: 15),
         FButton(
-          style: createLargeStyle(
-            context: context,
-            backgroundColor: canClick ? context.theme.colors.secondary : disabledSecBackgroundColor,
-            foregroundColor: canClick
-                ? context.theme.colors.secondaryForeground
-                : disabledSecForegroundColor,
-          ),
-          child: const Text('VOLTAR'),
+          style: secondaryLargeButton(context),
+          child: Text('VOLTAR', style: context.theme.typography.xl2.copyWith(color: Colors.black)),
           onPress: () {
-            if (inventoryState.initReqStatus != RequestStatus.loading) {
-              context.router.replaceAll([const HomeRoute()]);
-            }
+            context.router.replaceAll([const HomeRoute()]);
           },
         ),
       ],

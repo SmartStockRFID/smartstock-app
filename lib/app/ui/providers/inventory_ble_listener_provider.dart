@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:smart_stock/app/domain/objects/firmware_api_object.dart';
-import 'package:smart_stock/app/domain/objects/reading_object.dart';
+import 'package:smart_stock/app/domain/firmware/firmware_api_response.dart';
+import 'package:smart_stock/app/domain/firmware/reading_response.dart';
 
 import 'ble_connection_provider.dart';
 import 'inventory_provider.dart';
@@ -19,13 +19,13 @@ class InventoryBleListener extends _$InventoryBleListener {
     final inventoryNotifier = ref.read(conferenceManagerProvider.notifier);
 
     _sub = ble.manager.rfidDataStream.listen((read) {
-      final microcontrollerResponse = FirmwareObject.fromJson(read);
+      final microcontrollerResponse = FirmwareResponse.fromJson(read);
 
-      if (microcontrollerResponse.type != FirmwareObjectType.ReadResult) {
+      if (microcontrollerResponse.type != FRTypes.readResult) {
         return;
       }
 
-      final readingResponse = ReadingContentObject.fromMap(microcontrollerResponse.content);
+      final readingResponse = ReadingResponseContent.fromMap(microcontrollerResponse.content);
 
       inventoryNotifier.addNewReading(readingResponse);
     });

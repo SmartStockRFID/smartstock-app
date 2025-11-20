@@ -23,8 +23,8 @@ Siga estas instruções para obter uma cópia do projeto em funcionamento na sua
 1.  **Clone o repositório:**
 
     ```bash
-    git clone https://github.com/SmartStockRFID/ssrfid-mobile
-    cd ssrfid-mobile
+    git clone {repositório do ssrfid-app}
+    cd ssrfid-app
     ```
 
 2.  **Instale as dependências:**

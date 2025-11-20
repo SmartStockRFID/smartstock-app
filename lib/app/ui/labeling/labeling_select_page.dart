@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:smart_stock/app/domain/entities/part_entity.dart';
+import 'package:smart_stock/app/routing/router.dart';
+import 'package:smart_stock/app/ui/providers/current_writing_provider.dart';
 import 'package:smart_stock/app/ui/providers/label_controller.dart';
 import 'package:smart_stock/app/ui/providers/stock_provider.dart';
+import 'package:smart_stock/app/ui/shared/update_stock_btn.dart';
 import 'package:smart_stock/app/ui/themes/custom_forui.dart';
-import 'package:smart_stock/app/utils/logger.dart';
 
 @RoutePage()
 class LabelingPage extends ConsumerStatefulWidget {
@@ -23,12 +25,17 @@ class _LabelingPageState extends ConsumerState<LabelingPage> with SingleTickerPr
   void initState() {
     super.initState();
     selectController = FSelectController<CarPart>(vsync: this);
+
+    selectController.addListener(() {
+      setState(() {});
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     // final writeState = ref.watch(createProductControllerProvider);
     final typography = context.theme.typography;
+    final bool buttonDisabled = selectController.value == null;
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -42,26 +49,55 @@ class _LabelingPageState extends ConsumerState<LabelingPage> with SingleTickerPr
               fontWeight: FontWeight.bold,
             ),
           ),
-          child: SearchCarPart(selectController: selectController),
+          child: Column(
+            spacing: 12,
+            children: [
+              SearchCarPart(selectController: selectController),
+              UpdateStockButton(),
+            ],
+          ),
         ),
         const Padding(padding: EdgeInsetsGeometry.symmetric(vertical: 8.0)),
-        FButton(
-          onPress: () {
-            logger.d('${selectController.value?.name}');
-            ref
-                .read(labelControllerProvider.notifier)
-                .writeOnTag(productOem: selectController.value?.productCode ?? '');
-          },
-          prefix: const Icon(FIcons.save, size: 22, color: Colors.white),
-          style: createLargeStyle(
-            context: context,
-            backgroundColor: context.theme.colors.primary,
-            foregroundColor: context.theme.colors.primaryForeground,
-          ),
-          child: Text(
-            'GRAVAR ETIQUETA',
-            style: context.theme.typography.xl2.copyWith(color: Colors.white),
-          ),
+
+        Column(
+          spacing: 12,
+          children: [
+            FButton(
+              onPress: () async {
+                if (selectController.value == null) {
+                  return;
+                }
+                ref
+                    .read(writingManagerProvider.notifier)
+                    .changeProductBeingWrited(selectController.value!.productCode);
+                await ref
+                    .read(labelControllerProvider.notifier)
+                    .writeOnTag(productOem: selectController.value!.productCode);
+
+                if (context.mounted) {
+                  context.router.push(
+                    WritingRoute(targetProductName: selectController.value!.name),
+                  );
+                }
+              },
+              prefix: const Icon(FIcons.save, size: 22, color: Colors.white),
+              style: primaryLargeButton(context, disabled: buttonDisabled),
+              child: Text(
+                'GRAVAR ETIQUETA',
+                style: context.theme.typography.xl2.copyWith(color: Colors.white),
+              ),
+            ),
+            FButton(
+              style: secondaryLargeButton(context),
+              child: Text(
+                'VOLTAR',
+                style: context.theme.typography.xl2.copyWith(color: Colors.black),
+              ),
+              onPress: () {
+                context.router.replaceAll([const HomeRoute()]);
+              },
+            ),
+          ],
         ),
       ],
     );
@@ -92,6 +128,9 @@ class SearchCarPart extends ConsumerWidget {
               return FSelect<CarPart>.searchBuilder(
                 hint: 'Selecione o Produto',
                 controller: selectController,
+                searchFieldProperties: const FSelectSearchFieldProperties(
+                  hint: 'Buscar produto...',
+                ),
                 description: const Text('Escolha o produto a ser gravado'),
                 contentPhysics: const BouncingScrollPhysics(),
                 format: (part) => part.name,

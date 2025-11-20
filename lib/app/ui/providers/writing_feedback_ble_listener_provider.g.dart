@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'inventory_ble_listener_provider.dart';
+part of 'writing_feedback_ble_listener_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator
@@ -9,28 +9,29 @@ part of 'inventory_ble_listener_provider.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
-@ProviderFor(InventoryBleListener)
-const inventoryBleListenerProvider = InventoryBleListenerProvider._();
+@ProviderFor(WritingFeedbackBleListener)
+const writingFeedbackBleListenerProvider =
+    WritingFeedbackBleListenerProvider._();
 
-final class InventoryBleListenerProvider
-    extends $NotifierProvider<InventoryBleListener, void> {
-  const InventoryBleListenerProvider._()
+final class WritingFeedbackBleListenerProvider
+    extends $NotifierProvider<WritingFeedbackBleListener, void> {
+  const WritingFeedbackBleListenerProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'inventoryBleListenerProvider',
+        name: r'writingFeedbackBleListenerProvider',
         isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$inventoryBleListenerHash();
+  String debugGetCreateSourceHash() => _$writingFeedbackBleListenerHash();
 
   @$internal
   @override
-  InventoryBleListener create() => InventoryBleListener();
+  WritingFeedbackBleListener create() => WritingFeedbackBleListener();
 
   /// {@macro riverpod.override_with_value}
   Override overrideWithValue(void value) {
@@ -41,10 +42,10 @@ final class InventoryBleListenerProvider
   }
 }
 
-String _$inventoryBleListenerHash() =>
-    r'a180c7da698a64794e9a90ac2e94390f9a919919';
+String _$writingFeedbackBleListenerHash() =>
+    r'4d31192d7c5042b076c92a5d8b9eff2dc1a65af2';
 
-abstract class _$InventoryBleListener extends $Notifier<void> {
+abstract class _$WritingFeedbackBleListener extends $Notifier<void> {
   void build();
   @$mustCallSuper
   @override

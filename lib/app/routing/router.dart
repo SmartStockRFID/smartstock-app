@@ -2,8 +2,9 @@ import 'package:auto_route/auto_route.dart';
 import 'package:smart_stock/app/ui/home/home_page.dart';
 import 'package:smart_stock/app/ui/inventory/inventory_page.dart';
 import 'package:smart_stock/app/ui/inventory_confirmation/confirmation_page.dart';
-import 'package:smart_stock/app/ui/labeling/labeling_page.dart';
-import 'package:smart_stock/app/ui/main_layout.dart';
+import 'package:smart_stock/app/ui/labeling/labeling_select_page.dart';
+import 'package:smart_stock/app/ui/labeling/writing_page.dart';
+import 'package:smart_stock/app/ui/main_page.dart';
 
 part 'router.gr.dart';
 
@@ -21,11 +22,11 @@ class AppRouter extends RootStackRouter {
       ],
     ),
     AutoRoute(page: InventoryRoute.page, path: '/inventario'),
+    AutoRoute(page: WritingRoute.page, path: '/etiquetagem/iniciar'),
   ];
 }
 
-final mainLayoutChildren = [
-  AutoRoute(page: HomeRoute.page, path: 'home', initial: true),
-  AutoRoute(page: LabelingRoute.page, path: 'etiquetagem'),
-  AutoRoute(page: InventoryConfirmationRoute.page, path: 'inventario/iniciar'),
-];
+final routesTitles = {
+  InventoryConfirmationRoute.name: 'Inventário',
+  LabelingRoute.name: 'Etiquetagem',
+};

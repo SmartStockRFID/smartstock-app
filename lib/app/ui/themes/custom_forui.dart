@@ -1,6 +1,6 @@
 // lib/app/ui/themes/custom_forui.dart
 
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 
 /// Retorna a "receita" para um botão com aparência desabilitada.
@@ -57,19 +57,20 @@ FBaseButtonStyle Function(FButtonStyle) createLargeStyle({
         ),
       ),
       focusedOutlineStyle: style.focusedOutlineStyle,
-      contentStyle: FButtonContentStyle.inherit(
-        typography: typography,
-        enabled: foregroundColor, // <-- USA A COR DE TEXTO FORNECIDA
-        disabled: colors.disable(foregroundColor),
-      ).copyWith(
-        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-        textStyle: FWidgetStateMap.all(
-          typography.base.copyWith(
-            fontSize: 18,
-            color: foregroundColor, // <-- USA A COR DE TEXTO FORNECIDA
+      contentStyle:
+          FButtonContentStyle.inherit(
+            typography: typography,
+            enabled: foregroundColor, // <-- USA A COR DE TEXTO FORNECIDA
+            disabled: colors.disable(foregroundColor),
+          ).copyWith(
+            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+            textStyle: FWidgetStateMap.all(
+              typography.base.copyWith(
+                fontSize: 18,
+                color: foregroundColor, // <-- USA A COR DE TEXTO FORNECIDA
+              ),
+            ),
           ),
-        ),
-      ),
       iconContentStyle: FButtonIconContentStyle.inherit(
         enabled: foregroundColor, // <-- USA A COR DE TEXTO FORNECIDA
         disabled: colors.disable(foregroundColor),
@@ -77,4 +78,31 @@ FBaseButtonStyle Function(FButtonStyle) createLargeStyle({
       tappableStyle: style.tappableStyle,
     );
   };
+}
+
+// Just a shortand
+FBaseButtonStyle Function(FButtonStyle) primaryLargeButton(
+  BuildContext context, {
+  bool disabled = false,
+}) {
+  return disabled
+      ? createLargeStyle(
+          context: context,
+          backgroundColor: context.theme.colors.disable(context.theme.colors.primary),
+          foregroundColor: context.theme.colors.disable(context.theme.colors.primaryForeground),
+        )
+      : createLargeStyle(
+          context: context,
+          backgroundColor: context.theme.colors.primary,
+          foregroundColor: context.theme.colors.primaryForeground,
+        );
+}
+
+// Just other shorthand
+FBaseButtonStyle Function(FButtonStyle) secondaryLargeButton(BuildContext context) {
+  return createLargeStyle(
+    context: context,
+    backgroundColor: context.theme.colors.secondary,
+    foregroundColor: context.theme.colors.secondaryForeground,
+  );
 }

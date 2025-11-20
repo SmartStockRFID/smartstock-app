@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:smart_stock/app/bluetooth/connnected_state.dart';
 import 'package:smart_stock/app/routing/router.dart';
 import 'package:smart_stock/app/ui/home/status_panel_widget.dart';
 import 'package:smart_stock/app/ui/providers/ble_connection_provider.dart';
@@ -23,55 +24,66 @@ class _HomePageState extends State<HomePage> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Center(child: StatusPanelWidget()),
-        Column(
-          spacing: 15,
-          children: [
-            ConferenceButton(),
-            LabelingButton(),
-            // ResetButton(),
-            // ConferencesHistory(),
-          ],
-        ),
-
-        // Center(child: StockStatusWidget()),
+        Navbar(),
       ],
     );
   }
 }
 
-// TODO: Refator como NavigationButton talvez, mesmo que fique só nesse arquivo
-class ConferenceButton extends ConsumerWidget {
-  const ConferenceButton({super.key});
+class Navbar extends ConsumerWidget {
+  const Navbar({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final pistolConnection = ref.watch(bleConnectionProvider);
     final stockState = ref.watch(stockProvider);
-    bool isConnected() => true;
-    // pistolConnection.fsm.currentState is ConnectedState && stockState.hasValue;
+    final isConnected = pistolConnection.fsm.currentState is ConnectedState && stockState.hasValue;
+
+    return Column(
+      spacing: 12,
+      children: [
+        NavLink(
+          isConnected: isConnected,
+          icon: FIcons.clipboardCheck,
+          title: routesTitles[InventoryConfirmationRoute.name] ?? '',
+          href: const InventoryConfirmationRoute(),
+        ),
+        NavLink(
+          isConnected: isConnected,
+          icon: FIcons.squarePen,
+          title: routesTitles[LabelingRoute.name] ?? '',
+          href: const LabelingRoute(),
+        ),
+      ],
+    );
+  }
+}
+
+class NavLink extends StatelessWidget {
+  const NavLink({
+    super.key,
+    required this.isConnected,
+    required this.icon,
+    required this.title,
+    required this.href,
+  });
+
+  final bool isConnected;
+  final IconData icon;
+  final String title;
+  final PageRouteInfo href;
+
+  @override
+  Widget build(BuildContext context) {
     return FButton(
-      style: isConnected()
-          ? createLargeStyle(
-              context: context,
-              backgroundColor: context.theme.colors.primary,
-              foregroundColor: context.theme.colors.primaryForeground,
-            )
-          : createLargeStyle(
-              context: context,
-              backgroundColor: context.theme.colors.secondary,
-              foregroundColor: context.theme.colors.disable(
-                context.theme.colors.secondaryForeground,
-              ),
-            ),
-      prefix: isConnected()
-          ? const Icon(FIcons.scanText, size: 20, color: Colors.white)
-          : const Icon(FIcons.scanText, size: 20, color: Colors.grey),
+      style: primaryLargeButton(context, disabled: !isConnected),
+      prefix: Icon(icon, size: 20, color: Colors.white),
       child: Expanded(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Leitura',
+              title,
               style: context.theme.typography.xl2.copyWith(
                 color: Colors.white,
                 fontWeight: FontWeight.w700,
@@ -82,58 +94,8 @@ class ConferenceButton extends ConsumerWidget {
         ),
       ),
       onPress: () {
-        if (isConnected()) {
-          AutoTabsRouter.of(context).navigate(const InventoryConfirmationRoute());
-        }
-      },
-    );
-  }
-}
-
-class LabelingButton extends ConsumerWidget {
-  const LabelingButton({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final pistolConnection = ref.watch(bleConnectionProvider);
-    final stockState = ref.watch(stockProvider);
-    bool isConnected() => true;
-    // pistolConnection.fsm.currentState is ConnectedState && stockState.hasValue;
-    return FButton(
-      style: isConnected()
-          ? createLargeStyle(
-              context: context,
-              backgroundColor: context.theme.colors.primary,
-              foregroundColor: context.theme.colors.primaryForeground,
-            )
-          : createLargeStyle(
-              context: context,
-              backgroundColor: context.theme.colors.secondary,
-              foregroundColor: context.theme.colors.disable(
-                context.theme.colors.secondaryForeground,
-              ),
-            ),
-      prefix: isConnected()
-          ? const Icon(FIcons.squarePen, size: 20, color: Colors.white)
-          : const Icon(FIcons.squarePen, size: 20, color: Colors.grey),
-      child: Expanded(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'Etiquetagem',
-              style: context.theme.typography.xl2.copyWith(
-                color: Colors.white,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            const Icon(FIcons.chevronRight, size: 24, color: Colors.white),
-          ],
-        ),
-      ),
-      onPress: () {
-        if (isConnected()) {
-          AutoTabsRouter.of(context).navigate(const LabelingRoute());
+        if (isConnected) {
+          AutoTabsRouter.of(context).navigate(href);
         }
       },
     );

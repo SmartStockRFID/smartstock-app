@@ -1,3 +1,5 @@
+local/
+
 # Miscellaneous
 *.class
 *.log

@@ -9,9 +9,14 @@ import 'package:smart_stock/app/ui/shared/app_bar.dart';
 class MainLayoutPage extends StatelessWidget {
   const MainLayoutPage({super.key});
 
-  AppBar? _getAppBar(BuildContext context, TabsRouter tabsRouter) {
-    final String routeName = tabsRouter.topMatch.name;
-    final bool isAtHome = routeName == HomeRoute.name;
+  AppBar? _getAppBar(BuildContext context, String routeName, bool isAtHome) {
+    if (isAtHome) {
+      return baseAppBar(
+        widgetTitle: Center(
+          child: Image.asset(Assets.toyotaLogo, height: MediaQuery.of(context).size.height / 15),
+        ),
+      );
+    }
 
     final backButton = BackButton(
       onPressed: () {
@@ -19,30 +24,7 @@ class MainLayoutPage extends StatelessWidget {
       },
     );
 
-    switch (routeName) {
-      case HomeRoute.name:
-        return baseAppBar(
-          leadingButton: null,
-          widgetTitle: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // const Text("Newland Toyota"),
-              // const SizedBox(width: 10),
-              Image.asset(
-                Assets.toyotaLogo,
-                // TODO: Ajeitar a proporção
-                height: MediaQuery.of(context).size.height / 15,
-              ),
-            ],
-          ),
-        );
-      case InventoryConfirmationRoute.name:
-        return baseAppBar(title: 'Inventário', leadingButton: isAtHome ? null : backButton);
-      case LabelingRoute.name:
-        return baseAppBar(title: 'Etiquetagem', leadingButton: isAtHome ? null : backButton);
-      default:
-        return null;
-    }
+    return baseAppBar(title: routesTitles[routeName], leadingButton: isAtHome ? null : backButton);
   }
 
   @override
@@ -63,7 +45,7 @@ class MainLayoutPage extends StatelessWidget {
             }
           },
           child: Scaffold(
-            appBar: _getAppBar(context, tabsRouter),
+            appBar: _getAppBar(context, routeName, isAtHome),
             backgroundColor: Colors.white,
             body: SafeArea(
               child: Padding(

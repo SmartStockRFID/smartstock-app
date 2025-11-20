@@ -89,3 +89,47 @@ class MainLayoutRoute extends PageRouteInfo<void> {
     },
   );
 }
+
+/// generated route for
+/// [WritingPage]
+class WritingRoute extends PageRouteInfo<WritingRouteArgs> {
+  WritingRoute({
+    required String targetProductName,
+    List<PageRouteInfo>? children,
+  }) : super(
+         WritingRoute.name,
+         args: WritingRouteArgs(targetProductName: targetProductName),
+         initialChildren: children,
+       );
+
+  static const String name = 'WritingRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      final args = data.argsAs<WritingRouteArgs>();
+      return WritingPage(targetProductName: args.targetProductName);
+    },
+  );
+}
+
+class WritingRouteArgs {
+  const WritingRouteArgs({required this.targetProductName});
+
+  final String targetProductName;
+
+  @override
+  String toString() {
+    return 'WritingRouteArgs{targetProductName: $targetProductName}';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! WritingRouteArgs) return false;
+    return targetProductName == other.targetProductName;
+  }
+
+  @override
+  int get hashCode => targetProductName.hashCode;
+}

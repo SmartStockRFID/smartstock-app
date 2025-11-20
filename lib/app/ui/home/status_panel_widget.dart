@@ -12,6 +12,7 @@ import 'package:smart_stock/app/bluetooth/scan_state.dart';
 import 'package:smart_stock/app/ui/providers/ble_connection_provider.dart';
 import 'package:smart_stock/app/ui/providers/stock_provider.dart';
 import 'package:smart_stock/app/ui/shared/custom_card.dart';
+import 'package:smart_stock/app/ui/shared/update_stock_btn.dart';
 
 class StatusPanelWidget extends ConsumerWidget {
   const StatusPanelWidget({super.key});
@@ -53,7 +54,6 @@ class StatusPanelWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final bleState = ref.watch(bleConnectionProvider);
     final stockState = ref.watch(stockProvider);
-    final stockNotifier = ref.read(stockProvider.notifier);
 
     final bleStatus = _getBleStatus(bleState.currentState);
     final stockStatus = _getStockStatus(stockState);
@@ -82,17 +82,7 @@ class StatusPanelWidget extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: 20),
-          FButton(
-            style: FButtonStyle.outline(),
-            onPress: stockState.isLoading || stockState.isRefreshing
-                ? null
-                : () => stockNotifier.refresh(),
-            child: Text(
-              stockState.isLoading || stockState.isRefreshing
-                  ? 'Atualizando...'
-                  : 'Atualizar Estoque',
-            ),
-          ),
+          UpdateStockButton(),
         ],
       ),
     );

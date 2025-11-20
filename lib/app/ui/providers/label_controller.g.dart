@@ -20,7 +20,7 @@ final class LabelControllerProvider
         argument: null,
         retry: null,
         name: r'labelControllerProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -41,7 +41,7 @@ final class LabelControllerProvider
   }
 }
 
-String _$labelControllerHash() => r'109206b7c3681b090016e072a2e355eed9ab83a6';
+String _$labelControllerHash() => r'3ce573c616828057bce799e37e62bfc95e6c598f';
 
 abstract class _$LabelController extends $Notifier<AsyncValue<void>> {
   AsyncValue<void> build();

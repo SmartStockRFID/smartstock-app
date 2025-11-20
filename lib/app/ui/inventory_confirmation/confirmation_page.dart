@@ -7,6 +7,7 @@ import 'package:smart_stock/app/ui/inventory_confirmation/widgets/footer_widget.
 import 'package:smart_stock/app/ui/providers/inventory_provider.dart';
 import 'package:smart_stock/app/ui/providers/stock_provider.dart';
 import 'package:smart_stock/app/ui/shared/custom_card.dart';
+import 'package:smart_stock/app/ui/shared/update_stock_btn.dart';
 
 @RoutePage()
 class InventoryConfirmationPage extends StatelessWidget {
@@ -48,7 +49,7 @@ class _ResponsibleEmployee extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  inventoryState.employeeUsername ?? 'Ryan Faustino',
+                  inventoryState.employeeUsername ?? 'admin',
                   style: typography.xl.copyWith(fontWeight: FontWeight.bold, height: 1.2),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -82,6 +83,8 @@ class _ConnectionChecker extends ConsumerWidget {
                 const _StatusItem(isReady: false, text: 'Erro ao sincronizar produtos'),
             loading: () => const _StatusItem(isReady: false, text: 'Sincronizando produtos...'),
           ),
+          const SizedBox(height: 24),
+          UpdateStockButton(),
         ],
       ),
     );

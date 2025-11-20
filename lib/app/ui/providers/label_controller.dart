@@ -1,12 +1,11 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:smart_stock/app/ui/providers/ble_connection_provider.dart';
-import 'package:smart_stock/app/utils/logger.dart';
 import 'package:vibration/vibration.dart';
 import 'package:vibration/vibration_presets.dart';
 
 part 'label_controller.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true) // Todo: This is a gambiarra
 class LabelController extends _$LabelController {
   @override
   AsyncValue<void> build() {
@@ -14,24 +13,17 @@ class LabelController extends _$LabelController {
   }
 
   Future<void> writeOnTag({required String productOem}) async {
-    logger.d('Entrei no writeOnTag');
     state = const AsyncValue.loading();
     try {
-      logger.d('Comecei no writeOnTag');
-      final bleConnection = ref.watch(bleConnectionProvider);
+      final bleConnection = ref.read(bleConnectionProvider);
       await bleConnection.manager.writeCharacteristic(
         bleConnection.manager.connectedPistol,
         productOem,
       );
 
       Vibration.vibrate(preset: VibrationPreset.quickSuccessAlert);
-
-      logger.d('Deu bom no writeOnTag!');
-
       state = const AsyncValue.data(null);
     } catch (e) {
-      logger.e('Deu ruim no writeOnTag! $e');
-
       state = const AsyncValue.data(null);
     }
   }

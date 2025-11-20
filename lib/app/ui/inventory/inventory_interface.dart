@@ -1,17 +1,14 @@
-import 'dart:ui';
-
-import 'package:smart_stock/app/domain/entities/part_entity.dart';
-import 'package:smart_stock/app/ui/shared/custom_card.dart';
-
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:intl/intl.dart';
+import 'package:smart_stock/app/domain/entities/part_entity.dart';
 import 'package:smart_stock/app/routing/router.dart';
 import 'package:smart_stock/app/ui/providers/inventory_ble_listener_provider.dart';
 import 'package:smart_stock/app/ui/providers/inventory_provider.dart';
 import 'package:smart_stock/app/ui/providers/stock_provider.dart';
+import 'package:smart_stock/app/ui/shared/custom_card.dart';
 import 'package:smart_stock/app/ui/shared/types.dart';
 import 'package:smart_stock/app/ui/themes/custom_forui.dart';
 
@@ -247,12 +244,17 @@ class _FooterState extends ConsumerState<_Footer> {
             body: const Text('Não se preocupe, seu progresso está salvo.'),
             actions: [
               FButton(
+                style: createLargeStyle(
+                  context: context,
+                  backgroundColor: context.theme.colors.secondary,
+                  foregroundColor: context.theme.colors.secondaryForeground,
+                ),
                 onPress: () {
                   Navigator.of(context).pop();
                   confManager.resumeConference();
                 },
-                child: const Text('Continuar'),
-                prefix: const Icon(FIcons.play, size: 16, color: Colors.white),
+                prefix: const Icon(FIcons.play, size: 16, color: Colors.black),
+                child: Text('CONTINUAR', style: context.theme.typography.base),
               ),
             ],
           ),
@@ -266,12 +268,18 @@ class _FooterState extends ConsumerState<_Footer> {
         showFDialog(
           context: context,
           builder: (context, style, animation) => FDialog(
-            style: style,
+            style: style.call,
             animation: animation,
             title: const Text('Inventário cancelado!'),
             actions: [
               FButton(
                 onPress: () => context.router.replaceAll([const HomeRoute()]),
+
+                style: createLargeStyle(
+                  context: context,
+                  backgroundColor: context.theme.colors.secondary,
+                  foregroundColor: context.theme.colors.secondaryForeground,
+                ),
                 child: const Text('OK'),
               ),
             ],
@@ -286,12 +294,18 @@ class _FooterState extends ConsumerState<_Footer> {
         showFDialog(
           context: context,
           builder: (context, style, animation) => FDialog(
-            style: style,
+            style: style.call,
             animation: animation,
-            title: const Text('Inventário finalizado com sucesso!'),
+            title: const Text('Inventário concluído com sucesso!'),
             actions: [
               FButton(
                 onPress: () => context.router.replaceAll([const HomeRoute()]),
+
+                style: createLargeStyle(
+                  context: context,
+                  backgroundColor: context.theme.colors.secondary,
+                  foregroundColor: context.theme.colors.secondaryForeground,
+                ),
                 child: const Text('OK'),
               ),
             ],
@@ -339,17 +353,25 @@ class _FooterState extends ConsumerState<_Footer> {
                     body: const Text('Essa ação não pode ser desfeita.'),
                     actions: [
                       FButton(
-                        style: FButtonStyle.outline(),
-                        onPress: () => Navigator.of(context).pop(),
-                        child: const Text('Voltar'),
-                      ),
-                      FButton(
                         onPress: () {
                           Navigator.of(context).pop();
                           confManager.cancelConference();
                         },
-                        style: FButtonStyle.destructive(),
-                        child: const Text('Cancelar Inventário'),
+                        style: createLargeStyle(
+                          context: context,
+                          backgroundColor: context.theme.colors.primary,
+                          foregroundColor: context.theme.colors.primaryForeground,
+                        ),
+                        child: const Text('CANCELAR'),
+                      ),
+                      FButton(
+                        style: createLargeStyle(
+                          context: context,
+                          backgroundColor: context.theme.colors.secondary,
+                          foregroundColor: context.theme.colors.secondaryForeground,
+                        ),
+                        onPress: () => Navigator.of(context).pop(),
+                        child: const Text('VOLTAR'),
                       ),
                     ],
                   ),
@@ -366,20 +388,29 @@ class _FooterState extends ConsumerState<_Footer> {
               builder: (context, style, animation) => FDialog(
                 style: style,
                 animation: animation,
-                title: const Text('Finalizar o inventário?'),
+                title: const Text('Concluir o inventário?'),
                 body: const Text('A contagem atual será salva como final.'),
                 actions: [
                   FButton(
-                    style: FButtonStyle.outline(),
-                    onPress: () => Navigator.of(context).pop(),
-                    child: const Text('Voltar'),
-                  ),
-                  FButton(
+                    style: createLargeStyle(
+                      context: context,
+                      backgroundColor: context.theme.colors.destructive,
+                      foregroundColor: context.theme.colors.destructiveForeground,
+                    ),
                     onPress: () {
                       Navigator.of(context).pop();
                       confManager.finishConference();
                     },
-                    child: const Text('Encerrar'),
+                    child: const Text('CONCLUIR'),
+                  ),
+                  FButton(
+                    style: createLargeStyle(
+                      context: context,
+                      backgroundColor: context.theme.colors.secondary,
+                      foregroundColor: context.theme.colors.secondaryForeground,
+                    ),
+                    onPress: () => Navigator.of(context).pop(),
+                    child: const Text('VOLTAR'),
                   ),
                 ],
               ),
@@ -393,11 +424,12 @@ class _FooterState extends ConsumerState<_Footer> {
                 ? context.theme.colors.primaryForeground
                 : disabledPriForegroundColor,
           ),
-          child: confState.finishReqStatus == RequestStatus.loading
-              ? const Text('FINALIZANDO...')
-              : (confState.finishReqStatus == RequestStatus.success
-                    ? const Text('FINALIZADA')
-                    : const Text('FINALIZAR')),
+          child: Text(
+            confState.finishReqStatus == RequestStatus.loading
+                ? 'CONCLUINDO...'
+                : (confState.finishReqStatus == RequestStatus.success ? 'CONCLUÍDA' : 'CONCLUIR'),
+            style: context.theme.typography.xl2.copyWith(color: Colors.white),
+          ),
         ),
       ],
     );

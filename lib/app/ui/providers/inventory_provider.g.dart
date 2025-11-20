@@ -41,7 +41,7 @@ final class ConferenceManagerProvider
   }
 }
 
-String _$conferenceManagerHash() => r'2ecf12cace1490cfc27a351b7e5f507d03ccceb6';
+String _$conferenceManagerHash() => r'cda4ae965826d9d51e05f38610d0f66b4e5cc4f2';
 
 abstract class _$ConferenceManager extends $Notifier<InventoryManagerState> {
   InventoryManagerState build();

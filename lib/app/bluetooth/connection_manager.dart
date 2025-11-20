@@ -3,7 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:smart_stock/app/config/env.dart';
-import 'package:smart_stock/app/domain/objects/change_mode.dart';
+import 'package:smart_stock/app/domain/firmware/change_mode_command.dart';
 import 'package:smart_stock/app/utils/logger.dart';
 
 final Guid rfidCharacteristicUUID = Guid(Enviroment.rfidCharacteristicUUID()!);
@@ -79,7 +79,7 @@ class ConnectionManager {
             for (int attempt = 1; attempt <= 3; attempt++) {
               try {
                 await characteristic.write(
-                  jsonEncode(ChangeOperationModeObject.read).codeUnits,
+                  jsonEncode(ChangeOperationModeCommand.read).codeUnits,
                   withoutResponse: false,
                 );
                 logger.d('Change mode to Read successfully');
@@ -113,7 +113,7 @@ class ConnectionManager {
             for (int attempt = 1; attempt <= 3; attempt++) {
               try {
                 await characteristic.write(
-                  jsonEncode(ChangeOperationModeObject.write).codeUnits,
+                  jsonEncode(ChangeOperationModeCommand.write).codeUnits,
                   withoutResponse: false,
                 );
                 logger.d('Change mode written successfully');

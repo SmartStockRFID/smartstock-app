@@ -4,7 +4,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:smart_stock/app/config/assets.dart';
 import 'package:smart_stock/app/config/dependencies.dart';
 import 'package:smart_stock/app/data/repositories/inventory_repository.dart';
-import 'package:smart_stock/app/domain/objects/reading_object.dart';
+import 'package:smart_stock/app/domain/firmware/reading_response.dart';
 import 'package:smart_stock/app/ui/shared/types.dart';
 import 'package:smart_stock/app/utils/logger.dart';
 import 'package:vibration/vibration.dart';
@@ -104,7 +104,7 @@ class ConferenceManager extends _$ConferenceManager {
       final hasActiveConf = await _getActiveReading();
       if (!hasActiveConf) {
         final confDetails = await injector.get<InventoryRepository>().initInventory(
-          state.employeeUsername ?? 'Ryan',
+          state.employeeUsername ?? 'admin',
         );
         state = state.copyWith(
           id: confDetails.id,
@@ -175,7 +175,7 @@ class ConferenceManager extends _$ConferenceManager {
     }
   }
 
-  void addNewReading(ReadingContentObject reading) {
+  void addNewReading(ReadingResponseContent reading) {
     if (reading.productOEM == 'Error reading data.') {
       return;
     }
