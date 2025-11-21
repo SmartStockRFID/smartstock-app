@@ -24,25 +24,23 @@ class WritingPage extends ConsumerStatefulWidget {
 class _WritingPageState extends ConsumerState<WritingPage> {
   @override
   Widget build(BuildContext context) {
-    final connectionManager = ref.watch(bleConnectionProvider);
-
     ref.watch(writingFeedbackBleListenerProvider);
 
-    final writingManager = ref.watch(writingManagerProvider);
+    final writedTags = ref.watch(writingManagerProvider.select((state) => state.writedTags));
 
     final isResetMode = widget.mode == WritingMode.RESET;
 
-    return PopScope(
-      canPop: true,
-      onPopInvokedWithResult: (didPop, result) {
-        if (didPop) {
-          connectionManager.manager.enterOnReadMode(connectionManager.manager.connectedPistol);
-        }
-      },
-      child: Scaffold(
-        appBar: baseAppBar(title: 'Gravação'),
-        backgroundColor: Colors.white,
-        body: SafeArea(
+    return Scaffold(
+      appBar: baseAppBar(title: 'Gravação'),
+      backgroundColor: Colors.white,
+      body: PopScope(
+        canPop: true,
+        onPopInvokedWithResult: (didPop, result) {
+          if (didPop) {
+            ref.read(bleConnectionProvider).manager.enterOnReadMode();
+          }
+        },
+        child: SafeArea(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             child: Column(
@@ -78,7 +76,7 @@ class _WritingPageState extends ConsumerState<WritingPage> {
                       ),
                       child: Center(
                         child: Text(
-                          writingManager.writedTags.length.toString(),
+                          writedTags.length.toString(),
                           style: context.theme.typography.xl8,
                         ),
                       ),
@@ -94,7 +92,7 @@ class _WritingPageState extends ConsumerState<WritingPage> {
                     backgroundColor: context.theme.colors.secondary,
                     foregroundColor: context.theme.colors.secondaryForeground,
                   ),
-                  child: Text('VOLTAR', style: context.theme.typography.xl2),
+                  child: Text('CONCLUIR', style: context.theme.typography.xl2),
                 ),
               ],
             ),

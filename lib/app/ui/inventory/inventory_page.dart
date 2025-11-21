@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:smart_stock/app/routing/router.dart';
 import 'package:smart_stock/app/ui/inventory/inventory_interface.dart';
 import 'package:smart_stock/app/ui/providers/inventory_provider.dart';
 import 'package:smart_stock/app/ui/shared/app_bar.dart';
@@ -41,25 +42,29 @@ class _PageState extends ConsumerState<Page> with SingleTickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
-    final confState = ref.watch(conferenceManagerProvider);
+    final inventoryId = ref.watch(inventoryManagerProvider.select((state) => state.id));
 
-    return SafeArea(
-      child: Scaffold(
-        appBar: baseAppBar(
-          widgetTitle: Row(
-            mainAxisSize: MainAxisSize.min, // Para a Row não ocupar a linha toda
-            children: [
-              Text('Inventário ${confState.id}'),
-              const SizedBox(width: 8),
-              FadeTransition(
-                opacity: _animationController,
-                child: const Icon(Icons.circle, color: Colors.green, size: 12),
-              ),
-            ],
-          ),
+    return Scaffold(
+      appBar: baseAppBar(
+        widgetTitle: Row(
+          mainAxisSize: MainAxisSize.min, // Para a Row não ocupar a linha toda
+          children: [
+            Text('Inventário $inventoryId'),
+            const SizedBox(width: 8),
+            FadeTransition(
+              opacity: _animationController,
+              child: const Icon(Icons.circle, color: Colors.green, size: 12),
+            ),
+          ],
         ),
-        backgroundColor: Colors.white,
-        body: const ConferencePageInterface(),
+      ),
+      backgroundColor: Colors.white,
+      body: PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, result) {
+          context.router.replaceAll(const [HomeRoute()]);
+        },
+        child: SafeArea(child: ConferencePageInterface()),
       ),
     );
   }

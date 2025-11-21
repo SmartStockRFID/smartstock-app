@@ -5,6 +5,7 @@ import 'package:smart_stock/app/config/assets.dart';
 import 'package:smart_stock/app/config/dependencies.dart';
 import 'package:smart_stock/app/data/repositories/inventory_repository.dart';
 import 'package:smart_stock/app/domain/firmware/reading_response.dart';
+import 'package:smart_stock/app/ui/providers/ble_connection_provider.dart';
 import 'package:smart_stock/app/ui/shared/types.dart';
 import 'package:smart_stock/app/utils/logger.dart';
 import 'package:vibration/vibration.dart';
@@ -42,6 +43,7 @@ class ProductReadings {
 @immutable
 class InventoryManagerState {
   final List<ProductReadings> readings;
+  // final lastAddedReading
   final String? employeeUsername;
   final int? id;
   final bool isPaused;
@@ -58,6 +60,14 @@ class InventoryManagerState {
     this.finishReqStatus = RequestStatus.idle,
     this.cancelReqStatus = RequestStatus.idle,
   });
+
+  String get initButtonLabel {
+    return switch (initReqStatus) {
+      RequestStatus.loading => 'INICIANDO...',
+      RequestStatus.success => 'ENTRAR',
+      _ => 'INICIAR INVENTÁRIO',
+    };
+  }
 
   int get readingsCount => readings.fold(0, (acc, r) => acc + r.tagCount);
 
@@ -83,7 +93,7 @@ class InventoryManagerState {
 }
 
 @riverpod
-class ConferenceManager extends _$ConferenceManager {
+class InventoryManager extends _$InventoryManager {
   final _audioPlayer = AudioPlayer();
 
   @override
@@ -97,7 +107,11 @@ class ConferenceManager extends _$ConferenceManager {
     state = const InventoryManagerState();
   }
 
-  Future<void> initConference() async {
+  Future<void> startInventoryFlow() async {
+    await Future.wait([initInventory(), ref.read(bleConnectionProvider).manager.enterOnReadMode()]);
+  }
+
+  Future<void> initInventory() async {
     logger.d('initConference called!');
     state = state.copyWith(initReqStatus: RequestStatus.loading);
     try {
@@ -137,22 +151,20 @@ class ConferenceManager extends _$ConferenceManager {
     return false;
   }
 
-  Future<void> finishConference() async {
-    logger.d('Entrei em finishConference');
+  Future<void> finishInventory() async {
     if (state.id != null) {
       state = state.copyWith(finishReqStatus: RequestStatus.loading);
       try {
-        logger.d('Calling finishConference...');
         try {
           await injector.get<InventoryRepository>().postReadings(state.id!, state.readings);
         } catch (err) {
           logger.e('Erro ao buscar produtos da conferência!');
         }
         await injector.get<InventoryRepository>().finishInventory(state.id!);
-        logger.d('finishConference successfully ended!');
-        state = state.copyWith(finishReqStatus: RequestStatus.success);
-        await Future.delayed(const Duration(seconds: 1));
-        // resetState();
+        state = state.copyWith(
+          finishReqStatus: RequestStatus.success,
+          initReqStatus: RequestStatus.idle,
+        );
       } catch (error) {
         logger.e('Error on finishConference vei $error');
         state = state.copyWith(finishReqStatus: RequestStatus.error);
@@ -169,9 +181,10 @@ class ConferenceManager extends _$ConferenceManager {
         logger.e('Error calling cancelConference on ConferenceManager: $error');
         state = state.copyWith(cancelReqStatus: RequestStatus.error);
       }
-      state = state.copyWith(cancelReqStatus: RequestStatus.success);
-      await Future.delayed(const Duration(seconds: 1));
-      // resetState();
+      state = state.copyWith(
+        cancelReqStatus: RequestStatus.success,
+        initReqStatus: RequestStatus.idle,
+      );
     }
   }
 

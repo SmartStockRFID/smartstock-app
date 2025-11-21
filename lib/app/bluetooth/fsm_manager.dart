@@ -19,7 +19,10 @@ class BleFSM {
   }
 
   void _processLoop() async {
-    if (_isProcessing) return;
+    if (_isProcessing) {
+      return;
+    }
+  
     _isProcessing = true;
 
     while (_currentState != null) {

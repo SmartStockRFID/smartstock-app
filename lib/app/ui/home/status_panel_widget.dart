@@ -52,10 +52,10 @@ class StatusPanelWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final bleState = ref.watch(bleConnectionProvider);
+    final bleState = ref.watch(bleConnectionProvider.select((state) => state.currentState));
     final stockState = ref.watch(stockProvider);
 
-    final bleStatus = _getBleStatus(bleState.currentState);
+    final bleStatus = _getBleStatus(bleState);
     final stockStatus = _getStockStatus(stockState);
 
     final typography = context.theme.typography;

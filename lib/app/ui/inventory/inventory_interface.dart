@@ -12,15 +12,10 @@ import 'package:smart_stock/app/ui/shared/custom_card.dart';
 import 'package:smart_stock/app/ui/shared/types.dart';
 import 'package:smart_stock/app/ui/themes/custom_forui.dart';
 
-// --- WIDGET PRINCIPAL DA INTERFACE ---
 class ConferencePageInterface extends ConsumerWidget {
-  const ConferencePageInterface({super.key});
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(inventoryBleListenerProvider);
-    final confState = ref.watch(conferenceManagerProvider);
-
     return Padding(
       padding: const EdgeInsets.all(12.0),
       child: Column(
@@ -31,9 +26,9 @@ class ConferencePageInterface extends ConsumerWidget {
                 children: [
                   // _Scoreboard(confState: confState),
                   // const SizedBox(height: 16),
-                  _CurrentItem(confState: confState),
+                  _CurrentItem(),
                   const SizedBox(height: 16),
-                  _ReadingHistory(confState: confState),
+                  _ReadingHistory(),
                 ],
               ),
             ),
@@ -46,18 +41,20 @@ class ConferencePageInterface extends ConsumerWidget {
 }
 
 class _Scoreboard extends ConsumerWidget {
-  const _Scoreboard({required this.confState});
-  final InventoryManagerState confState;
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final readings = ref.watch(inventoryManagerProvider.select((state) => state.readings));
+    final readingsCount = ref.watch(
+      inventoryManagerProvider.select((state) => state.readingsCount),
+    );
+
     return CustomCard(
-      title: Text('Resumo do Inventário'),
+      title: const Text('Resumo do Inventário'),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _ScoreboardItem(count: confState.readings.length, label: 'Produtos Únicos'),
-          _ScoreboardItem(count: confState.readingsCount, label: 'Etiquetas Lidas'),
+          _ScoreboardItem(count: readings.length, label: 'Produtos Únicos'),
+          _ScoreboardItem(count: readingsCount, label: 'Etiquetas Lidas'),
         ],
       ),
     );
@@ -88,13 +85,11 @@ class _ScoreboardItem extends StatelessWidget {
 }
 
 class _CurrentItem extends ConsumerWidget {
-  const _CurrentItem({required this.confState});
-  final InventoryManagerState confState;
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final stockState = ref.watch(stockProvider);
-    final lastReading = confState.readings.isNotEmpty ? confState.readings.last : null;
+    final readings = ref.watch(inventoryManagerProvider.select((state) => state.readings));
+    final lastReading = readings.isNotEmpty ? readings.last : null;
 
     return CustomCard(
       title: const Text('Item Atual'),
@@ -167,25 +162,23 @@ class _CurrentItem extends ConsumerWidget {
 }
 
 class _ReadingHistory extends ConsumerWidget {
-  const _ReadingHistory({required this.confState});
-  final InventoryManagerState confState;
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final stockState = ref.watch(stockProvider);
+    final readings = ref.watch(inventoryManagerProvider.select((state) => state.readings));
 
-    if (confState.readings.isEmpty) {
+    if (readings.isEmpty) {
       return const SizedBox.shrink();
     }
 
     return CustomCard(
-      title: Text('Histórico'),
+      title: const Text('Histórico'),
       child: ListView.separated(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
-        itemCount: confState.readings.length,
+        itemCount: readings.length,
         itemBuilder: (context, index) {
-          final reading = confState.readings[index];
+          final reading = readings[index];
           return ListTile(
             contentPadding: EdgeInsets.zero,
             title: stockState.when(
@@ -230,15 +223,15 @@ class _Footer extends ConsumerStatefulWidget {
 class _FooterState extends ConsumerState<_Footer> {
   @override
   Widget build(BuildContext context) {
-    final confManager = ref.read(conferenceManagerProvider.notifier);
+    final inventoryManager = ref.read(inventoryManagerProvider.notifier);
 
-    ref.listen<InventoryManagerState>(conferenceManagerProvider, (previous, next) {
+    ref.listen<InventoryManagerState>(inventoryManagerProvider, (previous, next) {
       final wasPaused = previous?.isPaused ?? false;
       if (!wasPaused && next.isPaused) {
         showFDialog(
           context: context,
           builder: (context, style, animation) => FDialog(
-            style: style,
+            style: style.call,
             animation: animation,
             title: const Text('Inventário pausado'),
             body: const Text('Não se preocupe, seu progresso está salvo.'),
@@ -251,7 +244,7 @@ class _FooterState extends ConsumerState<_Footer> {
                 ),
                 onPress: () {
                   Navigator.of(context).pop();
-                  confManager.resumeConference();
+                  inventoryManager.resumeConference();
                 },
                 prefix: const Icon(FIcons.play, size: 16, color: Colors.black),
                 child: Text('CONTINUAR', style: context.theme.typography.base),
@@ -262,7 +255,7 @@ class _FooterState extends ConsumerState<_Footer> {
       }
     });
 
-    ref.listen<InventoryManagerState>(conferenceManagerProvider, (previous, next) {
+    ref.listen<InventoryManagerState>(inventoryManagerProvider, (previous, next) {
       final wasNotSuccess = previous?.cancelReqStatus != RequestStatus.success;
       if (wasNotSuccess && next.cancelReqStatus == RequestStatus.success) {
         showFDialog(
@@ -288,7 +281,7 @@ class _FooterState extends ConsumerState<_Footer> {
       }
     });
 
-    ref.listen<InventoryManagerState>(conferenceManagerProvider, (previous, next) {
+    ref.listen<InventoryManagerState>(inventoryManagerProvider, (previous, next) {
       final wasNotSuccess = previous?.finishReqStatus != RequestStatus.success;
       if (wasNotSuccess && next.finishReqStatus == RequestStatus.success) {
         showFDialog(
@@ -299,8 +292,10 @@ class _FooterState extends ConsumerState<_Footer> {
             title: const Text('Inventário concluído com sucesso!'),
             actions: [
               FButton(
-                onPress: () => context.router.replaceAll([const HomeRoute()]),
-
+                onPress: () {
+                  context.router.replaceAll([const HomeRoute()]);
+                  ref.read(inventoryManagerProvider.notifier).resetState();
+                },
                 style: createLargeStyle(
                   context: context,
                   backgroundColor: context.theme.colors.secondary,
@@ -313,13 +308,18 @@ class _FooterState extends ConsumerState<_Footer> {
         );
       }
     });
-    final confState = ref.watch(conferenceManagerProvider);
+    final finishReqStatus = ref.watch(
+      inventoryManagerProvider.select((state) => state.finishReqStatus),
+    );
+    final cancelReqStatus = ref.watch(
+      inventoryManagerProvider.select((state) => state.cancelReqStatus),
+    );
 
     final bool canClick =
-        confState.finishReqStatus != RequestStatus.loading &&
-        confState.finishReqStatus != RequestStatus.success &&
-        confState.cancelReqStatus != RequestStatus.loading &&
-        confState.cancelReqStatus != RequestStatus.success;
+        finishReqStatus != RequestStatus.loading &&
+        finishReqStatus != RequestStatus.success &&
+        cancelReqStatus != RequestStatus.loading &&
+        cancelReqStatus != RequestStatus.success;
 
     final disabledPriBackgroundColor = context.theme.colors.primary;
     final disabledPriForegroundColor = context.theme.colors.disable(
@@ -335,12 +335,12 @@ class _FooterState extends ConsumerState<_Footer> {
               style: FButtonStyle.secondary(),
               prefix: const Icon(FIcons.pause, size: 16, color: Colors.black),
               child: const Text('PAUSAR'),
-              onPress: () => confManager.pauseConference(),
+              onPress: () => inventoryManager.pauseConference(),
             ),
             FButton(
               style: FButtonStyle.outline(),
               prefix: const Icon(FIcons.square, size: 16.0, color: Colors.black),
-              child: confState.cancelReqStatus == RequestStatus.loading
+              child: cancelReqStatus == RequestStatus.loading
                   ? const Text('CANCELANDO')
                   : const Text('CANCELAR'),
               onPress: () {
@@ -355,7 +355,7 @@ class _FooterState extends ConsumerState<_Footer> {
                       FButton(
                         onPress: () {
                           Navigator.of(context).pop();
-                          confManager.cancelConference();
+                          inventoryManager.cancelConference();
                         },
                         style: createLargeStyle(
                           context: context,
@@ -386,7 +386,7 @@ class _FooterState extends ConsumerState<_Footer> {
             showFDialog(
               context: context,
               builder: (context, style, animation) => FDialog(
-                style: style,
+                style: style.call,
                 animation: animation,
                 title: const Text('Concluir o inventário?'),
                 body: const Text('A contagem atual será salva como final.'),
@@ -399,7 +399,7 @@ class _FooterState extends ConsumerState<_Footer> {
                     ),
                     onPress: () {
                       Navigator.of(context).pop();
-                      confManager.finishConference();
+                      inventoryManager.finishInventory();
                     },
                     child: const Text('CONCLUIR'),
                   ),
@@ -425,9 +425,9 @@ class _FooterState extends ConsumerState<_Footer> {
                 : disabledPriForegroundColor,
           ),
           child: Text(
-            confState.finishReqStatus == RequestStatus.loading
+            finishReqStatus == RequestStatus.loading
                 ? 'CONCLUINDO...'
-                : (confState.finishReqStatus == RequestStatus.success ? 'CONCLUÍDA' : 'CONCLUIR'),
+                : (finishReqStatus == RequestStatus.success ? 'CONCLUÍDA' : 'CONCLUIR'),
             style: context.theme.typography.xl2.copyWith(color: Colors.white),
           ),
         ),

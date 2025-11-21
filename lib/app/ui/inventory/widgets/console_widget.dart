@@ -60,7 +60,7 @@ class _ConsoleWidgetState extends ConsumerState<ConsoleWidget> with SingleTicker
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                Text('OEM: ---'),
+                const Text('OEM: ---'),
                 Text(
                   'QUANTIDADE TOTAL',
                   style: typography.lg.copyWith(color: Colors.grey, fontWeight: FontWeight.bold),

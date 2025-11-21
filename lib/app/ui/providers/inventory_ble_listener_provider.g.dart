@@ -42,7 +42,7 @@ final class InventoryBleListenerProvider
 }
 
 String _$inventoryBleListenerHash() =>
-    r'2a95abba90a1a0a34e47c0c5c4be23cc99a39396';
+    r'01dcf603880ec4f7c6075fde3c3f9de9d81f3df2';
 
 abstract class _$InventoryBleListener extends $Notifier<void> {
   void build();

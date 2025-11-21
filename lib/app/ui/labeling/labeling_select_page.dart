@@ -129,65 +129,48 @@ class _LabelingPageState extends ConsumerState<LabelingPage> with SingleTickerPr
           ),
         ),
         const Padding(padding: EdgeInsetsGeometry.symmetric(vertical: 8.0)),
-        Column(
-          spacing: 12,
-          children: [
-            FButton(
-              onPress: () async {
-                if (!canStartWriting) {
-                  return;
-                }
+        FButton(
+          onPress: () async {
+            if (!canStartWriting) {
+              return;
+            }
 
-                if (isResetMode) {
-                  ref.read(writingManagerProvider.notifier).changeToResetMode();
-                } else {
-                  ref
-                      .read(writingManagerProvider.notifier)
-                      .changeProductBeingWrited(selectController.value?.productCode ?? '');
-                }
+            if (isResetMode) {
+              ref.read(writingManagerProvider.notifier).changeToResetMode();
+            } else {
+              ref
+                  .read(writingManagerProvider.notifier)
+                  .changeProductBeingWrited(selectController.value?.productCode ?? '');
+            }
 
-                await ref
-                    .read(labelControllerProvider.notifier)
-                    .writeOnTag(
-                      mode: radioController.value.first,
-                      productOem: selectController.value?.productCode,
-                    );
+            await ref
+                .read(labelControllerProvider.notifier)
+                .writeOnTag(
+                  mode: radioController.value.first,
+                  productOem: selectController.value?.productCode,
+                );
 
-                if (context.mounted) {
-                  context.router.push(
-                    WritingRoute(
-                      targetProductName: selectController.value?.name,
-                      mode: radioController.value.first,
-                    ),
-                  );
-                }
-              },
-              prefix: Icon(
-                radioController.value.firstOrNull == WritingMode.RESET
-                    ? FIcons.eraser
-                    : FIcons.save,
-                size: 22,
-                color: Colors.white,
-              ),
-              style: primaryLargeButton(context, disabled: !canStartWriting),
-              child: Text(
-                radioController.value.firstOrNull == WritingMode.RESET
-                    ? 'LIMPAR ETIQUETAS'
-                    : 'GRAVAR ETIQUETAS',
-                style: context.theme.typography.xl2.copyWith(color: Colors.white),
-              ),
-            ),
-            FButton(
-              style: secondaryLargeButton(context),
-              child: Text(
-                'VOLTAR',
-                style: context.theme.typography.xl2.copyWith(color: Colors.black),
-              ),
-              onPress: () {
-                context.router.replaceAll([const HomeRoute()]);
-              },
-            ),
-          ],
+            if (context.mounted) {
+              context.router.push(
+                WritingRoute(
+                  targetProductName: selectController.value?.name,
+                  mode: radioController.value.first,
+                ),
+              );
+            }
+          },
+          prefix: Icon(
+            radioController.value.firstOrNull == WritingMode.RESET ? FIcons.eraser : FIcons.save,
+            size: 22,
+            color: Colors.white,
+          ),
+          style: primaryLargeButton(context, disabled: !canStartWriting),
+          child: Text(
+            radioController.value.firstOrNull == WritingMode.RESET
+                ? 'LIMPAR ETIQUETAS'
+                : 'GRAVAR ETIQUETAS',
+            style: context.theme.typography.xl2.copyWith(color: Colors.white),
+          ),
         ),
       ],
     );

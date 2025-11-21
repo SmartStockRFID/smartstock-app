@@ -13,7 +13,7 @@ class MainLayoutPage extends StatelessWidget {
     if (isAtHome) {
       return baseAppBar(
         widgetTitle: Center(
-          child: Image.asset(Assets.toyotaLogo, height: MediaQuery.of(context).size.height / 15),
+          child: Image.asset(Assets.toyotaLogo, height: MediaQuery.of(context).size.height / 20),
         ),
       );
     }
@@ -35,19 +35,19 @@ class MainLayoutPage extends StatelessWidget {
         final String routeName = tabsRouter.topMatch.name;
         final bool isAtHome = routeName == HomeRoute.name;
 
-        return PopScope(
-          canPop: false,
-          onPopInvokedWithResult: (didPop, result) {
-            if (isAtHome) {
-              SystemChannels.platform.invokeMethod('SystemNavigator.pop');
-            } else {
-              context.router.replaceAll(const [HomeRoute()]);
-            }
-          },
-          child: Scaffold(
-            appBar: _getAppBar(context, routeName, isAtHome),
-            backgroundColor: Colors.white,
-            body: SafeArea(
+        return Scaffold(
+          appBar: _getAppBar(context, routeName, isAtHome),
+          backgroundColor: Colors.white,
+          body: PopScope(
+            canPop: false,
+            onPopInvokedWithResult: (didPop, result) {
+              if (isAtHome) {
+                SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+              } else {
+                context.router.replaceAll(const [HomeRoute()]);
+              }
+            },
+            child: SafeArea(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 child: child,

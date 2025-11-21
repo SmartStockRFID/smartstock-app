@@ -28,5 +28,5 @@ class AppRouter extends RootStackRouter {
 
 final routesTitles = {
   InventoryConfirmationRoute.name: 'Inventário',
-  LabelingRoute.name: 'Etiquetagem',
+  LabelingRoute.name: 'Gravação',
 };

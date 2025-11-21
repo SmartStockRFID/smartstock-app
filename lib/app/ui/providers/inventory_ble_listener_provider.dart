@@ -18,7 +18,7 @@ class InventoryBleListener extends _$InventoryBleListener {
   @override
   void build() {
     final ble = ref.watch(bleConnectionProvider);
-    final inventoryNotifier = ref.read(conferenceManagerProvider.notifier);
+    final inventoryNotifier = ref.read(inventoryManagerProvider.notifier);
 
     _sub = ble.manager.rfidDataStream.listen((read) {
       final microcontrollerResponse = FirmwareResponse.fromJson(read);

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:smart_stock/app/config/assets.dart';
-import 'package:smart_stock/app/ui/inventory_confirmation/widgets/footer_widget.dart';
+import 'package:smart_stock/app/ui/inventory_confirmation/widgets/init_inventory_btn_widget.dart';
 import 'package:smart_stock/app/ui/providers/inventory_provider.dart';
 import 'package:smart_stock/app/ui/providers/stock_provider.dart';
 import 'package:smart_stock/app/ui/shared/custom_card.dart';
@@ -23,7 +23,7 @@ class InventoryConfirmationPage extends StatelessWidget {
             children: [_ResponsibleEmployee(), SizedBox(height: 16), _ConnectionChecker()],
           ),
         ),
-        Footer(),
+        InitInventoryButton(),
       ],
     );
   }
@@ -35,7 +35,9 @@ class _ResponsibleEmployee extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final typography = context.theme.typography;
-    final inventoryState = ref.watch(conferenceManagerProvider);
+    final employeeUsername = ref.watch(
+      inventoryManagerProvider.select((state) => state.employeeUsername),
+    );
     return CustomCard(
       title: const Text('Responsável'),
       child: Row(
@@ -49,7 +51,7 @@ class _ResponsibleEmployee extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  inventoryState.employeeUsername ?? 'admin',
+                  employeeUsername ?? 'admin',
                   style: typography.xl.copyWith(fontWeight: FontWeight.bold, height: 1.2),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,

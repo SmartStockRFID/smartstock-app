@@ -26,13 +26,13 @@ class ConnectionManager {
 
   String? get connectedDeviceName => connectedPistol?.name;
 
-  Future<void> readCharacteristic(BluetoothDevice? connectedPistol) async {
+  Future<void> readCharacteristic() async {
     if (connectedPistol == null) {
       return;
     }
     logger.d('Trying to readData');
     try {
-      final List<BluetoothService> services = await connectedPistol.discoverServices();
+      final List<BluetoothService> services = await connectedPistol!.discoverServices();
       for (final BluetoothService service in services) {
         for (final characteristic in service.characteristics) {
           if (characteristic.uuid == rfidCharacteristicUUID && characteristic.properties.notify) {
@@ -65,13 +65,13 @@ class ConnectionManager {
     }
   }
 
-  Future<void> enterOnReadMode(BluetoothDevice? connectedPistol) async {
+  Future<void> enterOnReadMode() async {
     if (connectedPistol == null) {
       return;
     }
     logger.d('Trying to enter on ReadMOde on ConnectionManager!');
     try {
-      final List<BluetoothService> services = await connectedPistol.discoverServices();
+      final List<BluetoothService> services = await connectedPistol!.discoverServices();
       for (final BluetoothService service in services) {
         for (final BluetoothCharacteristic characteristic in service.characteristics) {
           if (characteristic.uuid == rfidCharacteristicUUID && characteristic.properties.write) {

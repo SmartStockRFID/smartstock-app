@@ -23,11 +23,4 @@ class FirmwareResponse {
 
   @override
   String toString() => 'FirmwareObject(type: $type, content: $content)';
-
-  @override
-  bool operator ==(covariant FirmwareResponse other) {
-    if (identical(this, other)) return true;
-
-    return other.type == type && other.content == content;
-  }
 }

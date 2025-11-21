@@ -9,28 +9,28 @@ part of 'inventory_provider.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
-@ProviderFor(ConferenceManager)
-const conferenceManagerProvider = ConferenceManagerProvider._();
+@ProviderFor(InventoryManager)
+const inventoryManagerProvider = InventoryManagerProvider._();
 
-final class ConferenceManagerProvider
-    extends $NotifierProvider<ConferenceManager, InventoryManagerState> {
-  const ConferenceManagerProvider._()
+final class InventoryManagerProvider
+    extends $NotifierProvider<InventoryManager, InventoryManagerState> {
+  const InventoryManagerProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'conferenceManagerProvider',
+        name: r'inventoryManagerProvider',
         isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$conferenceManagerHash();
+  String debugGetCreateSourceHash() => _$inventoryManagerHash();
 
   @$internal
   @override
-  ConferenceManager create() => ConferenceManager();
+  InventoryManager create() => InventoryManager();
 
   /// {@macro riverpod.override_with_value}
   Override overrideWithValue(InventoryManagerState value) {
@@ -41,9 +41,9 @@ final class ConferenceManagerProvider
   }
 }
 
-String _$conferenceManagerHash() => r'cda4ae965826d9d51e05f38610d0f66b4e5cc4f2';
+String _$inventoryManagerHash() => r'96fac1539c1d2b68b2f8c4ddf8d85b48a36bd586';
 
-abstract class _$ConferenceManager extends $Notifier<InventoryManagerState> {
+abstract class _$InventoryManager extends $Notifier<InventoryManagerState> {
   InventoryManagerState build();
   @$mustCallSuper
   @override

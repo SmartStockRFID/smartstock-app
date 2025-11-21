@@ -6,18 +6,13 @@ import 'package:smart_stock/app/bluetooth/connnected_state.dart';
 import 'package:smart_stock/app/routing/router.dart';
 import 'package:smart_stock/app/ui/home/status_panel_widget.dart';
 import 'package:smart_stock/app/ui/providers/ble_connection_provider.dart';
+import 'package:smart_stock/app/ui/providers/inventory_provider.dart';
 import 'package:smart_stock/app/ui/providers/stock_provider.dart';
+import 'package:smart_stock/app/ui/shared/types.dart';
 import 'package:smart_stock/app/ui/themes/custom_forui.dart';
 
 @RoutePage()
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
-
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
+class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Column(
@@ -35,9 +30,12 @@ class Navbar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final pistolConnection = ref.watch(bleConnectionProvider);
+    final currentStsdate = ref.watch(bleConnectionProvider.select((state) => state.currentState));
     final stockState = ref.watch(stockProvider);
-    final isConnected = pistolConnection.fsm.currentState is ConnectedState && stockState.hasValue;
+    final isConnected = currentStsdate is ConnectedState && stockState.hasValue;
+    final initInventoryStatus = ref.watch(
+      inventoryManagerProvider.select((state) => state.initReqStatus),
+    );
 
     return Column(
       spacing: 12,
@@ -46,7 +44,10 @@ class Navbar extends ConsumerWidget {
           isConnected: isConnected,
           icon: FIcons.clipboardCheck,
           title: routesTitles[InventoryConfirmationRoute.name] ?? '',
-          href: const InventoryConfirmationRoute(),
+          badgeLabel: initInventoryStatus == RequestStatus.success ? 'ABERTO' : null,
+          href: initInventoryStatus == RequestStatus.success
+              ? const InventoryRoute()
+              : const InventoryConfirmationRoute(),
         ),
         NavLink(
           isConnected: isConnected,
@@ -66,12 +67,14 @@ class NavLink extends StatelessWidget {
     required this.icon,
     required this.title,
     required this.href,
+    this.badgeLabel,
   });
 
   final bool isConnected;
   final IconData icon;
   final String title;
   final PageRouteInfo href;
+  final String? badgeLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -80,6 +83,7 @@ class NavLink extends StatelessWidget {
       prefix: Icon(icon, size: 20, color: Colors.white),
       child: Expanded(
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
@@ -89,7 +93,21 @@ class NavLink extends StatelessWidget {
                 fontWeight: FontWeight.w700,
               ),
             ),
-            const Icon(FIcons.chevronRight, size: 20, color: Colors.white),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.end,
+              spacing: 2,
+              children: [
+                if (badgeLabel != null)
+                  FBadge(
+                    style: FBadgeStyle.secondary(),
+                    child: const Text('ABERTO', style: TextStyle(fontWeight: FontWeight.bold)),
+                  )
+                else
+                  const Center(),
+                const Icon(FIcons.chevronRight, size: 20, color: Colors.white),
+              ],
+            ),
           ],
         ),
       ),
