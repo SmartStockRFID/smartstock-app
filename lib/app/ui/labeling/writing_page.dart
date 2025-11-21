@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:smart_stock/app/ui/labeling/labeling_select_page.dart';
 import 'package:smart_stock/app/ui/providers/ble_connection_provider.dart';
 import 'package:smart_stock/app/ui/providers/current_writing_provider.dart';
 import 'package:smart_stock/app/ui/providers/writing_feedback_ble_listener_provider.dart';
@@ -11,9 +12,10 @@ import 'package:smart_stock/app/ui/themes/custom_forui.dart';
 
 @RoutePage()
 class WritingPage extends ConsumerStatefulWidget {
-  const WritingPage({required this.targetProductName});
+  const WritingPage({required this.targetProductName, required this.mode});
 
-  final String targetProductName;
+  final String? targetProductName;
+  final WritingMode mode;
 
   @override
   ConsumerState<WritingPage> createState() => _WritingPageState();
@@ -27,6 +29,8 @@ class _WritingPageState extends ConsumerState<WritingPage> {
     ref.watch(writingFeedbackBleListenerProvider);
 
     final writingManager = ref.watch(writingManagerProvider);
+
+    final isResetMode = widget.mode == WritingMode.RESET;
 
     return PopScope(
       canPop: true,
@@ -49,26 +53,32 @@ class _WritingPageState extends ConsumerState<WritingPage> {
                   children: [
                     CustomCard(
                       title: Text(
-                        'Gravando:',
-                        style: context.theme.typography.lg,
+                        isResetMode ? 'Modo de restauração' : 'Gravando:',
+                        style: context.theme.typography.lg.copyWith(
+                          fontWeight: isResetMode ? FontWeight.w700 : FontWeight.w500,
+                        ),
                         textAlign: TextAlign.center,
                       ),
                       child: Center(
-                        child: Text(
-                          widget.targetProductName,
-                          style: context.theme.typography.xl.copyWith(fontWeight: FontWeight.w700),
-                          textAlign: TextAlign.center,
-                        ),
+                        child: isResetMode
+                            ? null
+                            : Text(
+                                widget.targetProductName ?? '',
+                                style: context.theme.typography.xl.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
                       ),
                     ),
                     CustomCard(
                       title: Text(
-                        'Número de etiquetas gravadas:',
+                        'Número de etiquetas ${isResetMode ? 'limpas' : 'gravadas'}:',
                         style: context.theme.typography.lg,
                       ),
                       child: Center(
                         child: Text(
-                          writingManager.writedTagsCount.toString(),
+                          writingManager.writedTags.length.toString(),
                           style: context.theme.typography.xl8,
                         ),
                       ),

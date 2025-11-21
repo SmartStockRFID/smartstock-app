@@ -8,6 +8,8 @@ import 'package:smart_stock/app/ui/providers/inventory_provider.dart';
 import 'package:smart_stock/app/ui/shared/types.dart';
 import 'package:smart_stock/app/ui/themes/custom_forui.dart';
 import 'package:smart_stock/app/utils/logger.dart';
+import 'package:vibration/vibration.dart';
+import 'package:vibration/vibration_presets.dart';
 
 class Footer extends ConsumerStatefulWidget {
   @override
@@ -27,6 +29,7 @@ class _FooterState extends ConsumerState<Footer> {
     if (inventoryState.initReqStatus == RequestStatus.success) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
+          Vibration.vibrate(preset: VibrationPreset.quickSuccessAlert);
           context.router.replaceAll([const InventoryRoute()]);
         }
       });

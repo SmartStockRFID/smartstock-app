@@ -94,11 +94,15 @@ class MainLayoutRoute extends PageRouteInfo<void> {
 /// [WritingPage]
 class WritingRoute extends PageRouteInfo<WritingRouteArgs> {
   WritingRoute({
-    required String targetProductName,
+    required String? targetProductName,
+    required WritingMode mode,
     List<PageRouteInfo>? children,
   }) : super(
          WritingRoute.name,
-         args: WritingRouteArgs(targetProductName: targetProductName),
+         args: WritingRouteArgs(
+           targetProductName: targetProductName,
+           mode: mode,
+         ),
          initialChildren: children,
        );
 
@@ -108,28 +112,33 @@ class WritingRoute extends PageRouteInfo<WritingRouteArgs> {
     name,
     builder: (data) {
       final args = data.argsAs<WritingRouteArgs>();
-      return WritingPage(targetProductName: args.targetProductName);
+      return WritingPage(
+        targetProductName: args.targetProductName,
+        mode: args.mode,
+      );
     },
   );
 }
 
 class WritingRouteArgs {
-  const WritingRouteArgs({required this.targetProductName});
+  const WritingRouteArgs({required this.targetProductName, required this.mode});
 
-  final String targetProductName;
+  final String? targetProductName;
+
+  final WritingMode mode;
 
   @override
   String toString() {
-    return 'WritingRouteArgs{targetProductName: $targetProductName}';
+    return 'WritingRouteArgs{targetProductName: $targetProductName, mode: $mode}';
   }
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other is! WritingRouteArgs) return false;
-    return targetProductName == other.targetProductName;
+    return targetProductName == other.targetProductName && mode == other.mode;
   }
 
   @override
-  int get hashCode => targetProductName.hashCode;
+  int get hashCode => targetProductName.hashCode ^ mode.hashCode;
 }

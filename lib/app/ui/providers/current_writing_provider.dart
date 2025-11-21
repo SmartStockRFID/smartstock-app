@@ -1,44 +1,66 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/widgets.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:smart_stock/app/config/assets.dart';
+import 'package:smart_stock/app/ui/labeling/labeling_select_page.dart';
+import 'package:vibration/vibration.dart';
+import 'package:vibration/vibration_presets.dart';
 
 part 'current_writing_provider.g.dart';
 
 @immutable
 class WritingManagerState {
+  final WritingMode mode;
   final String? currentProductOEM;
   final DateTime? lastWritingAt;
-  final int writedTagsCount;
+  final List<String> writedTags;
 
-  const WritingManagerState({this.currentProductOEM, this.lastWritingAt, this.writedTagsCount = 0});
+  const WritingManagerState({
+    this.mode = WritingMode.PRODUCT_CODE,
+    this.currentProductOEM,
+    this.lastWritingAt,
+    this.writedTags = const [],
+  });
 
   WritingManagerState copyWith({
+    WritingMode? mode,
     String? currentProductOEM,
     DateTime? lastWritingAt,
-    int? writedTagsCount,
+    List<String>? writedTags,
   }) {
     return WritingManagerState(
+      mode: mode ?? this.mode,
       currentProductOEM: currentProductOEM ?? this.currentProductOEM,
       lastWritingAt: lastWritingAt ?? this.lastWritingAt,
-      writedTagsCount: writedTagsCount ?? this.writedTagsCount,
+      writedTags: writedTags ?? this.writedTags,
     );
   }
 }
 
 @riverpod
 class WritingManager extends _$WritingManager {
+  final _audioPlayer = AudioPlayer();
+
   @override
   WritingManagerState build() {
+    _audioPlayer.setReleaseMode(ReleaseMode.stop);
     return const WritingManagerState();
   }
 
   void changeProductBeingWrited(String newProductOEM) {
-    state = state.copyWith(currentProductOEM: newProductOEM, writedTagsCount: 0);
+    state = WritingManagerState(mode: WritingMode.PRODUCT_CODE, currentProductOEM: newProductOEM);
   }
 
-  void incrementWritedTagsCount() {
-    state = state.copyWith(
-      writedTagsCount: state.writedTagsCount + 1,
-      lastWritingAt: DateTime.now(),
-    );
+  void changeToResetMode() {
+    state = const WritingManagerState(mode: WritingMode.RESET);
+  }
+
+  void addNewWritedTag(String uid) {
+    if (!state.writedTags.contains(uid)) {
+      _audioPlayer.play(AssetSource(Assets.scannerBeep));
+      Vibration.vibrate(preset: VibrationPreset.quickSuccessAlert);
+
+      state = state.copyWith(writedTags: [...state.writedTags, uid], lastWritingAt: DateTime.now());
+    }
   }
 }

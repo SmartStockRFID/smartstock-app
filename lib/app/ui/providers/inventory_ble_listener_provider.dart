@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:smart_stock/app/config/constants.dart';
 import 'package:smart_stock/app/domain/firmware/firmware_api_response.dart';
 import 'package:smart_stock/app/domain/firmware/reading_response.dart';
+import 'package:smart_stock/app/utils/logger.dart';
 
 import 'ble_connection_provider.dart';
 import 'inventory_provider.dart';
@@ -26,6 +28,11 @@ class InventoryBleListener extends _$InventoryBleListener {
       }
 
       final readingResponse = ReadingResponseContent.fromMap(microcontrollerResponse.content);
+
+      if (readingResponse.productOEM == emptyTagOEM) {
+        logger.i('Tag virgem lida durante conferência');
+        return;
+      }
 
       inventoryNotifier.addNewReading(readingResponse);
     });

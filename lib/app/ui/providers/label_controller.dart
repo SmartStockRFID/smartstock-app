@@ -1,4 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:smart_stock/app/config/constants.dart';
+import 'package:smart_stock/app/ui/labeling/labeling_select_page.dart';
 import 'package:smart_stock/app/ui/providers/ble_connection_provider.dart';
 import 'package:vibration/vibration.dart';
 import 'package:vibration/vibration_presets.dart';
@@ -12,13 +14,13 @@ class LabelController extends _$LabelController {
     return const AsyncValue.data(null);
   }
 
-  Future<void> writeOnTag({required String productOem}) async {
+  Future<void> writeOnTag({String? productOem, required WritingMode mode}) async {
     state = const AsyncValue.loading();
     try {
       final bleConnection = ref.read(bleConnectionProvider);
       await bleConnection.manager.writeCharacteristic(
         bleConnection.manager.connectedPistol,
-        productOem,
+        mode == WritingMode.RESET ? emptyTagOEM : (productOem ?? ''),
       );
 
       Vibration.vibrate(preset: VibrationPreset.quickSuccessAlert);

@@ -7,7 +7,6 @@ import 'package:smart_stock/app/routing/router.dart';
 import 'package:smart_stock/app/ui/providers/current_writing_provider.dart';
 import 'package:smart_stock/app/ui/providers/label_controller.dart';
 import 'package:smart_stock/app/ui/providers/stock_provider.dart';
-import 'package:smart_stock/app/ui/shared/update_stock_btn.dart';
 import 'package:smart_stock/app/ui/themes/custom_forui.dart';
 
 @RoutePage()
@@ -18,8 +17,13 @@ class LabelingPage extends ConsumerStatefulWidget {
   ConsumerState<LabelingPage> createState() => _LabelingPageState();
 }
 
+enum WritingMode { PRODUCT_CODE, RESET }
+
 class _LabelingPageState extends ConsumerState<LabelingPage> with SingleTickerProviderStateMixin {
   late final FSelectController<CarPart> selectController;
+  final radioController = FSelectGroupController<WritingMode>.radio(
+    WritingMode.PRODUCT_CODE,
+  ); // If you want to remove this default, please check for .value.first on code
 
   @override
   void initState() {
@@ -35,55 +39,141 @@ class _LabelingPageState extends ConsumerState<LabelingPage> with SingleTickerPr
   Widget build(BuildContext context) {
     // final writeState = ref.watch(createProductControllerProvider);
     final typography = context.theme.typography;
-    final bool buttonDisabled = selectController.value == null;
+    final stockState = ref.watch(stockProvider);
+
+    final bool canStartWriting =
+        selectController.value != null || radioController.value.firstOrNull == WritingMode.RESET;
+
+    final bool isResetMode = radioController.value.firstOrNull == WritingMode.RESET;
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         FCard(
           title: Text(
-            'Produto',
+            'Modo de gravação',
             textAlign: TextAlign.center,
-            style: typography.sm.copyWith(
-              color: context.theme.colors.primary,
-              fontWeight: FontWeight.bold,
-            ),
+            style: typography.sm.copyWith(fontWeight: FontWeight.bold),
           ),
           child: Column(
             spacing: 12,
             children: [
-              SearchCarPart(selectController: selectController),
-              UpdateStockButton(),
+              const SizedBox(height: 4),
+              FSelectGroup(
+                controller: radioController,
+                validator: (values) => values?.isEmpty ?? true ? 'Please select a value.' : null,
+                onChange: (value) {
+                  setState(() {});
+                },
+                children: [
+                  FRadio.grouped(
+                    value: WritingMode.RESET,
+                    label: Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: Text('Restauração', style: context.theme.typography.xl),
+                    ),
+                  ),
+                  FRadio.grouped(
+                    value: WritingMode.PRODUCT_CODE,
+                    label: Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Text('Produto', style: context.theme.typography.xl),
+                    ),
+                  ),
+                ],
+              ),
+              Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: stockState.when(
+                      data: (parts) {
+                        return FSelect<CarPart>.searchBuilder(
+                          enabled: radioController.value.firstOrNull == WritingMode.PRODUCT_CODE,
+                          controller: selectController,
+                          searchFieldProperties: const FSelectSearchFieldProperties(
+                            hint: 'Buscar produto...',
+                          ),
+                          hint: 'Escolha o produto a ser gravado',
+                          contentPhysics: const BouncingScrollPhysics(),
+                          format: (part) => part.name,
+                          filter: (query) => query.isEmpty
+                              ? parts
+                              : parts.where(
+                                  (p) => p.name.toLowerCase().startsWith(query.toLowerCase()),
+                                ),
+                          contentBuilder: (context, _, parts) => [
+                            for (final part in parts)
+                              FSelectItem(
+                                value: part,
+                                title: Text(part.name, style: const TextStyle(color: Colors.black)),
+                              ),
+                          ],
+                          contentLoadingBuilder: (context, style) =>
+                              const Text('Buscando produtos...'),
+                          contentErrorBuilder: (context, error, stackTrace) =>
+                              const Text('Serviço Indisponível'),
+                        );
+                      },
+                      error: (e, stackTrace) {
+                        return const Text('Serviço Indisponível');
+                      },
+                      loading: () {
+                        return const Text('Buscando produtos...');
+                      },
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
         ),
         const Padding(padding: EdgeInsetsGeometry.symmetric(vertical: 8.0)),
-
         Column(
           spacing: 12,
           children: [
             FButton(
               onPress: () async {
-                if (selectController.value == null) {
+                if (!canStartWriting) {
                   return;
                 }
-                ref
-                    .read(writingManagerProvider.notifier)
-                    .changeProductBeingWrited(selectController.value!.productCode);
+
+                if (isResetMode) {
+                  ref.read(writingManagerProvider.notifier).changeToResetMode();
+                } else {
+                  ref
+                      .read(writingManagerProvider.notifier)
+                      .changeProductBeingWrited(selectController.value?.productCode ?? '');
+                }
+
                 await ref
                     .read(labelControllerProvider.notifier)
-                    .writeOnTag(productOem: selectController.value!.productCode);
+                    .writeOnTag(
+                      mode: radioController.value.first,
+                      productOem: selectController.value?.productCode,
+                    );
 
                 if (context.mounted) {
                   context.router.push(
-                    WritingRoute(targetProductName: selectController.value!.name),
+                    WritingRoute(
+                      targetProductName: selectController.value?.name,
+                      mode: radioController.value.first,
+                    ),
                   );
                 }
               },
-              prefix: const Icon(FIcons.save, size: 22, color: Colors.white),
-              style: primaryLargeButton(context, disabled: buttonDisabled),
+              prefix: Icon(
+                radioController.value.firstOrNull == WritingMode.RESET
+                    ? FIcons.eraser
+                    : FIcons.save,
+                size: 22,
+                color: Colors.white,
+              ),
+              style: primaryLargeButton(context, disabled: !canStartWriting),
               child: Text(
-                'GRAVAR ETIQUETA',
+                radioController.value.firstOrNull == WritingMode.RESET
+                    ? 'LIMPAR ETIQUETAS'
+                    : 'GRAVAR ETIQUETAS',
                 style: context.theme.typography.xl2.copyWith(color: Colors.white),
               ),
             ),
@@ -107,57 +197,5 @@ class _LabelingPageState extends ConsumerState<LabelingPage> with SingleTickerPr
   void dispose() {
     selectController.dispose();
     super.dispose();
-  }
-}
-
-class SearchCarPart extends ConsumerWidget {
-  final FSelectController<CarPart> selectController;
-
-  const SearchCarPart({super.key, required this.selectController});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final stockState = ref.watch(stockProvider);
-
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: stockState.when(
-            data: (parts) {
-              return FSelect<CarPart>.searchBuilder(
-                hint: 'Selecione o Produto',
-                controller: selectController,
-                searchFieldProperties: const FSelectSearchFieldProperties(
-                  hint: 'Buscar produto...',
-                ),
-                description: const Text('Escolha o produto a ser gravado'),
-                contentPhysics: const BouncingScrollPhysics(),
-                format: (part) => part.name,
-                filter: (query) => query.isEmpty
-                    ? parts
-                    : parts.where((p) => p.name.toLowerCase().startsWith(query.toLowerCase())),
-                contentBuilder: (context, _, parts) => [
-                  for (final part in parts)
-                    FSelectItem(
-                      value: part,
-                      title: Text(part.name, style: const TextStyle(color: Colors.black)),
-                    ),
-                ],
-                contentLoadingBuilder: (context, style) => const Text('Buscando produtos...'),
-                contentErrorBuilder: (context, error, stackTrace) =>
-                    const Text('Serviço Indisponível'),
-              );
-            },
-            error: (e, stackTrace) {
-              return const Text('Serviço Indisponível');
-            },
-            loading: () {
-              return const Text('Buscando produtos...');
-            },
-          ),
-        ),
-      ],
-    );
   }
 }
