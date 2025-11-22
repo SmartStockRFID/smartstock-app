@@ -30,8 +30,8 @@ class WritingFeedbackBleListener extends _$WritingFeedbackBleListener {
 
         final result = WriteResponseContent.fromMap(microcontrollerResponse.content);
 
-        if (result.ok && result.uid != null) {
-          currentWriting.addNewWritedTag(result.uid!);
+        if (result.ok && result.tagUid != null) {
+          currentWriting.addNewWritedTag(result.tagUid!);
         }
       } catch (err) {
         logger.e(err);

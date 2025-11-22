@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
+import 'package:smart_stock/app/config/constants.dart';
 import 'package:smart_stock/app/config/env.dart';
 import 'package:smart_stock/app/routing/router.dart';
 import 'package:smart_stock/app/ui/globals.dart';
@@ -23,7 +24,8 @@ class App extends StatelessWidget {
       scaffoldMessengerKey: scaffoldMessengerKey,
       routerConfig: _appRouter.config(),
       theme: theme,
-      builder: (contenxt, child) => FTheme(data: FThemes.red.light, child: child!),
+      builder: (contenxt, child) =>
+          FTheme(data: useToyotaTheme ? FThemes.red.light : FThemes.zinc.light, child: child!),
       debugShowCheckedModeBanner: false,
     );
   }

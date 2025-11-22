@@ -43,18 +43,25 @@ class _PageState extends ConsumerState<Page> with SingleTickerProviderStateMixin
   @override
   Widget build(BuildContext context) {
     final inventoryId = ref.watch(inventoryManagerProvider.select((state) => state.id));
+    final isPaused = ref.watch(inventoryManagerProvider.select((state) => state.isPaused));
+    final hasEnded = ref.watch(inventoryManagerProvider.select((state) => state.hasEnded));
 
     return Scaffold(
       appBar: baseAppBar(
         widgetTitle: Row(
           mainAxisSize: MainAxisSize.min, // Para a Row não ocupar a linha toda
+          spacing: 8,
           children: [
             Text('Inventário $inventoryId'),
-            const SizedBox(width: 8),
-            FadeTransition(
-              opacity: _animationController,
-              child: const Icon(Icons.circle, color: Colors.green, size: 12),
-            ),
+            if (isPaused)
+              const Icon(Icons.circle, color: Colors.grey, size: 12)
+            else if (hasEnded)
+              const Icon(Icons.circle, color: Colors.blue, size: 12)
+            else
+              FadeTransition(
+                opacity: _animationController,
+                child: const Icon(Icons.circle, color: Colors.green, size: 12),
+              ),
           ],
         ),
       ),
@@ -64,7 +71,7 @@ class _PageState extends ConsumerState<Page> with SingleTickerProviderStateMixin
         onPopInvokedWithResult: (didPop, result) {
           context.router.replaceAll(const [HomeRoute()]);
         },
-        child: SafeArea(child: ConferencePageInterface()),
+        child: SafeArea(child: InventoryPageInterface()),
       ),
     );
   }

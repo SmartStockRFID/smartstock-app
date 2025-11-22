@@ -43,10 +43,11 @@ class ProductReadings {
 @immutable
 class InventoryManagerState {
   final List<ProductReadings> readings;
-  // final lastAddedReading
+  final ProductReadings? lastAddedProductReading;
   final String? employeeUsername;
   final int? id;
   final bool isPaused;
+  final bool hasEnded;
   final RequestStatus initReqStatus;
   final RequestStatus finishReqStatus;
   final RequestStatus cancelReqStatus;
@@ -56,10 +57,18 @@ class InventoryManagerState {
     this.readings = const [],
     this.employeeUsername,
     this.isPaused = false,
+    this.hasEnded = false,
     this.initReqStatus = RequestStatus.idle,
     this.finishReqStatus = RequestStatus.idle,
     this.cancelReqStatus = RequestStatus.idle,
+    this.lastAddedProductReading,
   });
+
+  bool get hasReqPending => [
+    initReqStatus,
+    finishReqStatus,
+    cancelReqStatus,
+  ].any((status) => status == RequestStatus.loading);
 
   String get initButtonLabel {
     return switch (initReqStatus) {
@@ -79,6 +88,8 @@ class InventoryManagerState {
     RequestStatus? finishReqStatus,
     RequestStatus? cancelReqStatus,
     bool? isPaused,
+    bool? hasEnded,
+    ProductReadings? lastAddedProductReading,
   }) {
     return InventoryManagerState(
       readings: readings ?? this.readings,
@@ -88,6 +99,8 @@ class InventoryManagerState {
       finishReqStatus: finishReqStatus ?? this.finishReqStatus,
       cancelReqStatus: cancelReqStatus ?? this.cancelReqStatus,
       isPaused: isPaused ?? this.isPaused,
+      hasEnded: hasEnded ?? this.hasEnded,
+      lastAddedProductReading: lastAddedProductReading ?? this.lastAddedProductReading,
     );
   }
 }
@@ -112,17 +125,16 @@ class InventoryManager extends _$InventoryManager {
   }
 
   Future<void> initInventory() async {
-    logger.d('initConference called!');
     state = state.copyWith(initReqStatus: RequestStatus.loading);
     try {
       final hasActiveConf = await _getActiveReading();
       if (!hasActiveConf) {
-        final confDetails = await injector.get<InventoryRepository>().initInventory(
+        final inventoryDetails = await injector.get<InventoryRepository>().initInventory(
           state.employeeUsername ?? 'admin',
         );
         state = state.copyWith(
-          id: confDetails.id,
-          employeeUsername: confDetails.employeeUsername,
+          id: inventoryDetails.id,
+          employeeUsername: inventoryDetails.employeeUsername,
           initReqStatus: RequestStatus.success,
         );
       } else {
@@ -137,13 +149,13 @@ class InventoryManager extends _$InventoryManager {
 
   // Como que eu pego esse retorno para eu conseguir controlar na tela de interface se eu exibo Retomar ou Iniciar?
   Future<bool> _getActiveReading() async {
-    final confs = await injector.get<InventoryRepository>().getAllInventories();
-    final activeConfIndex = confs.indexWhere((conf) => conf.status == 'iniciada');
+    final inventories = await injector.get<InventoryRepository>().getAllInventories();
+    final activeConfIndex = inventories.indexWhere((conf) => conf.status == 'iniciada');
     if (activeConfIndex != -1) {
-      final confDetails = confs[activeConfIndex];
+      final inventoryDetails = inventories[activeConfIndex];
       state = state.copyWith(
-        id: confDetails.id,
-        employeeUsername: confDetails.employeeUsername,
+        id: inventoryDetails.id,
+        employeeUsername: inventoryDetails.employeeUsername,
         initReqStatus: RequestStatus.success,
       );
       return true;
@@ -164,35 +176,36 @@ class InventoryManager extends _$InventoryManager {
         state = state.copyWith(
           finishReqStatus: RequestStatus.success,
           initReqStatus: RequestStatus.idle,
+          hasEnded: true,
+          isPaused: false,
         );
       } catch (error) {
-        logger.e('Error on finishConference vei $error');
+        logger.e('Error on finishInventory $error');
         state = state.copyWith(finishReqStatus: RequestStatus.error);
       }
     }
   }
 
-  Future<void> cancelConference() async {
+  Future<void> cancelInventory() async {
     if (state.id != null) {
       state = state.copyWith(cancelReqStatus: RequestStatus.loading);
       try {
         await injector.get<InventoryRepository>().cancelInventory(state.id!);
       } catch (error) {
-        logger.e('Error calling cancelConference on ConferenceManager: $error');
+        logger.e('Error calling cancelInventory on inventoryManager: $error');
         state = state.copyWith(cancelReqStatus: RequestStatus.error);
       }
       state = state.copyWith(
         cancelReqStatus: RequestStatus.success,
         initReqStatus: RequestStatus.idle,
+        hasEnded: true,
+        isPaused: false,
       );
     }
   }
 
   void addNewReading(ReadingResponseContent reading) {
-    if (reading.productOEM == 'Error reading data.') {
-      return;
-    }
-    if (state.isPaused) {
+    if (state.isPaused || !reading.ok) {
       return;
     }
 
@@ -204,40 +217,42 @@ class InventoryManager extends _$InventoryManager {
       (product) => product.productOEM == reading.productOEM,
     );
 
+    ProductReadings? newProduct;
+
     if (productIndex == -1) {
       wasNewTagAdded = true;
-      currentReadings.add(
-        ProductReadings(
-          readTags: [ReadTag(tagUid: reading.tagUid, readTimestamp: readTimestamp)],
-          productOEM: reading.productOEM,
-        ),
+      newProduct = ProductReadings(
+        readTags: [ReadTag(tagUid: reading.tagUid!, readTimestamp: readTimestamp)],
+        productOEM: reading.productOEM!,
       );
+      currentReadings.add(newProduct);
     } else {
       final existingProduct = currentReadings[productIndex];
-      if (!existingProduct.hasTag(reading.tagUid)) {
+      if (!existingProduct.hasTag(reading.tagUid!)) {
         wasNewTagAdded = true;
-        currentReadings[productIndex] = existingProduct.copyWith(
+        newProduct = existingProduct.copyWith(
           readTags: [
             ...existingProduct.readTags,
-            ReadTag(tagUid: reading.tagUid, readTimestamp: readTimestamp),
+            ReadTag(tagUid: reading.tagUid!, readTimestamp: readTimestamp),
           ],
         );
+        currentReadings[productIndex] = newProduct;
       }
     }
 
     if (wasNewTagAdded) {
       _audioPlayer.play(AssetSource(Assets.scannerBeep));
       Vibration.vibrate(preset: VibrationPreset.quickSuccessAlert);
-      state = state.copyWith(readings: currentReadings);
+      state = state.copyWith(readings: currentReadings, lastAddedProductReading: newProduct);
     }
   }
 
-  void resumeConference() {
+  void resumeInventory() {
     logger.d('Inventário retomado!');
     state = state.copyWith(isPaused: false);
   }
 
-  void pauseConference() {
+  void pauseInventory() {
     logger.d('Inventário pausado!');
     state = state.copyWith(isPaused: true);
   }

@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,7 +14,7 @@ import 'package:smart_stock/app/ui/shared/custom_card.dart';
 import 'package:smart_stock/app/ui/shared/types.dart';
 import 'package:smart_stock/app/ui/themes/custom_forui.dart';
 
-class ConferencePageInterface extends ConsumerWidget {
+class InventoryPageInterface extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(inventoryBleListenerProvider);
@@ -48,15 +50,17 @@ class _Scoreboard extends ConsumerWidget {
       inventoryManagerProvider.select((state) => state.readingsCount),
     );
 
-    return CustomCard(
-      title: const Text('Resumo do Inventário'),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _ScoreboardItem(count: readings.length, label: 'Produtos Únicos'),
-          _ScoreboardItem(count: readingsCount, label: 'Etiquetas Lidas'),
-        ],
-      ),
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            _ScoreboardItem(count: readings.length, label: 'Produtos Únicos'),
+            const VerticalDivider(width: 20, color: Colors.grey),
+            _ScoreboardItem(count: readingsCount, label: 'Etiquetas Lidas'),
+          ],
+        ),
+      ],
     );
   }
 }
@@ -73,12 +77,12 @@ class _ScoreboardItem extends StatelessWidget {
       children: [
         Text(
           count.toString(),
-          style: theme.textTheme.headlineLarge?.copyWith(
+          style: context.theme.typography.xl5.copyWith(
             fontWeight: FontWeight.bold,
             color: theme.primaryColor,
           ),
         ),
-        Text(label, style: theme.textTheme.bodyMedium),
+        Text(label.toUpperCase(), style: context.theme.typography.sm.copyWith(color: Colors.grey)),
       ],
     );
   }
@@ -88,8 +92,9 @@ class _CurrentItem extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final stockState = ref.watch(stockProvider);
-    final readings = ref.watch(inventoryManagerProvider.select((state) => state.readings));
-    final lastReading = readings.isNotEmpty ? readings.last : null;
+    final lastReading = ref.watch(
+      inventoryManagerProvider.select((state) => state.lastAddedProductReading),
+    );
 
     return CustomCard(
       title: const Text('Item Atual'),
@@ -153,7 +158,7 @@ class _CurrentItem extends ConsumerWidget {
                 color: theme.primaryColor,
               ),
             ),
-            const Text("Unidades"),
+            const Text('Unidades'),
           ],
         ),
       ],
@@ -223,42 +228,13 @@ class _Footer extends ConsumerStatefulWidget {
 class _FooterState extends ConsumerState<_Footer> {
   @override
   Widget build(BuildContext context) {
-    final inventoryManager = ref.read(inventoryManagerProvider.notifier);
-
-    ref.listen<InventoryManagerState>(inventoryManagerProvider, (previous, next) {
-      final wasPaused = previous?.isPaused ?? false;
-      if (!wasPaused && next.isPaused) {
-        showFDialog(
-          context: context,
-          builder: (context, style, animation) => FDialog(
-            style: style.call,
-            animation: animation,
-            title: const Text('Inventário pausado'),
-            body: const Text('Não se preocupe, seu progresso está salvo.'),
-            actions: [
-              FButton(
-                style: createLargeStyle(
-                  context: context,
-                  backgroundColor: context.theme.colors.secondary,
-                  foregroundColor: context.theme.colors.secondaryForeground,
-                ),
-                onPress: () {
-                  Navigator.of(context).pop();
-                  inventoryManager.resumeConference();
-                },
-                prefix: const Icon(FIcons.play, size: 16, color: Colors.black),
-                child: Text('CONTINUAR', style: context.theme.typography.base),
-              ),
-            ],
-          ),
-        );
-      }
-    });
+    final resetState = ref.read(inventoryManagerProvider.notifier).resetState;
 
     ref.listen<InventoryManagerState>(inventoryManagerProvider, (previous, next) {
       final wasNotSuccess = previous?.cancelReqStatus != RequestStatus.success;
       if (wasNotSuccess && next.cancelReqStatus == RequestStatus.success) {
         showFDialog(
+          barrierDismissible: false,
           context: context,
           builder: (context, style, animation) => FDialog(
             style: style.call,
@@ -266,8 +242,10 @@ class _FooterState extends ConsumerState<_Footer> {
             title: const Text('Inventário cancelado!'),
             actions: [
               FButton(
-                onPress: () => context.router.replaceAll([const HomeRoute()]),
-
+                onPress: () {
+                  context.router.replaceAll([const HomeRoute()]);
+                  resetState();
+                },
                 style: createLargeStyle(
                   context: context,
                   backgroundColor: context.theme.colors.secondary,
@@ -286,6 +264,7 @@ class _FooterState extends ConsumerState<_Footer> {
       if (wasNotSuccess && next.finishReqStatus == RequestStatus.success) {
         showFDialog(
           context: context,
+          barrierDismissible: false,
           builder: (context, style, animation) => FDialog(
             style: style.call,
             animation: animation,
@@ -294,7 +273,7 @@ class _FooterState extends ConsumerState<_Footer> {
               FButton(
                 onPress: () {
                   context.router.replaceAll([const HomeRoute()]);
-                  ref.read(inventoryManagerProvider.notifier).resetState();
+                  resetState();
                 },
                 style: createLargeStyle(
                   context: context,
@@ -308,61 +287,195 @@ class _FooterState extends ConsumerState<_Footer> {
         );
       }
     });
-    final finishReqStatus = ref.watch(
-      inventoryManagerProvider.select((state) => state.finishReqStatus),
-    );
-    final cancelReqStatus = ref.watch(
-      inventoryManagerProvider.select((state) => state.cancelReqStatus),
-    );
 
-    final bool canClick =
-        finishReqStatus != RequestStatus.loading &&
-        finishReqStatus != RequestStatus.success &&
-        cancelReqStatus != RequestStatus.loading &&
-        cancelReqStatus != RequestStatus.success;
-
-    final disabledPriBackgroundColor = context.theme.colors.primary;
-    final disabledPriForegroundColor = context.theme.colors.disable(
-      context.theme.colors.primaryForeground,
-    );
     return Column(
       children: [
         const SizedBox(height: 8),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            FButton(
-              style: FButtonStyle.secondary(),
-              prefix: const Icon(FIcons.pause, size: 16, color: Colors.black),
-              child: const Text('PAUSAR'),
-              onPress: () => inventoryManager.pauseConference(),
+          children: [ModalSheetPaused(), ModalSheetCancel()],
+        ),
+        const SizedBox(height: 8.0),
+        ModalSheetFinish(),
+      ],
+    );
+  }
+}
+
+class ModalSheetPaused extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final hasEnded = ref.watch(inventoryManagerProvider.select((state) => state.hasEnded));
+    final hasReqPending = ref.watch(
+      inventoryManagerProvider.select((state) => state.hasReqPending),
+    );
+
+    final bool btnDisabled = hasReqPending || hasEnded;
+
+    final pauseInventory = ref.read(inventoryManagerProvider.notifier).pauseInventory;
+
+    final barrierColor = context.theme.colors.barrier;
+    final modalSheetStyle = context.theme.modalSheetStyle;
+
+    final modalStyle = modalSheetStyle.copyWith(
+      barrierFilter: (animation) => ImageFilter.compose(
+        outer: ImageFilter.blur(sigmaX: animation * 5, sigmaY: animation * 5),
+        inner: ColorFilter.mode(barrierColor, BlendMode.srcOver),
+      ),
+    );
+
+    final resumeInventory = ref.read(inventoryManagerProvider.notifier).resumeInventory;
+
+    return FButton(
+      style: FButtonStyle.secondary(),
+      prefix: const Icon(FIcons.pause, size: 16, color: Colors.black),
+      child: const Text('PAUSAR', style: TextStyle(height: 2)),
+      onPress: () {
+        if (btnDisabled) {
+          return;
+        }
+        pauseInventory();
+        showFSheet(
+          barrierDismissible: false,
+          style: modalStyle.call,
+          context: context,
+          side: FLayout.btt,
+          builder: (context) => ModalSheetContent(
+            side: FLayout.rtl,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                // mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Column(
+                    children: [
+                      Text(
+                        'Inventário pausado',
+                        style: context.theme.typography.xl2.copyWith(fontWeight: FontWeight.bold),
+                      ),
+
+                      const Text(
+                        'Não se preocupe, seu progresso está salvo.',
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    ],
+                  ),
+                  _Scoreboard(),
+                  FButton(
+                    style: createLargeStyle(
+                      context: context,
+                      backgroundColor: Colors.green,
+                      foregroundColor: Colors.lightGreen,
+                    ),
+                    onPress: () {
+                      resumeInventory();
+                      Navigator.of(context).pop();
+                    },
+                    prefix: const Icon(FIcons.play, size: 16, color: Colors.white),
+                    child: Text(
+                      'RETOMAR',
+                      style: context.theme.typography.xl2.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-            FButton(
-              style: FButtonStyle.outline(),
-              prefix: const Icon(FIcons.square, size: 16.0, color: Colors.black),
-              child: cancelReqStatus == RequestStatus.loading
-                  ? const Text('CANCELANDO')
-                  : const Text('CANCELAR'),
-              onPress: () {
-                showFDialog(
-                  context: context,
-                  builder: (context, style, animation) => FDialog(
-                    style: style,
-                    animation: animation,
-                    title: const Text('Você tem certeza?'),
-                    body: const Text('Essa ação não pode ser desfeita.'),
-                    actions: [
+          ),
+        );
+      },
+    );
+  }
+}
+
+class ModalSheetCancel extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final inventoryManager = ref.read(inventoryManagerProvider.notifier);
+    final pauseInventory = ref.read(inventoryManagerProvider.notifier).pauseInventory;
+
+    final barrierColor = context.theme.colors.barrier;
+    final modalSheetStyle = context.theme.modalSheetStyle;
+
+    final modalStyle = modalSheetStyle.copyWith(
+      barrierFilter: (animation) => ImageFilter.compose(
+        outer: ImageFilter.blur(sigmaX: animation * 5, sigmaY: animation * 5),
+        inner: ColorFilter.mode(barrierColor, BlendMode.srcOver),
+      ),
+    );
+    final cancelReqStatus = ref.watch(
+      inventoryManagerProvider.select((state) => state.cancelReqStatus),
+    );
+    final resumeInventory = ref.read(inventoryManagerProvider.notifier).resumeInventory;
+
+    final hasReqPending = ref.watch(
+      inventoryManagerProvider.select((state) => state.hasReqPending),
+    );
+    final hasEnded = ref.watch(inventoryManagerProvider.select((state) => state.hasEnded));
+
+    final bool btnDisabled = hasReqPending || hasEnded;
+
+    return FButton(
+      style: FButtonStyle.outline(),
+      prefix: const Icon(FIcons.square, size: 16.0, color: Colors.black),
+      child: cancelReqStatus == RequestStatus.loading
+          ? const Text('CANCELANDO', style: TextStyle(height: 2))
+          : const Text('CANCELAR', style: TextStyle(height: 2)),
+      onPress: () {
+        if (btnDisabled) {
+          return;
+        }
+        pauseInventory();
+        showFSheet(
+          barrierDismissible: false,
+          style: modalStyle.call,
+          context: context,
+          side: FLayout.btt,
+          builder: (context) => ModalSheetContent(
+            side: FLayout.rtl,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Column(
+                    children: [
+                      Text(
+                        'Você tem certeza?',
+                        style: context.theme.typography.xl2.copyWith(fontWeight: FontWeight.bold),
+                      ),
+
+                      const Text(
+                        'Essa ação não pode ser desfeita.',
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    ],
+                  ),
+                  _Scoreboard(),
+                  Column(
+                    spacing: 8,
+                    children: [
                       FButton(
                         onPress: () {
                           Navigator.of(context).pop();
-                          inventoryManager.cancelConference();
+                          inventoryManager.cancelInventory();
                         },
                         style: createLargeStyle(
                           context: context,
-                          backgroundColor: context.theme.colors.primary,
-                          foregroundColor: context.theme.colors.primaryForeground,
+                          backgroundColor: context.theme.colors.destructive,
+                          foregroundColor: context.theme.colors.destructiveForeground,
                         ),
-                        child: const Text('CANCELAR'),
+                        child: Text(
+                          'CANCELAR INVENTÁRIO',
+
+                          style: context.theme.typography.xl.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                       FButton(
                         style: createLargeStyle(
@@ -370,68 +483,162 @@ class _FooterState extends ConsumerState<_Footer> {
                           backgroundColor: context.theme.colors.secondary,
                           foregroundColor: context.theme.colors.secondaryForeground,
                         ),
-                        onPress: () => Navigator.of(context).pop(),
-                        child: const Text('VOLTAR'),
+                        onPress: () {
+                          resumeInventory();
+                          Navigator.of(context).pop();
+                        },
+                        child: Text(
+                          'VOLTAR',
+                          style: context.theme.typography.xl.copyWith(fontWeight: FontWeight.bold),
+                        ),
                       ),
                     ],
                   ),
-                );
-              },
+                ],
+              ),
             ),
-          ],
-        ),
-        const SizedBox(height: 8.0),
-        FButton(
-          onPress: () {
-            showFDialog(
-              context: context,
-              builder: (context, style, animation) => FDialog(
-                style: style.call,
-                animation: animation,
-                title: const Text('Concluir o inventário?'),
-                body: const Text('A contagem atual será salva como final.'),
-                actions: [
-                  FButton(
-                    style: createLargeStyle(
-                      context: context,
-                      backgroundColor: context.theme.colors.destructive,
-                      foregroundColor: context.theme.colors.destructiveForeground,
-                    ),
-                    onPress: () {
-                      Navigator.of(context).pop();
-                      inventoryManager.finishInventory();
-                    },
-                    child: const Text('CONCLUIR'),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class ModalSheetFinish extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final inventoryManager = ref.read(inventoryManagerProvider.notifier);
+    final pauseInventory = ref.read(inventoryManagerProvider.notifier).pauseInventory;
+
+    final hasReqPending = ref.watch(
+      inventoryManagerProvider.select((state) => state.hasReqPending),
+    );
+    final hasEnded = ref.watch(inventoryManagerProvider.select((state) => state.hasEnded));
+
+    final bool btnDisabled = hasReqPending || hasEnded;
+
+    final barrierColor = context.theme.colors.barrier;
+    final modalSheetStyle = context.theme.modalSheetStyle;
+
+    final modalStyle = modalSheetStyle.copyWith(
+      barrierFilter: (animation) => ImageFilter.compose(
+        outer: ImageFilter.blur(sigmaX: animation * 5, sigmaY: animation * 5),
+        inner: ColorFilter.mode(barrierColor, BlendMode.srcOver),
+      ),
+    );
+    final finishReqStatus = ref.watch(
+      inventoryManagerProvider.select((state) => state.finishReqStatus),
+    );
+
+    final resumeInventory = ref.read(inventoryManagerProvider.notifier).resumeInventory;
+
+    return FButton(
+      prefix: const Icon(FIcons.circleCheck, size: 16.0, color: Colors.white),
+      style: primaryLargeButton(context, disabled: btnDisabled),
+      onPress: () {
+        if (btnDisabled) {
+          return;
+        }
+
+        pauseInventory();
+        showFSheet(
+          barrierDismissible: false,
+          style: modalStyle.call,
+          context: context,
+          side: FLayout.btt,
+          builder: (context) => ModalSheetContent(
+            side: FLayout.rtl,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Column(
+                    children: [
+                      Text(
+                        'Concluir o inventário?',
+                        style: context.theme.typography.xl2.copyWith(fontWeight: FontWeight.bold),
+                      ),
+
+                      const Text(
+                        'A contagem atual será salva como final.',
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    ],
                   ),
-                  FButton(
-                    style: createLargeStyle(
-                      context: context,
-                      backgroundColor: context.theme.colors.secondary,
-                      foregroundColor: context.theme.colors.secondaryForeground,
-                    ),
-                    onPress: () => Navigator.of(context).pop(),
-                    child: const Text('VOLTAR'),
+                  _Scoreboard(),
+                  Column(
+                    spacing: 8,
+                    children: [
+                      FButton(
+                        style: primaryLargeButton(context),
+                        onPress: () {
+                          Navigator.of(context).pop();
+                          inventoryManager.finishInventory();
+                        },
+                        child: Text(
+                          'CONCLUIR INVENTÁRIO',
+                          style: context.theme.typography.xl.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      FButton(
+                        style: createLargeStyle(
+                          context: context,
+                          backgroundColor: context.theme.colors.secondary,
+                          foregroundColor: context.theme.colors.secondaryForeground,
+                        ),
+                        onPress: () {
+                          resumeInventory();
+                          Navigator.of(context).pop();
+                        },
+                        child: Text(
+                          'VOLTAR',
+                          style: context.theme.typography.xl.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            );
-          },
-          prefix: const Icon(FIcons.circleCheck, size: 16.0, color: Colors.white),
-          style: createLargeStyle(
-            context: context,
-            backgroundColor: canClick ? context.theme.colors.primary : disabledPriBackgroundColor,
-            foregroundColor: canClick
-                ? context.theme.colors.primaryForeground
-                : disabledPriForegroundColor,
+            ),
           ),
-          child: Text(
-            finishReqStatus == RequestStatus.loading
-                ? 'CONCLUINDO...'
-                : (finishReqStatus == RequestStatus.success ? 'CONCLUÍDA' : 'CONCLUIR'),
-            style: context.theme.typography.xl2.copyWith(color: Colors.white),
-          ),
-        ),
-      ],
+        );
+      },
+
+      child: Text(
+        finishReqStatus == RequestStatus.loading
+            ? 'CONCLUINDO...'
+            : (finishReqStatus == RequestStatus.success ? 'CONCLUÍDA' : 'CONCLUIR'),
+        style: context.theme.typography.xl2.copyWith(color: Colors.white),
+      ),
     );
   }
+}
+
+class ModalSheetContent extends ConsumerWidget {
+  final FLayout side;
+  final Widget child;
+
+  const ModalSheetContent({required this.side, required this.child, super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) => Container(
+    height: double.infinity,
+    width: double.infinity,
+    decoration: BoxDecoration(
+      color: context.theme.colors.background,
+      borderRadius: const BorderRadius.only(
+        topLeft: Radius.circular(12),
+        topRight: Radius.circular(12),
+      ),
+      border: Border.symmetric(vertical: BorderSide(color: context.theme.colors.border)),
+    ),
+    child: Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8.0),
+      child: SafeArea(child: child),
+    ),
+  );
 }

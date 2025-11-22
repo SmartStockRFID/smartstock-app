@@ -29,8 +29,12 @@ class InventoryBleListener extends _$InventoryBleListener {
 
       final readingResponse = ReadingResponseContent.fromMap(microcontrollerResponse.content);
 
-      if (readingResponse.productOEM == emptyTagOEM) {
-        logger.i('Tag virgem lida durante conferência');
+      final hasError =
+          !readingResponse.ok ||
+          readingResponse.tagUid == null ||
+          readingResponse.productOEM == null;
+
+      if (hasError || readingResponse.productOEM == emptyTagOEM) {
         return;
       }
 

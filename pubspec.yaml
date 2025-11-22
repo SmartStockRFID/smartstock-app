@@ -13,11 +13,11 @@ dependencies:
     sdk: flutter
   flutter_blue_plus: ^1.35.5
   flutter_dotenv: ^6.0.0
-  flutter_offline: ^5.0.0
+  flutter_hooks: ^0.21.3+1
   flutter_riverpod: ^3.0.0
   flutter_screenutil: ^5.9.3
-  forui: ^0.15.1
-  get_it: ^8.2.0
+  forui: ^0.16.0
+  get_it: ^9.1.0
   google_fonts: ^6.3.1
   http: ^1.5.0
   intl: ^0.20.2
