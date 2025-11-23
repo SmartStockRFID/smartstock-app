@@ -2,13 +2,13 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:smart_stock/app/ui/_providers/ble_connection_provider.dart';
+import 'package:smart_stock/app/ui/_providers/current_writing_provider.dart';
+import 'package:smart_stock/app/ui/_providers/writing_feedback_ble_listener_provider.dart';
+import 'package:smart_stock/app/ui/_shared/app_bar.dart';
+import 'package:smart_stock/app/ui/_shared/custom_card.dart';
+import 'package:smart_stock/app/ui/_themes/custom_forui.dart';
 import 'package:smart_stock/app/ui/labeling/labeling_select_page.dart';
-import 'package:smart_stock/app/ui/providers/ble_connection_provider.dart';
-import 'package:smart_stock/app/ui/providers/current_writing_provider.dart';
-import 'package:smart_stock/app/ui/providers/writing_feedback_ble_listener_provider.dart';
-import 'package:smart_stock/app/ui/shared/app_bar.dart';
-import 'package:smart_stock/app/ui/shared/custom_card.dart';
-import 'package:smart_stock/app/ui/themes/custom_forui.dart';
 
 @RoutePage()
 class WritingPage extends ConsumerStatefulWidget {

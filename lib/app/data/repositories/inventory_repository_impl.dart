@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:smart_stock/app/config/api/inventory.dart';
 import 'package:smart_stock/app/data/dtos/inventory/inventory_summary_dto.dart';
 import 'package:smart_stock/app/data/repositories/inventory_repository.dart';
-import 'package:smart_stock/app/ui/providers/inventory_provider.dart';
+import 'package:smart_stock/app/ui/_providers/inventory_provider.dart';
 import 'package:smart_stock/app/utils/logger.dart';
 
 class InventoryRepositoryImpl implements InventoryRepository {

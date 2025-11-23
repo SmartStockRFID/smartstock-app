@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:smart_stock/app/routing/router.dart';
-import 'package:smart_stock/app/ui/providers/inventory_provider.dart';
-import 'package:smart_stock/app/ui/shared/types.dart';
-import 'package:smart_stock/app/ui/themes/custom_forui.dart';
+import 'package:smart_stock/app/ui/_providers/inventory_provider.dart';
+import 'package:smart_stock/app/ui/_shared/types.dart';
+import 'package:smart_stock/app/ui/_themes/custom_forui.dart';
 import 'package:vibration/vibration.dart';
 import 'package:vibration/vibration_presets.dart';
 

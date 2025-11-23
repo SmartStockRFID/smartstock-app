@@ -1,3 +1,14 @@
+import java.util.Properties
+
+val dotenv = Properties()
+val dotenvFile = rootProject.file("../.env")
+
+if (dotenvFile.exists()){
+    dotenvFile.inputStream().use { input ->
+        dotenv.load(input)
+    }
+}
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -28,6 +39,11 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        manifestPlaceholders.putAll(
+            mapOf(
+                "THEME_MODE" to (dotenv.getProperty("THEME_MODE") ?: "app")
+            )
+        )
     }
 
     buildTypes {

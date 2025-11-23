@@ -1,2 +1,4 @@
+import 'package:smart_stock/app/config/env.dart';
+
 const String emptyTagOEM = '';
-const bool useToyotaTheme = false;
+final bool useNewlandTheme = Enviroment.themeMode() == ThemeMode.NEWLAND;

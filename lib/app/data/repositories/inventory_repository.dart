@@ -1,5 +1,5 @@
 import 'package:smart_stock/app/data/dtos/inventory/inventory_summary_dto.dart';
-import 'package:smart_stock/app/ui/providers/inventory_provider.dart';
+import 'package:smart_stock/app/ui/_providers/inventory_provider.dart';
 
 abstract class InventoryRepository {
   Future<InventorySummaryDTO> initInventory(String employeeUsername);

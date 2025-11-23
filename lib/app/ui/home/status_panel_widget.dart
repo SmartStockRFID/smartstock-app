@@ -9,10 +9,10 @@ import 'package:smart_stock/app/bluetooth/connnected_state.dart';
 import 'package:smart_stock/app/bluetooth/error_state.dart';
 import 'package:smart_stock/app/bluetooth/permission_denied_state.dart';
 import 'package:smart_stock/app/bluetooth/scan_state.dart';
-import 'package:smart_stock/app/ui/providers/ble_connection_provider.dart';
-import 'package:smart_stock/app/ui/providers/stock_provider.dart';
-import 'package:smart_stock/app/ui/shared/custom_card.dart';
-import 'package:smart_stock/app/ui/shared/update_stock_btn.dart';
+import 'package:smart_stock/app/ui/_providers/ble_connection_provider.dart';
+import 'package:smart_stock/app/ui/_providers/stock_provider.dart';
+import 'package:smart_stock/app/ui/_shared/custom_card.dart';
+import 'package:smart_stock/app/ui/_shared/update_stock_btn.dart';
 
 class StatusPanelWidget extends ConsumerWidget {
   const StatusPanelWidget({super.key});

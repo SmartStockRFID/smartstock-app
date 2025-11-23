@@ -16,6 +16,7 @@ dependencies:
   flutter_hooks: ^0.21.3+1
   flutter_riverpod: ^3.0.0
   flutter_screenutil: ^5.9.3
+  flutter_svg: ^2.2.3
   forui: ^0.16.0
   get_it: ^9.1.0
   google_fonts: ^6.3.1
@@ -41,6 +42,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/avatar-placeholder.jpg
-    - assets/images/logo-toyota-white.png
+    - assets/images/logo-newland-white.svg
+    - assets/images/stock.png
     - assets/audios/store-scanner-beep.mp3
     - .env

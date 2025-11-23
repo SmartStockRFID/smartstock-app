@@ -25,7 +25,7 @@ class App extends StatelessWidget {
       routerConfig: _appRouter.config(),
       theme: theme,
       builder: (contenxt, child) =>
-          FTheme(data: useToyotaTheme ? FThemes.red.light : FThemes.zinc.light, child: child!),
+          FTheme(data: useNewlandTheme ? FThemes.red.light : FThemes.zinc.light, child: child!),
       debugShowCheckedModeBanner: false,
     );
   }

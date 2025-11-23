@@ -1,11 +1,10 @@
-// ignore_for_file: avoid_classes_with_only_static_members
-
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:smart_stock/app/config/env.dart';
 import 'package:smart_stock/app/config/exceptions.dart';
 
+// ignore: avoid_classes_with_only_static_members
 class APIConnector {
   static final String baseUrl = Enviroment.backendBaseURL()!;
   static const defaultHeaders = {'Content-Type': 'application/json', 'Accept': 'application/json'};

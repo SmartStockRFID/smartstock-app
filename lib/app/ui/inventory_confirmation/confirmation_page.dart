@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:smart_stock/app/config/assets.dart';
+import 'package:smart_stock/app/ui/_providers/inventory_provider.dart';
+import 'package:smart_stock/app/ui/_providers/stock_provider.dart';
+import 'package:smart_stock/app/ui/_shared/custom_card.dart';
+import 'package:smart_stock/app/ui/_shared/update_stock_btn.dart';
 import 'package:smart_stock/app/ui/inventory_confirmation/widgets/init_inventory_btn_widget.dart';
-import 'package:smart_stock/app/ui/providers/inventory_provider.dart';
-import 'package:smart_stock/app/ui/providers/stock_provider.dart';
-import 'package:smart_stock/app/ui/shared/custom_card.dart';
-import 'package:smart_stock/app/ui/shared/update_stock_btn.dart';
 
 @RoutePage()
 class InventoryConfirmationPage extends StatelessWidget {

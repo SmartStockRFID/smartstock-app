@@ -4,10 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:smart_stock/app/domain/entities/part_entity.dart';
 import 'package:smart_stock/app/routing/router.dart';
-import 'package:smart_stock/app/ui/providers/current_writing_provider.dart';
-import 'package:smart_stock/app/ui/providers/label_controller.dart';
-import 'package:smart_stock/app/ui/providers/stock_provider.dart';
-import 'package:smart_stock/app/ui/themes/custom_forui.dart';
+import 'package:smart_stock/app/ui/_providers/current_writing_provider.dart';
+import 'package:smart_stock/app/ui/_providers/label_controller.dart';
+import 'package:smart_stock/app/ui/_providers/stock_provider.dart';
+import 'package:smart_stock/app/ui/_themes/custom_forui.dart';
 
 @RoutePage()
 class LabelingPage extends ConsumerStatefulWidget {

@@ -1,5 +1,5 @@
-import 'package:smart_stock/app/domain/entities/inventory_entity.dart';
 import 'package:smart_stock/app/domain/entities/event_entity.dart';
+import 'package:smart_stock/app/domain/entities/inventory_entity.dart';
 import 'package:smart_stock/app/domain/entities/reading_entity.dart';
 
 // ignore: avoid_classes_with_only_static_members

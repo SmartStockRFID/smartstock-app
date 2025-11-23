@@ -4,12 +4,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:smart_stock/app/bluetooth/connnected_state.dart';
 import 'package:smart_stock/app/routing/router.dart';
+import 'package:smart_stock/app/ui/_providers/ble_connection_provider.dart';
+import 'package:smart_stock/app/ui/_providers/inventory_provider.dart';
+import 'package:smart_stock/app/ui/_providers/stock_provider.dart';
+import 'package:smart_stock/app/ui/_shared/types.dart';
+import 'package:smart_stock/app/ui/_themes/custom_forui.dart';
 import 'package:smart_stock/app/ui/home/status_panel_widget.dart';
-import 'package:smart_stock/app/ui/providers/ble_connection_provider.dart';
-import 'package:smart_stock/app/ui/providers/inventory_provider.dart';
-import 'package:smart_stock/app/ui/providers/stock_provider.dart';
-import 'package:smart_stock/app/ui/shared/types.dart';
-import 'package:smart_stock/app/ui/themes/custom_forui.dart';
 
 @RoutePage()
 class HomePage extends StatelessWidget {

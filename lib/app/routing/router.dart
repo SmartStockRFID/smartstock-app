@@ -5,6 +5,7 @@ import 'package:smart_stock/app/ui/inventory_confirmation/confirmation_page.dart
 import 'package:smart_stock/app/ui/labeling/labeling_select_page.dart';
 import 'package:smart_stock/app/ui/labeling/writing_page.dart';
 import 'package:smart_stock/app/ui/main_page.dart';
+import 'package:smart_stock/app/ui/welcome/welcome_page.dart';
 
 part 'router.gr.dart';
 
@@ -12,11 +13,12 @@ part 'router.gr.dart';
 class AppRouter extends RootStackRouter {
   @override
   List<AutoRoute> get routes => [
+    AutoRoute(page: WelcomeRoute.page, initial: true),
     AutoRoute(
       page: MainLayoutRoute.page,
       path: '/',
       children: [
-        AutoRoute(page: HomeRoute.page, path: 'home', initial: true),
+        AutoRoute(page: HomeRoute.page, path: 'home'),
         AutoRoute(page: LabelingRoute.page, path: 'etiquetagem'),
         AutoRoute(page: InventoryConfirmationRoute.page, path: 'inventario/iniciar'),
       ],

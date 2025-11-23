@@ -10,7 +10,7 @@ import 'package:smart_stock/app/bluetooth/error_state.dart';
 import 'package:smart_stock/app/bluetooth/permission_denied_state.dart';
 import 'package:smart_stock/app/bluetooth/scan_state.dart';
 import 'package:smart_stock/app/bluetooth/unsupported_state.dart';
-import 'package:smart_stock/app/ui/providers/ble_connection_provider.dart';
+import 'package:smart_stock/app/ui/_providers/ble_connection_provider.dart';
 import 'package:smart_stock/app/utils/logger.dart';
 
 class BleStatusWidget extends ConsumerWidget {

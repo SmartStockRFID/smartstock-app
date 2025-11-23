@@ -7,12 +7,12 @@ import 'package:forui/forui.dart';
 import 'package:intl/intl.dart';
 import 'package:smart_stock/app/domain/entities/part_entity.dart';
 import 'package:smart_stock/app/routing/router.dart';
-import 'package:smart_stock/app/ui/providers/inventory_ble_listener_provider.dart';
-import 'package:smart_stock/app/ui/providers/inventory_provider.dart';
-import 'package:smart_stock/app/ui/providers/stock_provider.dart';
-import 'package:smart_stock/app/ui/shared/custom_card.dart';
-import 'package:smart_stock/app/ui/shared/types.dart';
-import 'package:smart_stock/app/ui/themes/custom_forui.dart';
+import 'package:smart_stock/app/ui/_providers/inventory_ble_listener_provider.dart';
+import 'package:smart_stock/app/ui/_providers/inventory_provider.dart';
+import 'package:smart_stock/app/ui/_providers/stock_provider.dart';
+import 'package:smart_stock/app/ui/_shared/custom_card.dart';
+import 'package:smart_stock/app/ui/_shared/types.dart';
+import 'package:smart_stock/app/ui/_themes/custom_forui.dart';
 
 class InventoryPageInterface extends ConsumerWidget {
   @override

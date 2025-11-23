@@ -1,11 +1,12 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:forui/forui.dart';
 import 'package:smart_stock/app/config/assets.dart';
 import 'package:smart_stock/app/config/constants.dart';
 import 'package:smart_stock/app/routing/router.dart';
-import 'package:smart_stock/app/ui/shared/app_bar.dart';
+import 'package:smart_stock/app/ui/_shared/app_bar.dart';
 
 @RoutePage()
 class MainLayoutPage extends StatelessWidget {
@@ -15,8 +16,8 @@ class MainLayoutPage extends StatelessWidget {
     if (isAtHome) {
       return baseAppBar(
         widgetTitle: Center(
-          child: useToyotaTheme
-              ? Image.asset(Assets.toyotaLogo, height: MediaQuery.of(context).size.height / 20)
+          child: useNewlandTheme
+              ? SvgPicture.asset(Assets.newlandLogo, height: MediaQuery.of(context).size.height / 20)
               : Icon(FIcons.origami, size: MediaQuery.of(context).size.height / 20),
         ),
       );

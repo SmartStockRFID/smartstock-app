@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:smart_stock/app/ui/providers/stock_provider.dart';
+import 'package:smart_stock/app/ui/_providers/stock_provider.dart';
 import 'package:smart_stock/app/utils/logger.dart';
 
 class StockStatusWidget extends ConsumerWidget {

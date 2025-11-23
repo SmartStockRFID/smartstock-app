@@ -1,10 +1,20 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:smart_stock/app/config/exceptions.dart';
 
+enum ThemeMode { APP, NEWLAND }
+
+// ignore: avoid_classes_with_only_static_members
 abstract final class Enviroment {
   static String? rfidServiceUUID() => dotenv.env['RFID_SERVICE_UUID'];
   static String? rfidCharacteristicUUID() => dotenv.env['RFID_CHARACTERISTIC_UUID'];
   static String? backendBaseURL() => dotenv.env['BACKEND_BASE_URL'];
+  static ThemeMode themeMode() {
+    final theme = dotenv.env['THEME_MODE'];
+    if (theme == 'newland') {
+      return ThemeMode.NEWLAND;
+    }
+    return ThemeMode.APP;
+  }
 
   static void validate() {
     final List<String?> requiredEnvs = [

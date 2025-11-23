@@ -2,9 +2,9 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_stock/app/routing/router.dart';
+import 'package:smart_stock/app/ui/_providers/inventory_provider.dart';
+import 'package:smart_stock/app/ui/_shared/app_bar.dart';
 import 'package:smart_stock/app/ui/inventory/inventory_interface.dart';
-import 'package:smart_stock/app/ui/providers/inventory_provider.dart';
-import 'package:smart_stock/app/ui/shared/app_bar.dart';
 
 @RoutePage()
 class InventoryPage extends StatelessWidget {
