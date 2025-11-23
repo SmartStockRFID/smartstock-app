@@ -5,17 +5,10 @@ class CustomCard extends StatelessWidget {
   final Widget child;
   final double? sizedBoxHeight;
 
-  const CustomCard({
-    super.key,
-    required this.title,
-    required this.child,
-    this.sizedBoxHeight
-  });
+  const CustomCard({super.key, required this.title, required this.child, this.sizedBoxHeight});
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(

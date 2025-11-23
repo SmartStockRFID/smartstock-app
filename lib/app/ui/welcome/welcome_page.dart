@@ -33,40 +33,29 @@ class WelcomeScreen extends StatelessWidget {
     final Widget logo = Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 0, bottom: 0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                spacing: 8,
-                children: [
-                  if (useNewlandTheme)
-                    SvgPicture.asset(
-                      Assets.newlandLogo,
-                      height: MediaQuery.of(context).size.height / 32,
-                    )
-                  else
-                    Icon(
-                      FIcons.origami,
-                      size: MediaQuery.of(context).size.height / 32,
-                      color: Colors.white,
-                    ),
-                  Text('SmartStock', style: logoDecoration, textAlign: TextAlign.center),
-                ],
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          spacing: 8,
+          children: [
+            if (useNewlandTheme)
+              SvgPicture.asset(Assets.newlandLogo, height: MediaQuery.of(context).size.height / 32)
+            else
+              Icon(
+                FIcons.origami,
+                size: MediaQuery.of(context).size.height / 32,
+                color: Colors.white,
               ),
-              Text(
-                'RFID',
-                style: typography.xl3.copyWith(
-                  color: useNewlandTheme ? Colors.red : Colors.lightBlueAccent,
-                  height: 0,
-                  shadows: [const Shadow(color: Colors.black, offset: Offset(2, 2))],
-                  letterSpacing: 8,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
+            Text('SmartStock', style: logoDecoration, textAlign: TextAlign.center),
+          ],
+        ),
+        Text(
+          'RFID',
+          style: typography.xl3.copyWith(
+            color: useNewlandTheme ? Colors.red : Colors.lightBlueAccent,
+            height: 0,
+            shadows: [const Shadow(color: Colors.black, offset: Offset(2, 2))],
+            letterSpacing: 8,
+            fontWeight: FontWeight.bold,
           ),
         ),
       ],
