@@ -1,20 +1,31 @@
+import 'dart:async';
+import 'dart:ui';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:forui/forui.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:smart_stock/app/config/assets.dart';
 import 'package:smart_stock/app/config/constants.dart';
 import 'package:smart_stock/app/config/preferences_manager.dart';
 import 'package:smart_stock/app/config/token_storage.dart';
+import 'package:smart_stock/app/domain/entities/part_entity.dart';
+import 'package:smart_stock/app/domain/firmware/reading_response.dart';
 import 'package:smart_stock/app/routing/router.dart';
+import 'package:smart_stock/app/ui/_providers/quick_read_provider.dart';
+import 'package:smart_stock/app/ui/_providers/stock_provider.dart';
 import 'package:smart_stock/app/ui/_shared/app_bar.dart';
+import 'package:smart_stock/app/ui/_shared/custom_card.dart';
 import 'package:smart_stock/app/ui/_shared/loading_widget.dart';
-import 'package:intl/intl.dart';
+import 'package:smart_stock/app/ui/_themes/custom_forui.dart';
+import 'package:smart_stock/app/ui/inventory/widgets/modals_widgets.dart';
 
 @RoutePage()
-class MainLayoutPage extends StatelessWidget {
+class MainLayoutPage extends HookConsumerWidget {
   const MainLayoutPage({super.key});
 
   AppBar? _getAppBar(BuildContext context, String routeName, bool isAtHome) {
@@ -36,7 +47,74 @@ class MainLayoutPage extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isModalOpen = useState(false);
+
+    final barrierColor = context.theme.colors.barrier;
+    final modalSheetStyle = context.theme.modalSheetStyle;
+
+    final modalStyle = modalSheetStyle.copyWith(
+      barrierFilter: (animation) => ImageFilter.compose(
+        outer: ImageFilter.blur(sigmaX: animation * 5, sigmaY: animation * 5),
+        inner: ColorFilter.mode(barrierColor, BlendMode.srcOver),
+      ),
+    );
+
+    ref.listen(quickReadProvider, (_, state) async {
+      if (state.hasValue && !isModalOpen.value) {
+        isModalOpen.value = true;
+        await showFSheet(
+          style: modalStyle.call,
+          context: context,
+          side: FLayout.btt,
+          builder: (context) => ModalSheetContent(
+            side: FLayout.rtl,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                // mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Column(
+                    children: [
+                      Text(
+                        'Leitura rápida',
+                        style: context.theme.typography.xl2.copyWith(fontWeight: FontWeight.bold),
+                      ),
+
+                      const Text(
+                        'O conteúdo atual da etiquetad lida é:',
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    ],
+                  ),
+                  QuickReadCurrentItem(firstRead: state.value!),
+                  FButton(
+                    style: createLargeStyle(
+                      context: context,
+                      backgroundColor: Colors.green,
+                      foregroundColor: Colors.lightGreen,
+                    ),
+                    onPress: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Text(
+                      'VOLTAR',
+                      style: context.theme.typography.xl2.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+        isModalOpen.value = false;
+      }
+    });
+
     return AutoTabsRouter(
       builder: (context, child) {
         final tabsRouter = AutoTabsRouter.of(context);
@@ -135,6 +213,89 @@ class MainDrawer extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class QuickReadCurrentItem extends HookConsumerWidget {
+  final ReadingResponseContent firstRead;
+
+  const QuickReadCurrentItem({required this.firstRead});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final streamRead = ref.watch(quickReadProvider);
+    final stockState = ref.watch(stockProvider);
+
+    final currentRead = streamRead.value ?? firstRead;
+
+    final isValueChanging = useState(false);
+
+    ref.listen(quickReadProvider, (_, state) async {
+      if (state.hasValue) {
+        isValueChanging.value = true;
+
+        await Future.delayed(const Duration(milliseconds: 120));
+
+        isValueChanging.value = false;
+      }
+    });
+
+    return CustomCard(
+      child: SizedBox(
+        height: 150,
+        child: isValueChanging.value
+            ? const LoadingWidget()
+            : Center(child: _buildReadingState(context, stockState, currentRead)),
+      ),
+    );
+  }
+
+  Widget _buildReadingState(
+    BuildContext context,
+    AsyncValue<List<CarPart>> stockState,
+    ReadingResponseContent currentRead,
+  ) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Expanded(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              stockState.when(
+                data: (parts) {
+                  final productIndex = parts.indexWhere(
+                    (p) => p.productCode == currentRead.productOEM,
+                  );
+                  return Text(
+                    productIndex != -1
+                        ? parts[productIndex].name
+                        : 'Filtro de Ar do Corola ne fi pq enfim',
+                    style: context.theme.typography.xl3.copyWith(
+                      fontWeight: FontWeight.bold,
+                      height: 1.2,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  );
+                },
+                error: (e, st) => const Text('Desconhecido'),
+                loading: () {
+                  return const LoadingWidget();
+                },
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'OEM: ${currentRead.productOEM}',
+                style: context.theme.typography.lg.copyWith(color: Colors.grey),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
