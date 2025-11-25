@@ -28,7 +28,7 @@ class BleConnectionState {
   }
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 class BleConnection extends _$BleConnection {
   StreamSubscription<BleState>? _stateSubscription;
   bool _disposed = false;

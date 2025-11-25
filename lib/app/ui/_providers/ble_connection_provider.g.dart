@@ -20,7 +20,7 @@ final class BleConnectionProvider
         argument: null,
         retry: null,
         name: r'bleConnectionProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -41,7 +41,7 @@ final class BleConnectionProvider
   }
 }
 
-String _$bleConnectionHash() => r'd8dc59aa8b1f5a6d5090cbdb7e26122a3c5a13cc';
+String _$bleConnectionHash() => r'e88cd2f6f5dcb2d42cc4e0033883f86391007047';
 
 abstract class _$BleConnection extends $Notifier<BleConnectionState> {
   BleConnectionState build();

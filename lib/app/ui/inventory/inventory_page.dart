@@ -42,7 +42,9 @@ class _PageState extends ConsumerState<Page> with SingleTickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
-    final inventoryId = ref.watch(inventoryManagerProvider.select((state) => state.id));
+    final inventoryId = ref.watch(
+      inventoryManagerProvider.select((state) => state.currentInventory?.id),
+    );
     final isPaused = ref.watch(inventoryManagerProvider.select((state) => state.isPaused));
     final hasEnded = ref.watch(inventoryManagerProvider.select((state) => state.hasEnded));
 

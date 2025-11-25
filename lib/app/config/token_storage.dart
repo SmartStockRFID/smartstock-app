@@ -11,4 +11,8 @@ class TokenStorage {
   static Future<String?> getToken() async {
     return storage.read(key: 'jwt_token');
   }
+
+  static Future<void> deleteToken() async {
+    await storage.delete(key: 'jwt_token');
+  }
 }

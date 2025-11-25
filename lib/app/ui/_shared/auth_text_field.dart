@@ -17,7 +17,7 @@ Widget buildInputField({
     inputFormatters: isCPFField ? [MaskTextInputFormatter(mask: '###.###.###-##')] : [],
     decoration: InputDecoration(
       labelText: labelText,
-      labelStyle: TextStyle(
+      labelStyle: context.theme.typography.sm.copyWith(
         color: context.theme.colors.secondaryForeground,
         fontWeight: FontWeight.w100,
       ),

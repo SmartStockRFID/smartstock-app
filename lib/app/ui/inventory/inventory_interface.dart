@@ -242,8 +242,9 @@ class _FooterState extends ConsumerState<_Footer> {
             title: const Text('Inventário cancelado!'),
             actions: [
               FButton(
-                onPress: () {
-                  context.router.replaceAll([const HomeRoute()]);
+                onPress: () async {
+                  await context.router.replaceAll([const HomeRoute()]);
+                  await Future.delayed(const Duration(milliseconds: 500));
                   resetState();
                 },
                 style: createLargeStyle(
@@ -271,8 +272,9 @@ class _FooterState extends ConsumerState<_Footer> {
             title: const Text('Inventário concluído com sucesso!'),
             actions: [
               FButton(
-                onPress: () {
-                  context.router.replaceAll([const HomeRoute()]);
+                onPress: () async {
+                  await context.router.replaceAll([const HomeRoute()]);
+                  await Future.delayed(const Duration(milliseconds: 500));
                   resetState();
                 },
                 style: createLargeStyle(

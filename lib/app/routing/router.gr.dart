@@ -76,18 +76,46 @@ class LabelingRoute extends PageRouteInfo<void> {
 
 /// generated route for
 /// [LoginScreen]
-class LoginRoute extends PageRouteInfo<void> {
-  const LoginRoute({List<PageRouteInfo>? children})
-    : super(LoginRoute.name, initialChildren: children);
+class LoginRoute extends PageRouteInfo<LoginRouteArgs> {
+  LoginRoute({bool shouldRedirect = false, List<PageRouteInfo>? children})
+    : super(
+        LoginRoute.name,
+        args: LoginRouteArgs(shouldRedirect: shouldRedirect),
+        initialChildren: children,
+      );
 
   static const String name = 'LoginRoute';
 
   static PageInfo page = PageInfo(
     name,
     builder: (data) {
-      return const LoginScreen();
+      final args = data.argsAs<LoginRouteArgs>(
+        orElse: () => const LoginRouteArgs(),
+      );
+      return LoginScreen(shouldRedirect: args.shouldRedirect);
     },
   );
+}
+
+class LoginRouteArgs {
+  const LoginRouteArgs({this.shouldRedirect = false});
+
+  final bool shouldRedirect;
+
+  @override
+  String toString() {
+    return 'LoginRouteArgs{shouldRedirect: $shouldRedirect}';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! LoginRouteArgs) return false;
+    return shouldRedirect == other.shouldRedirect;
+  }
+
+  @override
+  int get hashCode => shouldRedirect.hashCode;
 }
 
 /// generated route for

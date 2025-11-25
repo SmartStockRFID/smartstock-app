@@ -94,6 +94,15 @@ class _LabelingPageState extends ConsumerState<LabelingPage> with SingleTickerPr
                           searchFieldProperties: const FSelectSearchFieldProperties(
                             hint: 'Buscar produto...',
                           ),
+                          style: (style) => style.copyWith(
+                            selectFieldStyle: (contStyle) => contStyle.copyWith(
+                              hintTextStyle: FWidgetStateMap.all(context.theme.typography.sm),
+                              contentPadding: const EdgeInsets.symmetric(
+                                vertical: 21, // AUMENTA ALTURA
+                                horizontal: 8,
+                              ),
+                            ),
+                          ),
                           hint: 'Escolha o produto a ser gravado',
                           contentPhysics: const BouncingScrollPhysics(),
                           format: (part) => part.name,

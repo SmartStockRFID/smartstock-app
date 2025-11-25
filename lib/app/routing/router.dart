@@ -54,7 +54,7 @@ class AuthGuard extends AutoRouteGuard {
       // automatically removed from the stack when the resolver is completed
       // var result = await context.router.push<bool>(LoginRoute());
 
-      await router.push(const LoginRoute());
+      await router.push(LoginRoute());
       resolver.next(true);
       // resolver.redirectUntil(
       //   LoginRoute(onResult: (success) {

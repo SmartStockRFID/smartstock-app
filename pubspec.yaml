@@ -20,7 +20,8 @@ dependencies:
   flutter_svg: ^2.2.3
   forui: ^0.16.0
   get_it: ^9.1.0
-  google_fonts: ^6.3.1
+  google_fonts: ^6.3.2
+  hooks_riverpod: ^3.0.3
   http: ^1.5.0
   intl: ^0.20.2
   logger: ^2.6.1
@@ -48,3 +49,7 @@ flutter:
     - assets/images/stock.png
     - assets/audios/store-scanner-beep.mp3
     - .env
+  fonts:
+    - family: Avenir95
+      fonts:
+        - asset: assets/fonts/Toyota-Type.ttf

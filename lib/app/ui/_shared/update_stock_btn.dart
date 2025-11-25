@@ -16,6 +16,7 @@ class UpdateStockButton extends ConsumerWidget {
           : () => stockNotifier.refresh(),
       child: Text(
         stockState.isLoading || stockState.isRefreshing ? 'Atualizando...' : 'Atualizar Estoque',
+        style: context.theme.typography.lg,
       ),
     );
   }

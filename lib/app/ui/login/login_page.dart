@@ -1,43 +1,39 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:forui/forui.dart';
 import 'package:smart_stock/app/config/api/auth.dart';
 import 'package:smart_stock/app/config/preferences_manager.dart';
 import 'package:smart_stock/app/data/dtos/login_dto.dart';
+import 'package:smart_stock/app/routing/router.dart';
 import 'package:smart_stock/app/ui/login/login_interface.dart';
-import 'package:smart_stock/app/utils/logger.dart';
 
 @RoutePage()
-class LoginScreen extends StatelessWidget {
-  const LoginScreen({super.key});
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({this.shouldRedirect = false});
+
+  final bool shouldRedirect;
 
   @override
-  Widget build(BuildContext context) {
-    return const LoginContainer();
-  }
+  State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class LoginContainer extends StatefulWidget {
-  const LoginContainer({super.key});
-
-  @override
-  State<LoginContainer> createState() => _LoginContainerState();
-}
-
-class _LoginContainerState extends State<LoginContainer> {
+class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStateMixin {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  late final _usernameSelectController = FSelectController<String>(vsync: this);
 
   @override
   void dispose() {
     _usernameController.dispose();
     _passwordController.dispose();
+    _usernameSelectController.dispose();
     super.dispose();
   }
 
   Future<void> _login() async {
     if (_formKey.currentState!.validate()) {
-      final username = _usernameController.text;
+      final username = _usernameSelectController.value ?? _usernameController.text;
       final password = _passwordController.text;
 
       try {
@@ -49,16 +45,10 @@ class _LoginContainerState extends State<LoginContainer> {
           if (!mounted) {
             return;
           }
-          await PreferencesManager.setNotFirstTimeOnTheApp();
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Login realizado com sucesso!!'),
-              backgroundColor: Colors.green,
-              duration: Duration(seconds: 2),
-            ),
-          );
-          await Future.delayed(const Duration(seconds: 2));
-          if (mounted) {
+
+          if (widget.shouldRedirect) {
+            context.router.replaceAll([const HomeRoute()]);
+          } else {
             context.router.pop();
           }
         } else if (response.statusCode == 401) {
@@ -83,16 +73,14 @@ class _LoginContainerState extends State<LoginContainer> {
           );
         }
       } catch (e) {
-        if (!mounted) {
-          return;
-        }
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Erro desconhecido! Por favor, aguarde.'),
             backgroundColor: Colors.red,
           ),
         );
-        return;
+
+        rethrow;
       }
     }
   }
@@ -104,6 +92,7 @@ class _LoginContainerState extends State<LoginContainer> {
       usernameController: _usernameController,
       passwordController: _passwordController,
       onLogin: _login,
+      usernameSelectController: _usernameSelectController,
     );
   }
 }

@@ -7,7 +7,6 @@ import 'package:smart_stock/app/routing/router.dart';
 import 'package:smart_stock/app/ui/_providers/ble_connection_provider.dart';
 import 'package:smart_stock/app/ui/_providers/inventory_provider.dart';
 import 'package:smart_stock/app/ui/_providers/stock_provider.dart';
-import 'package:smart_stock/app/ui/_shared/types.dart';
 import 'package:smart_stock/app/ui/_themes/custom_forui.dart';
 import 'package:smart_stock/app/ui/home/status_panel_widget.dart';
 
@@ -33,9 +32,8 @@ class Navbar extends ConsumerWidget {
     final currentStsdate = ref.watch(bleConnectionProvider.select((state) => state.currentState));
     final stockState = ref.watch(stockProvider);
     final isConnected = currentStsdate is ConnectedState && stockState.hasValue;
-    final initInventoryStatus = ref.watch(
-      inventoryManagerProvider.select((state) => state.initReqStatus),
-    );
+    final bool hasActiveInventory =
+        ref.watch(inventoryManagerProvider.select((state) => state.currentInventory)) != null;
 
     return Column(
       spacing: 12,
@@ -44,10 +42,8 @@ class Navbar extends ConsumerWidget {
           isConnected: isConnected,
           icon: FIcons.clipboardCheck,
           title: routesTitles[InventoryConfirmationRoute.name] ?? '',
-          badgeLabel: initInventoryStatus == RequestStatus.success ? 'ABERTO' : null,
-          href: initInventoryStatus == RequestStatus.success
-              ? const InventoryRoute()
-              : const InventoryConfirmationRoute(),
+          badgeLabel: hasActiveInventory ? 'ABERTO' : null,
+          href: hasActiveInventory ? const InventoryRoute() : const InventoryConfirmationRoute(),
         ),
         NavLink(
           isConnected: isConnected,
@@ -111,8 +107,8 @@ class NavLink extends StatelessWidget {
           ],
         ),
       ),
-      onPress: () {
-        if (isConnected) {
+      onPress: () async {
+        if (isConnected && context.mounted) {
           AutoTabsRouter.of(context).navigate(href);
         }
       },

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
+import 'package:smart_stock/app/config/constants.dart';
 
 FBaseButtonStyle Function(FButtonStyle) createDisabledButtonStyle(BuildContext context) {
   return (FButtonStyle baseStyle) {
@@ -41,6 +42,13 @@ FBaseButtonStyle Function(FButtonStyle) createLargeStyle({
     final typography = theme.typography;
     final style = theme.style;
 
+    final textStyle = theme.typography.lg.copyWith(
+      color: foregroundColor,
+      height: 1, // CRUCIAL: Reseta a altura da linha para o texto ficar centralizado no botão
+      fontWeight:
+          FontWeight.w600, // Opcional: Avenir costuma ficar melhor um pouco mais grossa em botões
+    );
+
     return FButtonStyle(
       decoration: FWidgetStateMap.all(
         BoxDecoration(
@@ -55,13 +63,8 @@ FBaseButtonStyle Function(FButtonStyle) createLargeStyle({
             enabled: foregroundColor, // <-- USA A COR DE TEXTO FORNECIDA
             disabled: colors.disable(foregroundColor),
           ).copyWith(
-            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-            textStyle: FWidgetStateMap.all(
-              typography.base.copyWith(
-                fontSize: 18,
-                color: foregroundColor, // <-- USA A COR DE TEXTO FORNECIDA
-              ),
-            ),
+            padding: EdgeInsets.symmetric(horizontal: 32, vertical: useNewlandTheme ? 18 : 16),
+            textStyle: FWidgetStateMap.all(textStyle),
           ),
       iconContentStyle: FButtonIconContentStyle.inherit(
         enabled: foregroundColor, // <-- USA A COR DE TEXTO FORNECIDA

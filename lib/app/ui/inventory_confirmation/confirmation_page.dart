@@ -1,13 +1,45 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_riverpod/experimental/mutation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:smart_stock/app/config/assets.dart';
+import 'package:smart_stock/app/config/dependencies.dart';
+import 'package:smart_stock/app/config/preferences_manager.dart';
+import 'package:smart_stock/app/data/dtos/inventory/inventory_summary_dto.dart';
+import 'package:smart_stock/app/data/repositories/inventory_repository.dart';
+import 'package:smart_stock/app/routing/router.dart';
 import 'package:smart_stock/app/ui/_providers/inventory_provider.dart';
 import 'package:smart_stock/app/ui/_providers/stock_provider.dart';
 import 'package:smart_stock/app/ui/_shared/custom_card.dart';
-import 'package:smart_stock/app/ui/_shared/update_stock_btn.dart';
-import 'package:smart_stock/app/ui/inventory_confirmation/widgets/init_inventory_btn_widget.dart';
+import 'package:smart_stock/app/ui/_shared/loading_widget.dart';
+import 'package:smart_stock/app/ui/_themes/custom_forui.dart';
+import 'package:smart_stock/app/utils/logger.dart';
+import 'package:vibration/vibration.dart';
+import 'package:vibration/vibration_presets.dart';
+
+final currentUserProvider = FutureProvider.autoDispose<String>((ref) async {
+  return await PreferencesManager.getCurrentUser() ?? '';
+});
+
+final getActiveInventoryProvider = FutureProvider.autoDispose<InventorySummaryDTO?>((ref) async {
+  try {
+    final inventoryFromServer = await injector.get<InventoryRepository>().getActiveInventory();
+
+    if (inventoryFromServer != null) {
+      ref.read(inventoryManagerProvider.notifier).setInventoryFromServer(inventoryFromServer);
+      return inventoryFromServer;
+    }
+  } catch (error) {
+    logger.e('oi $error');
+  }
+
+  return null;
+});
+
+final initInventoryMutation = Mutation<void>();
 
 @RoutePage()
 class InventoryConfirmationPage extends StatelessWidget {
@@ -19,9 +51,7 @@ class InventoryConfirmationPage extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         const SingleChildScrollView(
-          child: Column(
-            children: [_ResponsibleEmployee(), SizedBox(height: 16), _ConnectionChecker()],
-          ),
+          child: Column(spacing: 16, children: [_ResponsibleEmployee(), _InventoryStatus()]),
         ),
         InitInventoryButton(),
       ],
@@ -35,11 +65,9 @@ class _ResponsibleEmployee extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final typography = context.theme.typography;
-    final employeeUsername = ref.watch(
-      inventoryManagerProvider.select((state) => state.employeeUsername),
-    );
+    final currentUser = ref.watch(currentUserProvider);
     return CustomCard(
-      title: const Text('Responsável'),
+      sizedBoxHeight: 1,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -51,14 +79,73 @@ class _ResponsibleEmployee extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  employeeUsername ?? 'admin',
+                  currentUser.when(
+                        data: (data) => data,
+                        error: (err, trace) => 'Desconhecido',
+                        loading: () => 'Carregando...',
+                      ) ??
+                      'admin',
                   style: typography.xl.copyWith(fontWeight: FontWeight.bold, height: 1.2),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const Text('Funcionário'),
+                const Text('Funcionário conectado'),
               ],
             ),
+          ),
+          FButton(
+            style: FButtonStyle.outline(),
+            onPress: () async {
+              await context.router.push(LoginRoute());
+              ref.invalidate(currentUserProvider);
+            },
+            child: const Icon(FIcons.arrowRightLeft),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _InventoryStatus extends ConsumerWidget {
+  const _InventoryStatus();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final queryActiveInventory = ref.watch(getActiveInventoryProvider);
+    final currentUser = ref.watch(currentUserProvider);
+
+    return CustomCard(
+      title: const Text('Status do inventário'),
+      child: Column(
+        children: [
+          currentUser.when(
+            data: (username) => queryActiveInventory.when(
+              data: (inventory) {
+                String message;
+
+                if (inventory == null) {
+                  message = 'Estoque pronto para inventário';
+                } else if (inventory.employeeUsername == username) {
+                  message = 'Retomar conferência #${inventory.id}?';
+                } else {
+                  message =
+                      '${inventory.employeeUsername} está realizando o inventário #${inventory.id}';
+                }
+
+                return Center(
+                  child: Text(
+                    message,
+                    style: context.theme.typography.xl2,
+                    textAlign: TextAlign.center,
+                  ),
+                );
+              },
+              error: (e, st) => const Text('Erro ao carregar dados do servidor'),
+              loading: () => const LoadingWidget(),
+            ),
+            error: (err, trace) => const Text('Inautorizado'),
+            loading: () => const LoadingWidget(),
           ),
         ],
       ),
@@ -80,13 +167,10 @@ class _ConnectionChecker extends ConsumerWidget {
           const _StatusItem(isReady: true, text: 'Pistola conectada'),
           const Divider(height: 20),
           stockState.when(
-            data: (_) => const _StatusItem(isReady: true, text: 'Lista de produtos sincronizada'),
-            error: (e, st) =>
-                const _StatusItem(isReady: false, text: 'Erro ao sincronizar produtos'),
-            loading: () => const _StatusItem(isReady: false, text: 'Sincronizando produtos...'),
+            data: (_) => const _StatusItem(isReady: true, text: 'Produtos carregados'),
+            error: (e, st) => const _StatusItem(isReady: false, text: 'Erro ao carregar produtos'),
+            loading: () => const _StatusItem(isReady: false, text: 'Carregando produtos...'),
           ),
-          const SizedBox(height: 24),
-          UpdateStockButton(),
         ],
       ),
     );
@@ -110,6 +194,73 @@ class _StatusItem extends StatelessWidget {
         const SizedBox(width: 12),
         Expanded(child: Text(text, style: const TextStyle(fontSize: 16))),
       ],
+    );
+  }
+}
+
+class InitInventoryButton extends HookConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final queryActiveInventory = ref.watch(getActiveInventoryProvider);
+    final currentUser = ref.watch(currentUserProvider);
+
+    final pending = ref.watch(initInventoryMutation.select((state) => state is MutationPending));
+
+    return FButton(
+      style: primaryLargeButton(
+        context,
+        disabled: pending || queryActiveInventory.isLoading || currentUser.isLoading,
+      ),
+      onPress: () async {
+        if (currentUser.isLoading || queryActiveInventory.isLoading) {
+          return;
+        }
+
+        if (queryActiveInventory.value == null) {
+          if (pending) {
+            return;
+          }
+          initInventoryMutation.run(ref, (tsx) async {
+            await tsx.get(inventoryManagerProvider.notifier).startInventoryFlow();
+
+            Vibration.vibrate(preset: VibrationPreset.quickSuccessAlert);
+
+            initInventoryMutation.reset(ref);
+
+            if (context.mounted) {
+              context.router.push(const InventoryRoute());
+            }
+          });
+        } else {
+          Vibration.vibrate(preset: VibrationPreset.quickSuccessAlert);
+          await context.router.push(const InventoryRoute());
+        }
+      },
+      child: currentUser.when(
+        data: (username) => queryActiveInventory.when(
+          data: (inventory) {
+            String btnLabel;
+
+            if (inventory == null) {
+              btnLabel = 'INICIAR AGORA';
+            } else if (inventory.employeeUsername == username) {
+              btnLabel = 'CONTINUAR TRABALHO';
+            } else {
+              btnLabel = 'ENTRAR NA SESSÃO';
+            }
+
+            return Text(
+              btnLabel,
+              style: context.theme.typography.xl2.copyWith(color: Colors.white),
+            );
+          },
+          error: (e, st) =>
+              Text('ERRO', style: context.theme.typography.xl2.copyWith(color: Colors.white)),
+          loading: () => const LoadingWidget(),
+        ),
+        error: (err, trace) => const Text('Inautorizado'),
+        loading: () => const LoadingWidget(),
+      ),
     );
   }
 }

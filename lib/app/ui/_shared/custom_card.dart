@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
 class CustomCard extends StatelessWidget {
-  final Text title;
+  final Text? title;
   final Widget child;
   final double? sizedBoxHeight;
 
-  const CustomCard({super.key, required this.title, required this.child, this.sizedBoxHeight});
+  const CustomCard({super.key, this.title, required this.child, this.sizedBoxHeight});
 
   @override
   Widget build(BuildContext context) {
@@ -29,8 +29,11 @@ class CustomCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            title,
-            SizedBox(height: sizedBoxHeight ?? 16),
+            if (title != null) ...[
+              title!,
+              SizedBox(height: sizedBoxHeight ?? 16),
+            ] else
+              const Center(),
             child,
           ],
         ),

@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:smart_stock/app/config/assets.dart';
 import 'package:smart_stock/app/config/dependencies.dart';
+import 'package:smart_stock/app/data/dtos/inventory/inventory_summary_dto.dart';
 import 'package:smart_stock/app/data/repositories/inventory_repository.dart';
 import 'package:smart_stock/app/domain/firmware/reading_response.dart';
 import 'package:smart_stock/app/ui/_providers/ble_connection_provider.dart';
@@ -23,7 +24,7 @@ class ReadTag {
 
 @immutable
 class ProductReadings {
-  final List<ReadTag> readTags;
+  final List<ReadTag> readTags; //Todo: trocar por uma estrutura mais eficiente
   final String productOEM;
 
   const ProductReadings({required this.readTags, required this.productOEM});
@@ -42,49 +43,32 @@ class ProductReadings {
 
 @immutable
 class InventoryManagerState {
+  final InventorySummaryDTO? currentInventory;
   final List<ProductReadings> readings;
   final ProductReadings? lastAddedProductReading;
-  final String? employeeUsername;
-  final int? id;
   final bool isPaused;
   final bool hasEnded;
-  final RequestStatus initReqStatus;
   final RequestStatus finishReqStatus;
   final RequestStatus cancelReqStatus;
 
   const InventoryManagerState({
-    this.id,
+    this.currentInventory,
     this.readings = const [],
-    this.employeeUsername,
     this.isPaused = false,
     this.hasEnded = false,
-    this.initReqStatus = RequestStatus.idle,
     this.finishReqStatus = RequestStatus.idle,
     this.cancelReqStatus = RequestStatus.idle,
     this.lastAddedProductReading,
   });
 
-  bool get hasReqPending => [
-    initReqStatus,
-    finishReqStatus,
-    cancelReqStatus,
-  ].any((status) => status == RequestStatus.loading);
-
-  String get initButtonLabel {
-    return switch (initReqStatus) {
-      RequestStatus.loading => 'INICIANDO...',
-      RequestStatus.success => 'ENTRAR',
-      _ => 'INICIAR INVENTÁRIO',
-    };
-  }
+  bool get hasReqPending =>
+      [finishReqStatus, cancelReqStatus].any((status) => status == RequestStatus.loading);
 
   int get readingsCount => readings.fold(0, (acc, r) => acc + r.tagCount);
 
   InventoryManagerState copyWith({
+    InventorySummaryDTO? currentInventory,
     List<ProductReadings>? readings,
-    String? employeeUsername,
-    int? id,
-    RequestStatus? initReqStatus,
     RequestStatus? finishReqStatus,
     RequestStatus? cancelReqStatus,
     bool? isPaused,
@@ -92,10 +76,8 @@ class InventoryManagerState {
     ProductReadings? lastAddedProductReading,
   }) {
     return InventoryManagerState(
+      currentInventory: currentInventory ?? this.currentInventory,
       readings: readings ?? this.readings,
-      employeeUsername: employeeUsername ?? this.employeeUsername,
-      id: id ?? this.id,
-      initReqStatus: initReqStatus ?? this.initReqStatus,
       finishReqStatus: finishReqStatus ?? this.finishReqStatus,
       cancelReqStatus: cancelReqStatus ?? this.cancelReqStatus,
       isPaused: isPaused ?? this.isPaused,
@@ -125,57 +107,25 @@ class InventoryManager extends _$InventoryManager {
   }
 
   Future<void> initInventory() async {
-    state = state.copyWith(initReqStatus: RequestStatus.loading);
-    try {
-      final hasActiveConf = await _getActiveReading();
-      if (!hasActiveConf) {
-        final inventoryDetails = await injector.get<InventoryRepository>().initInventory(
-          state.employeeUsername ?? 'admin',
-        );
-        state = state.copyWith(
-          id: inventoryDetails.id,
-          employeeUsername: inventoryDetails.employeeUsername,
-          initReqStatus: RequestStatus.success,
-        );
-      } else {
-        // Já tô atualizando dentro do get
-        // state = state.copyWith(initReqStatus: RequestStatus.success);
-      }
-    } catch (error) {
-      logger.e(error);
-      state = state.copyWith(initReqStatus: RequestStatus.error);
-    }
-  }
-
-  // Como que eu pego esse retorno para eu conseguir controlar na tela de interface se eu exibo Retomar ou Iniciar?
-  Future<bool> _getActiveReading() async {
-    final inventories = await injector.get<InventoryRepository>().getAllInventories();
-    final activeConfIndex = inventories.indexWhere((conf) => conf.status == 'iniciada');
-    if (activeConfIndex != -1) {
-      final inventoryDetails = inventories[activeConfIndex];
-      state = state.copyWith(
-        id: inventoryDetails.id,
-        employeeUsername: inventoryDetails.employeeUsername,
-        initReqStatus: RequestStatus.success,
-      );
-      return true;
-    }
-    return false;
+    final newInventory = await injector.get<InventoryRepository>().initInventory();
+    state = state.copyWith(currentInventory: newInventory);
   }
 
   Future<void> finishInventory() async {
-    if (state.id != null) {
+    if (state.currentInventory != null) {
       state = state.copyWith(finishReqStatus: RequestStatus.loading);
       try {
         try {
-          await injector.get<InventoryRepository>().postReadings(state.id!, state.readings);
+          await injector.get<InventoryRepository>().postReadings(
+            state.currentInventory!.id,
+            state.readings,
+          );
         } catch (err) {
           logger.e('Erro ao buscar produtos da conferência!');
         }
-        await injector.get<InventoryRepository>().finishInventory(state.id!);
+        await injector.get<InventoryRepository>().finishInventory(state.currentInventory!.id);
         state = state.copyWith(
           finishReqStatus: RequestStatus.success,
-          initReqStatus: RequestStatus.idle,
           hasEnded: true,
           isPaused: false,
         );
@@ -187,21 +137,18 @@ class InventoryManager extends _$InventoryManager {
   }
 
   Future<void> cancelInventory() async {
-    if (state.id != null) {
-      state = state.copyWith(cancelReqStatus: RequestStatus.loading);
-      try {
-        await injector.get<InventoryRepository>().cancelInventory(state.id!);
-      } catch (error) {
-        logger.e('Error calling cancelInventory on inventoryManager: $error');
-        state = state.copyWith(cancelReqStatus: RequestStatus.error);
-      }
-      state = state.copyWith(
-        cancelReqStatus: RequestStatus.success,
-        initReqStatus: RequestStatus.idle,
-        hasEnded: true,
-        isPaused: false,
-      );
+    if (state.currentInventory == null || state.cancelReqStatus == RequestStatus.loading) {
+      return;
     }
+
+    state = state.copyWith(cancelReqStatus: RequestStatus.loading);
+    try {
+      await injector.get<InventoryRepository>().cancelInventory(state.currentInventory!.id);
+    } catch (error) {
+      logger.e('Error calling cancelInventory on inventoryManager: $error');
+      state = state.copyWith(cancelReqStatus: RequestStatus.error);
+    }
+    state = state.copyWith(cancelReqStatus: RequestStatus.success, hasEnded: true, isPaused: false);
   }
 
   void addNewReading(ReadingResponseContent reading) {
@@ -255,5 +202,9 @@ class InventoryManager extends _$InventoryManager {
   void pauseInventory() {
     logger.d('Inventário pausado!');
     state = state.copyWith(isPaused: true);
+  }
+
+  void setInventoryFromServer(InventorySummaryDTO inventory) {
+    state = state.copyWith(currentInventory: inventory);
   }
 }

@@ -2,19 +2,22 @@ class InventorySummaryDTO {
   final int id;
   final String employeeUsername;
   final String status;
+  final DateTime createdAt;
 
-  InventorySummaryDTO({required this.id, required this.employeeUsername, required this.status});
+  InventorySummaryDTO({
+    required this.id,
+    required this.employeeUsername,
+    required this.status,
+    required this.createdAt,
+  });
 
   factory InventorySummaryDTO.fromJson(Map<String, dynamic> json) {
     return InventorySummaryDTO(
       id: json['id'],
       employeeUsername: json['username_funcionario'],
       status: json['status'],
+      createdAt: DateTime.parse(json['created_at'] as String),
     );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {'id': id, 'username_funcionario': employeeUsername, 'status': status};
   }
 
   static List<InventorySummaryDTO> fromJsonList(List<dynamic> jsonList) {
