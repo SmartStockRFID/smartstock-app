@@ -28,10 +28,10 @@ class AuthAPI {
       final dto = LoginResponseDTO.fromMap(responseBody);
       final token = dto.token;
 
-      await PreferencesManager.setNotFirstTimeOnTheApp();
       await TokenStorage.storeToken(token);
-      await PreferencesManager.setCurrentUser(payload.username);
-      await PreferencesManager.saveLogin(payload.username);
+      await CurrentUserStorage.setValue(payload.username);
+      await SavedLoginsStorage.saveValue(payload.username);
+      await CurrentSessionTimestampProvider.setValue();
     }
     return response;
   }

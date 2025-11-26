@@ -1,8 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_riverpod/experimental/mutation.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:smart_stock/app/config/assets.dart';
@@ -21,7 +19,7 @@ import 'package:vibration/vibration.dart';
 import 'package:vibration/vibration_presets.dart';
 
 final currentUserProvider = FutureProvider.autoDispose<String>((ref) async {
-  return await PreferencesManager.getCurrentUser() ?? '';
+  return await CurrentUserStorage.getValue() ?? 'Inautorizado';
 });
 
 final getActiveInventoryProvider = FutureProvider.autoDispose<InventorySummaryDTO?>((ref) async {
@@ -228,12 +226,13 @@ class InitInventoryButton extends HookConsumerWidget {
             initInventoryMutation.reset(ref);
 
             if (context.mounted) {
-              context.router.push(const InventoryRoute());
+              context.router.replaceAll([const HomeRoute(), const InventoryRoute()]);
             }
           });
         } else {
           Vibration.vibrate(preset: VibrationPreset.quickSuccessAlert);
-          await context.router.push(const InventoryRoute());
+          context.router.replaceAll([const HomeRoute(), const InventoryRoute()]);
+          // await context.router.push(const InventoryRoute());
         }
       },
       child: currentUser.when(
@@ -244,7 +243,7 @@ class InitInventoryButton extends HookConsumerWidget {
             if (inventory == null) {
               btnLabel = 'INICIAR AGORA';
             } else if (inventory.employeeUsername == username) {
-              btnLabel = 'CONTINUAR TRABALHO';
+              btnLabel = 'CONTINUAR AGORA';
             } else {
               btnLabel = 'ENTRAR NA SESSÃO';
             }

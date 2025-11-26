@@ -7,6 +7,7 @@ class Inventory {
   final String status;
   final List<Reading> readings;
   final List<Event> events;
+  final DateTime createdAt;
 
   Inventory({
     required this.employeeUsername,
@@ -14,5 +15,6 @@ class Inventory {
     required this.status,
     required this.readings,
     required this.events,
+    required this.createdAt,
   });
 }

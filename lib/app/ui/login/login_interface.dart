@@ -12,10 +12,7 @@ import 'package:smart_stock/app/ui/_shared/loading_widget.dart';
 import 'package:smart_stock/app/ui/_themes/custom_forui.dart';
 
 final savedInfoProvider = FutureProvider<(String?, List<String>?)>((ref) async {
-  final result = await Future.wait([
-    PreferencesManager.getCurrentUser(),
-    PreferencesManager.getSavedLogins(),
-  ]);
+  final result = await Future.wait([CurrentUserStorage.getValue(), SavedLoginsStorage.getValues()]);
   return (result[0] as String?, result[1] as List<String>?);
 });
 

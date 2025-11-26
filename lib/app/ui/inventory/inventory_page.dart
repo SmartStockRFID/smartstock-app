@@ -5,6 +5,7 @@ import 'package:smart_stock/app/routing/router.dart';
 import 'package:smart_stock/app/ui/_providers/inventory_provider.dart';
 import 'package:smart_stock/app/ui/_shared/app_bar.dart';
 import 'package:smart_stock/app/ui/inventory/inventory_interface.dart';
+import 'package:smart_stock/app/ui/inventory/widgets/modals_widgets.dart';
 
 @RoutePage()
 class InventoryPage extends StatelessWidget {
@@ -50,6 +51,7 @@ class _PageState extends ConsumerState<Page> with SingleTickerProviderStateMixin
 
     return Scaffold(
       appBar: baseAppBar(
+        actions: [Padding(padding: const EdgeInsets.only(right: 8), child: ModalSheetFinish())],
         widgetTitle: Row(
           mainAxisSize: MainAxisSize.min, // Para a Row não ocupar a linha toda
           spacing: 8,

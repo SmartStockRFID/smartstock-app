@@ -21,8 +21,4 @@ class InventoryAPI {
   static Future<http.Response> finishInventory(int inventoryId) async {
     return APIConnector.put('conferencia/$inventoryId/encerrar', {});
   }
-
-  static Future<http.Response> cancelInventory(int inventoryId) async {
-    return APIConnector.put('conferencia/$inventoryId/cancelar', {});
-  }
 }

@@ -33,6 +33,7 @@ class InventoryDetailsDTO {
       status: json['status'],
       readings: readings,
       events: events,
+      createdAt: DateTime.parse(json['created_at'] as String),
     );
   }
 

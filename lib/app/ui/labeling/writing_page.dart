@@ -1,7 +1,9 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:smart_stock/app/ui/_providers/ble_connection_provider.dart';
 import 'package:smart_stock/app/ui/_providers/current_writing_provider.dart';
 import 'package:smart_stock/app/ui/_providers/writing_feedback_ble_listener_provider.dart';
@@ -11,7 +13,7 @@ import 'package:smart_stock/app/ui/_themes/custom_forui.dart';
 import 'package:smart_stock/app/ui/labeling/labeling_select_page.dart';
 
 @RoutePage()
-class WritingPage extends ConsumerStatefulWidget {
+class WritingPage extends StatefulHookConsumerWidget {
   const WritingPage({required this.targetProductName, required this.mode});
 
   final String? targetProductName;
@@ -26,7 +28,15 @@ class _WritingPageState extends ConsumerState<WritingPage> {
   Widget build(BuildContext context) {
     ref.watch(writingFeedbackBleListenerProvider);
 
+    final isValueChanging = useState(false);
+
     final writedTags = ref.watch(writingManagerProvider.select((state) => state.writedTags));
+
+    ref.listen(writingManagerProvider.select((state) => state.writedTags), (_, state) async {
+      isValueChanging.value = true;
+      await Future.delayed(const Duration(milliseconds: 500));
+      isValueChanging.value = false;
+    });
 
     final isResetMode = widget.mode == WritingMode.RESET;
 
@@ -35,7 +45,7 @@ class _WritingPageState extends ConsumerState<WritingPage> {
       backgroundColor: Colors.white,
       body: PopScope(
         canPop: true,
-        onPopInvokedWithResult: (didPop, result) {
+        onPopInvokedWithResult: (didPop, result) async {
           if (didPop) {
             ref.read(bleConnectionProvider).manager.enterOnReadMode();
           }
@@ -69,7 +79,9 @@ class _WritingPageState extends ConsumerState<WritingPage> {
                               ),
                       ),
                     ),
+
                     CustomCard(
+                      blink: isValueChanging.value,
                       title: Text(
                         'Número de etiquetas ${isResetMode ? 'limpas' : 'gravadas'}:',
                         style: context.theme.typography.lg,
@@ -77,7 +89,11 @@ class _WritingPageState extends ConsumerState<WritingPage> {
                       child: Center(
                         child: Text(
                           writedTags.length.toString(),
-                          style: context.theme.typography.xl8,
+                          style: GoogleFonts.robotoMono(
+                            textStyle: context.theme.typography.xl8.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                       ),
                     ),

@@ -2,7 +2,6 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:smart_stock/app/config/api/auth.dart';
-import 'package:smart_stock/app/config/preferences_manager.dart';
 import 'package:smart_stock/app/data/dtos/login_dto.dart';
 import 'package:smart_stock/app/routing/router.dart';
 import 'package:smart_stock/app/ui/login/login_interface.dart';

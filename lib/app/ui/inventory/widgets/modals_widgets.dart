@@ -3,9 +3,10 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:intl/intl.dart';
 import 'package:smart_stock/app/ui/_providers/inventory_provider.dart';
-import 'package:smart_stock/app/ui/_shared/types.dart';
 import 'package:smart_stock/app/ui/_themes/custom_forui.dart';
+import 'package:smart_stock/app/utils/fortunes.dart';
 
 class ModalSheetPaused extends ConsumerWidget {
   @override
@@ -32,9 +33,14 @@ class ModalSheetPaused extends ConsumerWidget {
     final resumeInventory = ref.read(inventoryManagerProvider.notifier).resumeInventory;
 
     return FButton(
-      style: FButtonStyle.secondary(),
-      prefix: const Icon(FIcons.pause, size: 16, color: Colors.black),
-      child: const Text('PAUSAR', style: TextStyle(height: 2)),
+      style: secondaryLargeButton(context),
+      prefix: Icon(FIcons.pause, size: 20, color: btnDisabled ? Colors.grey : Colors.black),
+      child: Text(
+        'PAUSAR',
+        style: context.theme.typography.xl2.copyWith(
+          color: btnDisabled ? Colors.grey : Colors.black,
+        ),
+      ),
       onPress: () {
         if (btnDisabled) {
           return;
@@ -60,31 +66,42 @@ class ModalSheetPaused extends ConsumerWidget {
                         style: context.theme.typography.xl2.copyWith(fontWeight: FontWeight.bold),
                       ),
 
-                      const Text(
-                        'Não se preocupe, seu progresso está salvo.',
-                        style: TextStyle(color: Colors.grey),
-                      ),
+                      TimeInfo(),
                     ],
                   ),
                   _Scoreboard(),
-                  FButton(
-                    style: createLargeStyle(
-                      context: context,
-                      backgroundColor: Colors.green,
-                      foregroundColor: Colors.lightGreen,
-                    ),
-                    onPress: () {
-                      resumeInventory();
-                      Navigator.of(context).pop();
-                    },
-                    prefix: const Icon(FIcons.play, size: 16, color: Colors.white),
-                    child: Text(
-                      'RETOMAR',
-                      style: context.theme.typography.xl2.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
+                  Column(
+                    spacing: 4,
+                    children: [
+                      Text(
+                        getRandomFortune(),
+                        style: context.theme.typography.xs.copyWith(
+                          fontStyle: FontStyle.italic,
+                          color: Colors.grey,
+                        ),
                       ),
-                    ),
+                      FButton(
+                        style: createLargeStyle(
+                          context: context,
+                          backgroundColor: Colors.green,
+                          foregroundColor: Colors.lightGreen,
+                        ),
+                        onPress: () {
+                          resumeInventory();
+                          Navigator.of(context).pop();
+                        },
+                        prefix: const Icon(FIcons.play, size: 20, color: Colors.white),
+
+                        child: Text(
+                          'RETOMAR',
+                          style: context.theme.typography.xl2.copyWith(
+                            color: Colors.white,
+
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -96,115 +113,45 @@ class ModalSheetPaused extends ConsumerWidget {
   }
 }
 
-class ModalSheetCancel extends ConsumerWidget {
+class TimeInfo extends ConsumerWidget {
+  String formatTimestamp(DateTime timestamp) {
+    final timeFormat = DateFormat('HH:mm').format(timestamp);
+
+    return timeFormat;
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final inventoryManager = ref.read(inventoryManagerProvider.notifier);
-    final pauseInventory = ref.read(inventoryManagerProvider.notifier).pauseInventory;
-
-    final barrierColor = context.theme.colors.barrier;
-    final modalSheetStyle = context.theme.modalSheetStyle;
-
-    final modalStyle = modalSheetStyle.copyWith(
-      barrierFilter: (animation) => ImageFilter.compose(
-        outer: ImageFilter.blur(sigmaX: animation * 5, sigmaY: animation * 5),
-        inner: ColorFilter.mode(barrierColor, BlendMode.srcOver),
-      ),
+    final currentInventory = ref.watch(
+      inventoryManagerProvider.select((state) => state.currentInventory),
     );
-    final cancelReqStatus = ref.watch(
-      inventoryManagerProvider.select((state) => state.cancelReqStatus),
-    );
-    final resumeInventory = ref.read(inventoryManagerProvider.notifier).resumeInventory;
 
-    final hasReqPending = ref.watch(
-      inventoryManagerProvider.select((state) => state.hasReqPending),
-    );
-    final hasEnded = ref.watch(inventoryManagerProvider.select((state) => state.hasEnded));
-
-    final bool btnDisabled = hasReqPending || hasEnded;
-
-    return FButton(
-      style: FButtonStyle.outline(),
-      prefix: const Icon(FIcons.square, size: 16.0, color: Colors.black),
-      child: cancelReqStatus == RequestStatus.loading
-          ? const Text('CANCELANDO', style: TextStyle(height: 2))
-          : const Text('CANCELAR', style: TextStyle(height: 2)),
-      onPress: () {
-        if (btnDisabled) {
-          return;
-        }
-        pauseInventory();
-        showFSheet(
-          barrierDismissible: false,
-          style: modalStyle.call,
-          context: context,
-          side: FLayout.btt,
-          builder: (context) => ModalSheetContent(
-            side: FLayout.rtl,
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Column(
-                    children: [
-                      Text(
-                        'Você tem certeza?',
-                        style: context.theme.typography.xl2.copyWith(fontWeight: FontWeight.bold),
+    return Row(
+      spacing: 8,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Icon(FIcons.clock, size: 16, color: Color.fromARGB(255, 130, 130, 130)),
+        Text.rich(
+          currentInventory != null
+              ? TextSpan(
+                  children: [
+                    const TextSpan(text: 'Iniciado às '),
+                    TextSpan(
+                      text: formatTimestamp(currentInventory.createdAt.toLocal()),
+                      style: context.theme.typography.xl.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: const Color.fromARGB(255, 130, 130, 130),
                       ),
+                    ),
+                  ],
+                )
+              : const TextSpan(text: 'Sem mais informações'),
 
-                      const Text(
-                        'Essa ação não pode ser desfeita.',
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                    ],
-                  ),
-                  _Scoreboard(),
-                  Column(
-                    spacing: 8,
-                    children: [
-                      FButton(
-                        onPress: () {
-                          Navigator.of(context).pop();
-                          inventoryManager.cancelInventory();
-                        },
-                        style: createLargeStyle(
-                          context: context,
-                          backgroundColor: context.theme.colors.destructive,
-                          foregroundColor: context.theme.colors.destructiveForeground,
-                        ),
-                        child: Text(
-                          'CANCELAR INVENTÁRIO',
-
-                          style: context.theme.typography.xl.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      FButton(
-                        style: createLargeStyle(
-                          context: context,
-                          backgroundColor: context.theme.colors.secondary,
-                          foregroundColor: context.theme.colors.secondaryForeground,
-                        ),
-                        onPress: () {
-                          resumeInventory();
-                          Navigator.of(context).pop();
-                        },
-                        child: Text(
-                          'VOLTAR',
-                          style: context.theme.typography.xl.copyWith(fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+          style: context.theme.typography.xl.copyWith(
+            color: const Color.fromARGB(255, 130, 130, 130),
           ),
-        );
-      },
+        ),
+      ],
     );
   }
 }
@@ -237,10 +184,9 @@ class ModalSheetFinish extends ConsumerWidget {
 
     final resumeInventory = ref.read(inventoryManagerProvider.notifier).resumeInventory;
 
-    return FButton(
-      prefix: const Icon(FIcons.circleCheck, size: 16.0, color: Colors.white),
-      style: primaryLargeButton(context, disabled: btnDisabled),
-      onPress: () {
+    return IconButton(
+      icon: Icon(Icons.stop, size: 32, color: btnDisabled ? Colors.grey : Colors.white),
+      onPressed: () {
         if (btnDisabled) {
           return;
         }
@@ -264,11 +210,11 @@ class ModalSheetFinish extends ConsumerWidget {
                         'Concluir o inventário?',
                         style: context.theme.typography.xl2.copyWith(fontWeight: FontWeight.bold),
                       ),
-
-                      const Text(
-                        'A contagem atual será salva como final.',
-                        style: TextStyle(color: Colors.grey),
-                      ),
+                      TimeInfo(),
+                      // const Text(
+                      //   'A contagem atual será salva como final.',
+                      //   style: TextStyle(color: Colors.grey),
+                      // ),
                     ],
                   ),
                   _Scoreboard(),
@@ -312,13 +258,6 @@ class ModalSheetFinish extends ConsumerWidget {
           ),
         );
       },
-
-      child: Text(
-        finishReqStatus == RequestStatus.loading
-            ? 'CONCLUINDO...'
-            : (finishReqStatus == RequestStatus.success ? 'CONCLUÍDA' : 'CONCLUIR'),
-        style: context.theme.typography.xl2.copyWith(color: Colors.white),
-      ),
     );
   }
 }
@@ -383,12 +322,15 @@ class _ScoreboardItem extends StatelessWidget {
       children: [
         Text(
           count.toString(),
-          style: context.theme.typography.xl5.copyWith(
+          style: context.theme.typography.xl6.copyWith(
             fontWeight: FontWeight.bold,
             color: theme.primaryColor,
           ),
         ),
-        Text(label.toUpperCase(), style: context.theme.typography.sm.copyWith(color: Colors.grey)),
+        Text(
+          label.toUpperCase(),
+          style: context.theme.typography.sm.copyWith(color: Color.fromARGB(255, 130, 130, 130)),
+        ),
       ],
     );
   }

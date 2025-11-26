@@ -49,7 +49,6 @@ class InventoryManagerState {
   final bool isPaused;
   final bool hasEnded;
   final RequestStatus finishReqStatus;
-  final RequestStatus cancelReqStatus;
 
   const InventoryManagerState({
     this.currentInventory,
@@ -57,12 +56,11 @@ class InventoryManagerState {
     this.isPaused = false,
     this.hasEnded = false,
     this.finishReqStatus = RequestStatus.idle,
-    this.cancelReqStatus = RequestStatus.idle,
     this.lastAddedProductReading,
   });
 
   bool get hasReqPending =>
-      [finishReqStatus, cancelReqStatus].any((status) => status == RequestStatus.loading);
+      [finishReqStatus].any((status) => status == RequestStatus.loading);
 
   int get readingsCount => readings.fold(0, (acc, r) => acc + r.tagCount);
 
@@ -70,7 +68,6 @@ class InventoryManagerState {
     InventorySummaryDTO? currentInventory,
     List<ProductReadings>? readings,
     RequestStatus? finishReqStatus,
-    RequestStatus? cancelReqStatus,
     bool? isPaused,
     bool? hasEnded,
     ProductReadings? lastAddedProductReading,
@@ -79,7 +76,6 @@ class InventoryManagerState {
       currentInventory: currentInventory ?? this.currentInventory,
       readings: readings ?? this.readings,
       finishReqStatus: finishReqStatus ?? this.finishReqStatus,
-      cancelReqStatus: cancelReqStatus ?? this.cancelReqStatus,
       isPaused: isPaused ?? this.isPaused,
       hasEnded: hasEnded ?? this.hasEnded,
       lastAddedProductReading: lastAddedProductReading ?? this.lastAddedProductReading,
@@ -87,7 +83,7 @@ class InventoryManagerState {
   }
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 class InventoryManager extends _$InventoryManager {
   final _audioPlayer = AudioPlayer();
 
@@ -134,21 +130,6 @@ class InventoryManager extends _$InventoryManager {
         state = state.copyWith(finishReqStatus: RequestStatus.error);
       }
     }
-  }
-
-  Future<void> cancelInventory() async {
-    if (state.currentInventory == null || state.cancelReqStatus == RequestStatus.loading) {
-      return;
-    }
-
-    state = state.copyWith(cancelReqStatus: RequestStatus.loading);
-    try {
-      await injector.get<InventoryRepository>().cancelInventory(state.currentInventory!.id);
-    } catch (error) {
-      logger.e('Error calling cancelInventory on inventoryManager: $error');
-      state = state.copyWith(cancelReqStatus: RequestStatus.error);
-    }
-    state = state.copyWith(cancelReqStatus: RequestStatus.success, hasEnded: true, isPaused: false);
   }
 
   void addNewReading(ReadingResponseContent reading) {

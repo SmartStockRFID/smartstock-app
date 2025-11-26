@@ -1,7 +1,9 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:smart_stock/app/domain/entities/part_entity.dart';
 import 'package:smart_stock/app/routing/router.dart';
@@ -41,7 +43,7 @@ class InventoryPageInterface extends ConsumerWidget {
   }
 }
 
-class _CurrentItem extends ConsumerWidget {
+class _CurrentItem extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final stockState = ref.watch(stockProvider);
@@ -49,14 +51,32 @@ class _CurrentItem extends ConsumerWidget {
       inventoryManagerProvider.select((state) => state.lastAddedProductReading),
     );
 
+    final isValueChanging = useState(false);
+
+    ref.listen(inventoryManagerProvider.select((state) => state.lastAddedProductReading), (
+      _,
+      state,
+    ) async {
+      isValueChanging.value = true;
+      await Future.delayed(const Duration(milliseconds: 500));
+      isValueChanging.value = false;
+    });
+
     return CustomCard(
-      title: const Text('Item Atual'),
+      blink: isValueChanging.value,
+      sizedBoxHeight: 0,
       child: SizedBox(
-        height: 120,
-        child: Center(
-          child: lastReading == null
-              ? const Text('Aguardando leitura...', style: TextStyle(fontSize: 16))
-              : _buildReadingState(context, stockState, lastReading),
+        height: 240,
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: Center(
+            child: lastReading == null
+                ? Text(
+                    'Aguardando leitura...',
+                    style: context.theme.typography.xl2.copyWith(fontWeight: FontWeight.bold),
+                  )
+                : _buildReadingState(context, stockState, lastReading),
+          ),
         ),
       ),
     );
@@ -75,7 +95,7 @@ class _CurrentItem extends ConsumerWidget {
         Expanded(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               stockState.when(
                 data: (parts) {
@@ -88,7 +108,8 @@ class _CurrentItem extends ConsumerWidget {
                       fontWeight: FontWeight.bold,
                       height: 1.2,
                     ),
-                    maxLines: 2,
+                    textAlign: TextAlign.center,
+                    maxLines: 3,
                     overflow: TextOverflow.ellipsis,
                   );
                 },
@@ -96,23 +117,40 @@ class _CurrentItem extends ConsumerWidget {
                 loading: () => const Text('Procurando...'),
               ),
               const SizedBox(height: 8),
-              Text('OEM: ${lastReading.productOEM}', style: const TextStyle(color: Colors.grey)),
+              Center(
+                child: FBadge(
+                  style: (style) => style.copyWith(
+                    decoration: style.decoration.copyWith(color: Colors.grey[200]),
+                  ),
+                  child: Text(
+                    'OEM: ${lastReading.productOEM}',
+                    style: TextStyle(color: Colors.grey[700]),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Center(
+                    child: Text(
+                      lastReading.tagCount.toString(),
+                      style: GoogleFonts.robotoMono(
+                        textStyle: context.theme.typography.xl8.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: theme.primaryColor,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Text(
+                    'UNIDADE REGISTRADA${lastReading.tagCount == 1 ? '' : 'S'}',
+                    style: context.theme.typography.sm.copyWith(letterSpacing: 2),
+                  ),
+                ],
+              ),
             ],
           ),
-        ),
-        const SizedBox(width: 16),
-        Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              lastReading.tagCount.toString(),
-              style: theme.textTheme.displayMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: theme.primaryColor,
-              ),
-            ),
-            const Text('Unidades'),
-          ],
         ),
       ],
     );
@@ -124,13 +162,33 @@ class _ReadingHistory extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final stockState = ref.watch(stockProvider);
     final readings = ref.watch(inventoryManagerProvider.select((state) => state.readings));
+    final readingsCount = ref.watch(
+      inventoryManagerProvider.select((state) => state.readingsCount),
+    );
 
     if (readings.isEmpty) {
       return const SizedBox.shrink();
     }
 
     return CustomCard(
-      title: const Text('Histórico'),
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            'Histórico',
+            style: context.theme.typography.lg.copyWith(fontWeight: FontWeight.bold),
+          ),
+          FBadge(
+            child: Text(
+              '$readingsCount lidos',
+              style: context.theme.typography.lg.copyWith(
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ],
+      ),
       child: ListView.separated(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
@@ -184,36 +242,6 @@ class _FooterState extends ConsumerState<_Footer> {
     final resetState = ref.read(inventoryManagerProvider.notifier).resetState;
 
     ref.listen<InventoryManagerState>(inventoryManagerProvider, (previous, next) {
-      final wasNotSuccess = previous?.cancelReqStatus != RequestStatus.success;
-      if (wasNotSuccess && next.cancelReqStatus == RequestStatus.success) {
-        showFDialog(
-          barrierDismissible: false,
-          context: context,
-          builder: (context, style, animation) => FDialog(
-            style: style.call,
-            animation: animation,
-            title: const Text('Inventário cancelado!'),
-            actions: [
-              FButton(
-                onPress: () async {
-                  await context.router.replaceAll([const HomeRoute()]);
-                  await Future.delayed(const Duration(milliseconds: 500));
-                  resetState();
-                },
-                style: createLargeStyle(
-                  context: context,
-                  backgroundColor: context.theme.colors.secondary,
-                  foregroundColor: context.theme.colors.secondaryForeground,
-                ),
-                child: const Text('OK'),
-              ),
-            ],
-          ),
-        );
-      }
-    });
-
-    ref.listen<InventoryManagerState>(inventoryManagerProvider, (previous, next) {
       final wasNotSuccess = previous?.finishReqStatus != RequestStatus.success;
       if (wasNotSuccess && next.finishReqStatus == RequestStatus.success) {
         showFDialog(
@@ -243,16 +271,6 @@ class _FooterState extends ConsumerState<_Footer> {
       }
     });
 
-    return Column(
-      children: [
-        const SizedBox(height: 8),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [ModalSheetPaused(), ModalSheetCancel()],
-        ),
-        const SizedBox(height: 8.0),
-        ModalSheetFinish(),
-      ],
-    );
+    return Column(children: [const SizedBox(height: 8), ModalSheetPaused()]);
   }
 }

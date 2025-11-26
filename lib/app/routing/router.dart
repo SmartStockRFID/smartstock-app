@@ -71,7 +71,7 @@ class AuthGuard extends AutoRouteGuard {
 class WelcomeRedirectGuard extends AutoRouteGuard {
   @override
   Future<void> onNavigation(NavigationResolver resolver, StackRouter router) async {
-    final firstTimeOnApp = await PreferencesManager.getFirstTimeOnTheApp();
+    final firstTimeOnApp = await FirstTimeOnAppStorage.getValue();
     if (firstTimeOnApp) {
       resolver.next(true);
     } else {

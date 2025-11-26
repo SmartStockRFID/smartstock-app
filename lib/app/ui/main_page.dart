@@ -23,6 +23,12 @@ import 'package:smart_stock/app/ui/_shared/custom_card.dart';
 import 'package:smart_stock/app/ui/_shared/loading_widget.dart';
 import 'package:smart_stock/app/ui/_themes/custom_forui.dart';
 import 'package:smart_stock/app/ui/inventory/widgets/modals_widgets.dart';
+import 'package:vibration/vibration.dart';
+import 'package:vibration/vibration_presets.dart';
+
+final getIsFirstSession = FutureProvider.autoDispose<bool>((ref) async {
+  return await FirstTimeOnAppStorage.getValue();
+});
 
 @RoutePage()
 class MainLayoutPage extends HookConsumerWidget {
@@ -61,8 +67,10 @@ class MainLayoutPage extends HookConsumerWidget {
     );
 
     ref.listen(quickReadProvider, (_, state) async {
-      if (state.hasValue && !isModalOpen.value) {
+      if ((ModalRoute.of(context)?.isCurrent ?? false) && state.hasValue && !isModalOpen.value) {
         isModalOpen.value = true;
+        Vibration.vibrate(preset: VibrationPreset.quickSuccessAlert);
+
         await showFSheet(
           style: modalStyle.call,
           context: context,
@@ -83,7 +91,7 @@ class MainLayoutPage extends HookConsumerWidget {
                       ),
 
                       const Text(
-                        'O conteúdo atual da etiquetad lida é:',
+                        'O conteúdo atual da etiqueta lida é:',
                         style: TextStyle(color: Colors.grey),
                       ),
                     ],
@@ -136,7 +144,7 @@ class MainLayoutPage extends HookConsumerWidget {
             child: SafeArea(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                child: child,
+                child: FToaster(child: ToastRunner(child: child)),
               ),
             ),
           ),
@@ -147,9 +155,32 @@ class MainLayoutPage extends HookConsumerWidget {
   }
 }
 
+class ToastRunner extends ConsumerWidget {
+  final Widget child;
+
+  const ToastRunner({required this.child});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.listen(getIsFirstSession, (_, state) async {
+      if (state.hasValue && state.value == true) {
+        showFToast(
+          context: context,
+          title: const Text('Dica: Leitura rápida'),
+          description: const Text('Aperte o gatilho para ver o conteúdo de uma etiqueta'),
+          alignment: FToastAlignment.topEnd,
+        );
+        await FirstTimeOnAppStorage.setNegative();
+      }
+    });
+
+    return child;
+  }
+}
+
 final currentSessionProvider = FutureProvider.autoDispose<(String?, DateTime?)>((ref) async {
-  final username = await PreferencesManager.getCurrentUser();
-  final timestamp = await PreferencesManager.getCurrentUserSessionTimestamp();
+  final username = await CurrentUserStorage.getValue();
+  final timestamp = await CurrentSessionTimestampProvider.getValue();
 
   return (username, timestamp);
 });
@@ -163,7 +194,7 @@ class MainDrawer extends ConsumerWidget {
 
     String formatTimestamp(DateTime timestamp) {
       final dateFormat = DateFormat('dd/MM/yyyy').format(timestamp);
-      final timeFormat = DateFormat('hh:mm').format(timestamp);
+      final timeFormat = DateFormat('HH:mm').format(timestamp);
 
       return 'Conectado desde $dateFormat, às $timeFormat';
     }
@@ -204,7 +235,7 @@ class MainDrawer extends ConsumerWidget {
             leading: const Icon(FIcons.logOut),
             title: const Text('Sair'),
             onTap: () async {
-              await PreferencesManager.deleteCurrentUser();
+              await CurrentUserStorage.deleteValue();
               await TokenStorage.deleteToken();
               if (context.mounted) {
                 context.router.replaceAll([LoginRoute(shouldRedirect: true)]);
@@ -256,6 +287,8 @@ class QuickReadCurrentItem extends HookConsumerWidget {
     AsyncValue<List<CarPart>> stockState,
     ReadingResponseContent currentRead,
   ) {
+    final isResetedTag = currentRead.productOEM == emptyTagOEM;
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -271,9 +304,11 @@ class QuickReadCurrentItem extends HookConsumerWidget {
                     (p) => p.productCode == currentRead.productOEM,
                   );
                   return Text(
-                    productIndex != -1
+                    isResetedTag
+                        ? 'Etiqueta virgem'
+                        : productIndex != -1
                         ? parts[productIndex].name
-                        : 'Filtro de Ar do Corola ne fi pq enfim',
+                        : 'Desconhecido',
                     style: context.theme.typography.xl3.copyWith(
                       fontWeight: FontWeight.bold,
                       height: 1.2,
@@ -289,7 +324,7 @@ class QuickReadCurrentItem extends HookConsumerWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'OEM: ${currentRead.productOEM}',
+                'OEM: ${isResetedTag ? 'Limpo' : currentRead.productOEM}',
                 style: context.theme.typography.lg.copyWith(color: Colors.grey),
               ),
             ],

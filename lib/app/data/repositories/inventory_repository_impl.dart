@@ -12,7 +12,7 @@ import 'package:smart_stock/app/utils/logger.dart';
 class InventoryRepositoryImpl implements InventoryRepository {
   @override
   Future<InventorySummaryDTO> initInventory() async {
-    final currentUser = await PreferencesManager.getCurrentUser();
+    final currentUser = await CurrentUserStorage.getValue();
 
     if (currentUser == null) {
       throw const InternalSystemException('Unauthorized!');
@@ -78,17 +78,6 @@ class InventoryRepositoryImpl implements InventoryRepository {
     if (response.statusCode != 200) {
       throw HttpException(
         'Falha ao finalizar inventário: ${response.statusCode} - ${response.body}',
-      );
-    }
-  }
-
-  @override
-  Future<void> cancelInventory(int inventoryId) async {
-    final response = await InventoryAPI.cancelInventory(inventoryId);
-
-    if (response.statusCode != 200) {
-      throw HttpException(
-        'Falha ao cancelar inventário: ${response.statusCode} - ${response.body}',
       );
     }
   }

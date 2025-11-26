@@ -6,6 +6,5 @@ abstract class InventoryRepository {
   Future<List<InventorySummaryDTO>> getAllInventories();
   Future<void> postReadings(int inventoryId, List<ProductReadings> readings);
   Future<void> finishInventory(int inventoryId);
-  Future<void> cancelInventory(int inventoryId);
   Future<InventorySummaryDTO?> getActiveInventory();
 }
