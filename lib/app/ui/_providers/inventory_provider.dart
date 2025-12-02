@@ -1,12 +1,16 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/experimental/persist.dart';
+import 'package:json_annotation/json_annotation.dart';
+import 'package:riverpod_annotation/experimental/json_persist.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:smart_stock/app/config/assets.dart';
 import 'package:smart_stock/app/config/dependencies.dart';
-import 'package:smart_stock/app/data/dtos/inventory/inventory_summary_dto.dart';
 import 'package:smart_stock/app/data/repositories/inventory_repository.dart';
+import 'package:smart_stock/app/domain/entities/inventory_entity.dart';
 import 'package:smart_stock/app/domain/firmware/reading_response.dart';
 import 'package:smart_stock/app/ui/_providers/ble_connection_provider.dart';
+import 'package:smart_stock/app/ui/_providers/storage_provider.dart';
 import 'package:smart_stock/app/ui/_shared/types.dart';
 import 'package:smart_stock/app/utils/logger.dart';
 import 'package:vibration/vibration.dart';
@@ -14,14 +18,20 @@ import 'package:vibration/vibration_presets.dart';
 
 part 'inventory_provider.g.dart';
 
+@JsonSerializable()
 @immutable
 class ReadTag {
   final String tagUid;
   final DateTime readTimestamp;
 
   const ReadTag({required this.tagUid, required this.readTimestamp});
+
+  factory ReadTag.fromJson(Map<String, dynamic> json) => _$ReadTagFromJson(json);
+
+  Map<String, dynamic> toJson() => _$ReadTagToJson(this);
 }
 
+@JsonSerializable()
 @immutable
 class ProductReadings {
   final List<ReadTag> readTags; //Todo: trocar por uma estrutura mais eficiente
@@ -39,11 +49,16 @@ class ProductReadings {
       productOEM: productOEM ?? this.productOEM,
     );
   }
+
+  factory ProductReadings.fromJson(Map<String, dynamic> json) => _$ProductReadingsFromJson(json);
+
+  Map<String, dynamic> toJson() => _$ProductReadingsToJson(this);
 }
 
+@JsonSerializable()
 @immutable
 class InventoryManagerState {
-  final InventorySummaryDTO? currentInventory;
+  final InventorySummary? currentInventory;
   final List<ProductReadings> readings;
   final ProductReadings? lastAddedProductReading;
   final bool isPaused;
@@ -59,13 +74,12 @@ class InventoryManagerState {
     this.lastAddedProductReading,
   });
 
-  bool get hasReqPending =>
-      [finishReqStatus].any((status) => status == RequestStatus.loading);
+  bool get hasReqPending => [finishReqStatus].any((status) => status == RequestStatus.loading);
 
   int get readingsCount => readings.fold(0, (acc, r) => acc + r.tagCount);
 
   InventoryManagerState copyWith({
-    InventorySummaryDTO? currentInventory,
+    InventorySummary? currentInventory,
     List<ProductReadings>? readings,
     RequestStatus? finishReqStatus,
     bool? isPaused,
@@ -81,14 +95,21 @@ class InventoryManagerState {
       lastAddedProductReading: lastAddedProductReading ?? this.lastAddedProductReading,
     );
   }
+
+  factory InventoryManagerState.fromJson(Map<String, dynamic> json) =>
+      _$InventoryManagerStateFromJson(json);
+
+  Map<String, dynamic> toJson() => _$InventoryManagerStateToJson(this);
 }
 
 @Riverpod(keepAlive: true)
+@JsonPersist()
 class InventoryManager extends _$InventoryManager {
   final _audioPlayer = AudioPlayer();
 
   @override
   InventoryManagerState build() {
+    persist(ref.watch(storageProvider.future));
     _audioPlayer.setReleaseMode(ReleaseMode.stop);
     return const InventoryManagerState();
   }
@@ -185,7 +206,7 @@ class InventoryManager extends _$InventoryManager {
     state = state.copyWith(isPaused: true);
   }
 
-  void setInventoryFromServer(InventorySummaryDTO inventory) {
+  void setInventoryFromServer(InventorySummary inventory) {
     state = state.copyWith(currentInventory: inventory);
   }
 }

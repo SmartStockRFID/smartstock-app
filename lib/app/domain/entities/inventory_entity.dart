@@ -1,7 +1,11 @@
+import 'package:flutter/material.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:smart_stock/app/domain/entities/event_entity.dart';
 import 'package:smart_stock/app/domain/entities/reading_entity.dart';
 
-class Inventory {
+part 'inventory_entity.g.dart';
+
+class InventoryDetail {
   final String employeeUsername;
   final int id;
   final String status;
@@ -9,7 +13,7 @@ class Inventory {
   final List<Event> events;
   final DateTime createdAt;
 
-  Inventory({
+  InventoryDetail({
     required this.employeeUsername,
     required this.id,
     required this.status,
@@ -17,4 +21,24 @@ class Inventory {
     required this.events,
     required this.createdAt,
   });
+}
+
+@JsonSerializable()
+@immutable
+class InventorySummary {
+  final int id;
+  final String employeeUsername;
+  final String status;
+  final DateTime createdAt;
+
+  const InventorySummary({
+    required this.id,
+    required this.employeeUsername,
+    required this.status,
+    required this.createdAt,
+  });
+
+  factory InventorySummary.fromJson(Map<String, dynamic> json) => _$InventorySummaryFromJson(json);
+
+  Map<String, dynamic> toJson() => _$InventorySummaryToJson(this);
 }

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:smart_stock/app/config/env.dart';
 import 'package:smart_stock/app/config/exceptions.dart';
+import 'package:smart_stock/app/config/token_storage.dart';
 
 // ignore: avoid_classes_with_only_static_members
 class APIConnector {
@@ -15,7 +16,7 @@ class APIConnector {
     try {
       final response = await http.get(url, headers: defaultHeaders);
 
-      _validateResponse(response, endpoint);
+      await _validateResponse(response, endpoint);
       return response;
     } catch (e) {
       throw InternalSystemException('Error in BaseAPI GET [$endpoint]: $e');
@@ -28,7 +29,7 @@ class APIConnector {
     try {
       final response = await http.post(url, headers: defaultHeaders, body: jsonEncode(body));
 
-      _validateResponse(response, endpoint);
+      await _validateResponse(response, endpoint);
       return response;
     } catch (e) {
       throw InternalSystemException('Error in BaseAPI POST [$endpoint]: $e');
@@ -41,7 +42,7 @@ class APIConnector {
     try {
       final response = await http.put(url, headers: defaultHeaders, body: jsonEncode(body));
 
-      _validateResponse(response, endpoint);
+      await _validateResponse(response, endpoint);
       return response;
     } catch (e) {
       throw InternalSystemException('Error in BaseAPI PUT [$endpoint]: $e');
@@ -54,7 +55,7 @@ class APIConnector {
     try {
       final response = await http.delete(url, headers: defaultHeaders);
 
-      _validateResponse(response, endpoint);
+      await _validateResponse(response, endpoint);
       return response;
     } catch (e) {
       throw InternalSystemException('Error in BaseAPI DELETE [$endpoint]: $e');
@@ -62,10 +63,13 @@ class APIConnector {
   }
 
   /// Validates HTTP responses
-  static void _validateResponse(http.Response response, String endpoint) {
+  static Future<void> _validateResponse(http.Response response, String endpoint) async {
     if (response.statusCode >= 200 && response.statusCode < 300) {
       return;
     } else {
+      if (response.statusCode == 401) {
+        await TokenStorage.deleteToken();
+      }
       throw HttpException(
         'Request to [$endpoint] failed: ${response.statusCode} - ${response.body}',
       );

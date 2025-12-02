@@ -6,8 +6,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:smart_stock/app/config/assets.dart';
 import 'package:smart_stock/app/config/dependencies.dart';
 import 'package:smart_stock/app/config/preferences_manager.dart';
-import 'package:smart_stock/app/data/dtos/inventory/inventory_summary_dto.dart';
 import 'package:smart_stock/app/data/repositories/inventory_repository.dart';
+import 'package:smart_stock/app/domain/entities/inventory_entity.dart';
 import 'package:smart_stock/app/routing/router.dart';
 import 'package:smart_stock/app/ui/_providers/inventory_provider.dart';
 import 'package:smart_stock/app/ui/_providers/stock_provider.dart';
@@ -22,7 +22,13 @@ final currentUserProvider = FutureProvider.autoDispose<String>((ref) async {
   return await CurrentUserStorage.getValue() ?? 'Inautorizado';
 });
 
-final getActiveInventoryProvider = FutureProvider.autoDispose<InventorySummaryDTO?>((ref) async {
+final getActiveInventoryProvider = FutureProvider.autoDispose<InventorySummary?>((ref) async {
+  final inventoryFromCache = ref.read(inventoryManagerProvider).currentInventory;
+
+  if (inventoryFromCache != null) {
+    return inventoryFromCache;
+  }
+
   try {
     final inventoryFromServer = await injector.get<InventoryRepository>().getActiveInventory();
 

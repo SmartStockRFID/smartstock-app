@@ -1,5 +1,6 @@
 import 'package:smart_stock/app/domain/entities/part_entity.dart';
 
+// ignore: avoid_classes_with_only_static_members
 abstract final class GetAllCarPartsDTO {
   static CarPart fromJson(Map<String, dynamic> json) {
     return CarPart(

@@ -329,7 +329,7 @@ class _ScoreboardItem extends StatelessWidget {
         ),
         Text(
           label.toUpperCase(),
-          style: context.theme.typography.sm.copyWith(color: Color.fromARGB(255, 130, 130, 130)),
+          style: context.theme.typography.sm.copyWith(color: const Color.fromARGB(255, 130, 130, 130)),
         ),
       ],
     );

@@ -3,6 +3,77 @@
 part of 'inventory_provider.dart';
 
 // **************************************************************************
+// JsonSerializableGenerator
+// **************************************************************************
+
+ReadTag _$ReadTagFromJson(Map<String, dynamic> json) => ReadTag(
+  tagUid: json['tagUid'] as String,
+  readTimestamp: DateTime.parse(json['readTimestamp'] as String),
+);
+
+Map<String, dynamic> _$ReadTagToJson(ReadTag instance) => <String, dynamic>{
+  'tagUid': instance.tagUid,
+  'readTimestamp': instance.readTimestamp.toIso8601String(),
+};
+
+ProductReadings _$ProductReadingsFromJson(Map<String, dynamic> json) =>
+    ProductReadings(
+      readTags: (json['readTags'] as List<dynamic>)
+          .map((e) => ReadTag.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      productOEM: json['productOEM'] as String,
+    );
+
+Map<String, dynamic> _$ProductReadingsToJson(ProductReadings instance) =>
+    <String, dynamic>{
+      'readTags': instance.readTags,
+      'productOEM': instance.productOEM,
+    };
+
+InventoryManagerState _$InventoryManagerStateFromJson(
+  Map<String, dynamic> json,
+) => InventoryManagerState(
+  currentInventory: json['currentInventory'] == null
+      ? null
+      : InventorySummary.fromJson(
+          json['currentInventory'] as Map<String, dynamic>,
+        ),
+  readings:
+      (json['readings'] as List<dynamic>?)
+          ?.map((e) => ProductReadings.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const [],
+  isPaused: json['isPaused'] as bool? ?? false,
+  hasEnded: json['hasEnded'] as bool? ?? false,
+  finishReqStatus:
+      $enumDecodeNullable(_$RequestStatusEnumMap, json['finishReqStatus']) ??
+      RequestStatus.idle,
+  lastAddedProductReading: json['lastAddedProductReading'] == null
+      ? null
+      : ProductReadings.fromJson(
+          json['lastAddedProductReading'] as Map<String, dynamic>,
+        ),
+);
+
+Map<String, dynamic> _$InventoryManagerStateToJson(
+  InventoryManagerState instance,
+) => <String, dynamic>{
+  'currentInventory': instance.currentInventory,
+  'readings': instance.readings,
+  'lastAddedProductReading': instance.lastAddedProductReading,
+  'isPaused': instance.isPaused,
+  'hasEnded': instance.hasEnded,
+  'finishReqStatus': _$RequestStatusEnumMap[instance.finishReqStatus]!,
+};
+
+const _$RequestStatusEnumMap = {
+  RequestStatus.idle: 'idle',
+  RequestStatus.loading: 'loading',
+  RequestStatus.success: 'success',
+  RequestStatus.error: 'error',
+};
+
+// **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
@@ -10,8 +81,10 @@ part of 'inventory_provider.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(InventoryManager)
+@JsonPersist()
 const inventoryManagerProvider = InventoryManagerProvider._();
 
+@JsonPersist()
 final class InventoryManagerProvider
     extends $NotifierProvider<InventoryManager, InventoryManagerState> {
   const InventoryManagerProvider._()
@@ -20,7 +93,7 @@ final class InventoryManagerProvider
         argument: null,
         retry: null,
         name: r'inventoryManagerProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -41,9 +114,10 @@ final class InventoryManagerProvider
   }
 }
 
-String _$inventoryManagerHash() => r'0d3142f170af01c433a83aa908da2b2aaa09584b';
+String _$inventoryManagerHash() => r'f75ad28688f7ba2191729aa40e276b9aa8b37081';
 
-abstract class _$InventoryManager extends $Notifier<InventoryManagerState> {
+@JsonPersist()
+abstract class _$InventoryManagerBase extends $Notifier<InventoryManagerState> {
   InventoryManagerState build();
   @$mustCallSuper
   @override
@@ -59,5 +133,42 @@ abstract class _$InventoryManager extends $Notifier<InventoryManagerState> {
               Object?
             >;
     element.handleValue(ref, created);
+  }
+}
+
+// **************************************************************************
+// JsonGenerator
+// **************************************************************************
+
+// GENERATED CODE - DO NOT MODIFY BY HAND
+abstract class _$InventoryManager extends _$InventoryManagerBase {
+  /// The default key used by [persist].
+  String get key {
+    const resolvedKey = "InventoryManager";
+    return resolvedKey;
+  }
+
+  /// A variant of [persist], for JSON-specific encoding.
+  ///
+  /// You can override [key] to customize the key used for storage.
+  PersistResult persist(
+    FutureOr<Storage<String, String>> storage, {
+    String? key,
+    String Function(InventoryManagerState state)? encode,
+    InventoryManagerState Function(String encoded)? decode,
+    StorageOptions options = const StorageOptions(),
+  }) {
+    return NotifierPersistX(this).persist<String, String>(
+      storage,
+      key: key ?? this.key,
+      encode: encode ?? $jsonCodex.encode,
+      decode:
+          decode ??
+          (encoded) {
+            final e = $jsonCodex.decode(encoded);
+            return InventoryManagerState.fromJson(e as Map<String, Object?>);
+          },
+      options: options,
+    );
   }
 }

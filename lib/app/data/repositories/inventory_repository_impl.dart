@@ -6,12 +6,13 @@ import 'package:smart_stock/app/config/exceptions.dart';
 import 'package:smart_stock/app/config/preferences_manager.dart';
 import 'package:smart_stock/app/data/dtos/inventory/inventory_summary_dto.dart';
 import 'package:smart_stock/app/data/repositories/inventory_repository.dart';
+import 'package:smart_stock/app/domain/entities/inventory_entity.dart';
 import 'package:smart_stock/app/ui/_providers/inventory_provider.dart';
 import 'package:smart_stock/app/utils/logger.dart';
 
 class InventoryRepositoryImpl implements InventoryRepository {
   @override
-  Future<InventorySummaryDTO> initInventory() async {
+  Future<InventorySummary> initInventory() async {
     final currentUser = await CurrentUserStorage.getValue();
 
     if (currentUser == null) {
@@ -30,7 +31,7 @@ class InventoryRepositoryImpl implements InventoryRepository {
 
   // TODO: Fazer filtros de busca nessa rotax
   @override
-  Future<List<InventorySummaryDTO>> getAllInventories() async {
+  Future<List<InventorySummary>> getAllInventories() async {
     final response = await InventoryAPI.getAllInventories();
 
     if (response.statusCode != 200) {
@@ -83,7 +84,7 @@ class InventoryRepositoryImpl implements InventoryRepository {
   }
 
   @override
-  Future<InventorySummaryDTO?> getActiveInventory() async {
+  Future<InventorySummary?> getActiveInventory() async {
     final inventories = await getAllInventories();
 
     final activeConfIndex = inventories.indexWhere((conf) => conf.status == 'iniciada');

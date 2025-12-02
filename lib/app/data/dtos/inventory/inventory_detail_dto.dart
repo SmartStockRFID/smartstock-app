@@ -3,8 +3,8 @@ import 'package:smart_stock/app/domain/entities/inventory_entity.dart';
 import 'package:smart_stock/app/domain/entities/reading_entity.dart';
 
 // ignore: avoid_classes_with_only_static_members
-class InventoryDetailsDTO {
-  static Inventory fromJson(Map<String, dynamic> json) {
+class InventoryDetailDTO {
+  static InventoryDetail fromJson(Map<String, dynamic> json) {
     final readings = (json['leituras'] as List)
         .map(
           (e) => Reading(
@@ -27,7 +27,7 @@ class InventoryDetailsDTO {
         )
         .toList();
 
-    return Inventory(
+    return InventoryDetail(
       id: json['id'],
       employeeUsername: json['username_funcionario'],
       status: json['status'],
@@ -37,7 +37,7 @@ class InventoryDetailsDTO {
     );
   }
 
-  static Map<String, dynamic> toJson(Inventory inventory) {
+  static Map<String, dynamic> toJson(InventoryDetail inventory) {
     return {
       'id': inventory.id,
       'username_funcionario': inventory.employeeUsername,
