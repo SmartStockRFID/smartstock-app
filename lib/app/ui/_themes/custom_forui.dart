@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:smart_stock/app/config/constants.dart';
@@ -100,4 +102,18 @@ FBaseButtonStyle Function(FButtonStyle) secondaryLargeButton(BuildContext contex
     backgroundColor: context.theme.colors.secondary,
     foregroundColor: context.theme.colors.secondaryForeground,
   );
+}
+
+FModalSheetStyle getModalBlurStyle(BuildContext context) {
+  final barrierColor = context.theme.colors.barrier;
+  final modalSheetStyle = context.theme.modalSheetStyle;
+
+  final modalStyle = modalSheetStyle.copyWith(
+    barrierFilter: (animation) => ImageFilter.compose(
+      outer: ImageFilter.blur(sigmaX: animation * 5, sigmaY: animation * 5),
+      inner: ColorFilter.mode(barrierColor, BlendMode.srcOver),
+    ),
+  );
+
+  return modalStyle;
 }

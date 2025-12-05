@@ -31,7 +31,6 @@ class BleConnectionState {
 @Riverpod(keepAlive: true)
 class BleConnection extends _$BleConnection {
   StreamSubscription<BleState>? _stateSubscription;
-  bool _disposed = false;
 
   @override
   BleConnectionState build() {
@@ -40,15 +39,12 @@ class BleConnection extends _$BleConnection {
     final initialState = CheckingBleState(manager: manager);
 
     _stateSubscription = fsm.stateStream.listen((newState) {
-      if (!_disposed) {
-        state = state.copyWith(currentState: newState);
-      }
+      state = state.copyWith(currentState: newState);
     });
 
     fsm.start(initialState);
 
     ref.onDispose(() {
-      _disposed = true;
       _stateSubscription?.cancel();
       fsm.dispose();
     });

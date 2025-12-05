@@ -22,7 +22,7 @@ import 'package:smart_stock/app/ui/_shared/app_bar.dart';
 import 'package:smart_stock/app/ui/_shared/custom_card.dart';
 import 'package:smart_stock/app/ui/_shared/loading_widget.dart';
 import 'package:smart_stock/app/ui/_themes/custom_forui.dart';
-import 'package:smart_stock/app/ui/inventory/widgets/modals_widgets.dart';
+import 'package:smart_stock/app/ui/inventory/widgets/inventory_modals_widgets.dart';
 import 'package:vibration/vibration.dart';
 import 'package:vibration/vibration_presets.dart';
 
@@ -56,26 +56,16 @@ class MainLayoutPage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isModalOpen = useState(false);
 
-    final barrierColor = context.theme.colors.barrier;
-    final modalSheetStyle = context.theme.modalSheetStyle;
-
-    final modalStyle = modalSheetStyle.copyWith(
-      barrierFilter: (animation) => ImageFilter.compose(
-        outer: ImageFilter.blur(sigmaX: animation * 5, sigmaY: animation * 5),
-        inner: ColorFilter.mode(barrierColor, BlendMode.srcOver),
-      ),
-    );
-
     ref.listen(quickReadProvider, (_, state) async {
       if ((ModalRoute.of(context)?.isCurrent ?? false) && state.hasValue && !isModalOpen.value) {
         isModalOpen.value = true;
         Vibration.vibrate(preset: VibrationPreset.quickSuccessAlert);
 
         await showFSheet(
-          style: modalStyle.call,
+          style: getModalBlurStyle(context).call,
           context: context,
           side: FLayout.btt,
-          builder: (context) => ModalSheetContent(
+          builder: (context) => ModalContent(
             side: FLayout.rtl,
             child: Center(
               child: Column(
@@ -168,7 +158,7 @@ class ToastRunner extends ConsumerWidget {
           context: context,
           title: const Text('Dica: Leitura rápida'),
           description: const Text('Aperte o gatilho para ver o conteúdo de uma etiqueta'),
-          alignment: FToastAlignment.topEnd,
+          alignment: FToastAlignment.bottomCenter,
         );
         await FirstTimeOnAppStorage.setNegative();
       }
@@ -178,12 +168,13 @@ class ToastRunner extends ConsumerWidget {
   }
 }
 
-final currentSessionProvider = FutureProvider.autoDispose<(String?, DateTime?)>((ref) async {
-  final username = await CurrentUserStorage.getValue();
-  final timestamp = await CurrentSessionTimestampProvider.getValue();
+final currentSessionProvider =
+    FutureProvider.autoDispose<({String? username, DateTime? timestamp})>((ref) async {
+      final username = await CurrentUserStorage.getValue();
+      final timestamp = await CurrentSessionTimestampProvider.getValue();
 
-  return (username, timestamp);
-});
+      return (username: username, timestamp: timestamp);
+    });
 
 class MainDrawer extends ConsumerWidget {
   const MainDrawer({super.key});
@@ -209,7 +200,7 @@ class MainDrawer extends ConsumerWidget {
             ),
             accountName: Text(
               currentSession.when(
-                data: (session) => session.$1 ?? 'Unautorizado',
+                data: (session) => session.username ?? 'Unautorizado',
                 error: (err, trace) => 'Erro',
                 loading: () => 'Carregando...',
               ),
@@ -217,8 +208,9 @@ class MainDrawer extends ConsumerWidget {
             ),
             accountEmail: Text(
               currentSession.when(
-                data: (session) =>
-                    session.$2 != null ? formatTimestamp(session.$2!) : 'Sem mais informações',
+                data: (session) => session.timestamp != null
+                    ? formatTimestamp(session.timestamp!)
+                    : 'Sem mais informações',
                 error: (err, trace) => 'Erro',
                 loading: () => 'Carregando...',
               ),
@@ -257,7 +249,6 @@ class QuickReadCurrentItem extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final streamRead = ref.watch(quickReadProvider);
     final stockState = ref.watch(stockProvider);
-
     final currentRead = streamRead.value ?? firstRead;
 
     final isValueChanging = useState(false);

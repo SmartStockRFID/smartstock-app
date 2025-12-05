@@ -12,7 +12,7 @@ class BleFSM {
   Stream<BleState> get stateStream => _stateController.stream;
 
   void start(BleState initialState) {
-    logger.i('🚀 FSM INICIANDO com estado: ${initialState.runtimeType}');
+    logger.d('🚀 FSM INICIANDO com estado: ${initialState.runtimeType}');
     _currentState = initialState;
     _stateController.add(initialState);
     _processLoop();
@@ -22,7 +22,7 @@ class BleFSM {
     if (_isProcessing) {
       return;
     }
-  
+
     _isProcessing = true;
 
     while (_currentState != null) {

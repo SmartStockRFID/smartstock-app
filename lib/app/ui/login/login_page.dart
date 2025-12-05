@@ -5,6 +5,7 @@ import 'package:smart_stock/app/config/api/auth.dart';
 import 'package:smart_stock/app/data/dtos/login_dto.dart';
 import 'package:smart_stock/app/routing/router.dart';
 import 'package:smart_stock/app/ui/login/login_interface.dart';
+import 'package:smart_stock/app/utils/internet.dart';
 
 @RoutePage()
 class LoginScreen extends StatefulWidget {
@@ -36,6 +37,16 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
       final password = _passwordController.text;
 
       try {
+        if (await appIsOffline()) {
+          if (!mounted) {
+            return;
+          }
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Sem internet!'), backgroundColor: Colors.red),
+          );
+          return;
+        }
+
         final response = await AuthAPI.login(
           payload: LoginRequestDTO(password: password, username: username),
         );

@@ -17,7 +17,7 @@ final class StockProvider extends $AsyncNotifierProvider<Stock, List<CarPart>> {
     : super(
         from: null,
         argument: null,
-        retry: null,
+        retry: customRetry,
         name: r'stockProvider',
         isAutoDispose: false,
         dependencies: null,
@@ -32,7 +32,7 @@ final class StockProvider extends $AsyncNotifierProvider<Stock, List<CarPart>> {
   Stock create() => Stock();
 }
 
-String _$stockHash() => r'41679e106cdf41dea0dd88e4875f85afdfb99d2a';
+String _$stockHash() => r'a98236c9ec2815182062de95502fbc38acbce99a';
 
 abstract class _$Stock extends $AsyncNotifier<List<CarPart>> {
   FutureOr<List<CarPart>> build();

@@ -1,4 +1,3 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
@@ -6,14 +5,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:smart_stock/app/domain/entities/part_entity.dart';
-import 'package:smart_stock/app/routing/router.dart';
 import 'package:smart_stock/app/ui/_providers/inventory_ble_listener_provider.dart';
 import 'package:smart_stock/app/ui/_providers/inventory_provider.dart';
 import 'package:smart_stock/app/ui/_providers/stock_provider.dart';
 import 'package:smart_stock/app/ui/_shared/custom_card.dart';
-import 'package:smart_stock/app/ui/_shared/types.dart';
-import 'package:smart_stock/app/ui/_themes/custom_forui.dart';
-import 'package:smart_stock/app/ui/inventory/widgets/modals_widgets.dart';
+import 'package:smart_stock/app/ui/inventory/widgets/inventory_modals_widgets.dart';
 
 class InventoryPageInterface extends ConsumerWidget {
   @override
@@ -36,7 +32,7 @@ class InventoryPageInterface extends ConsumerWidget {
               ),
             ),
           ),
-          _Footer(key: UniqueKey()),
+          Column(children: [const SizedBox(height: 8), InventoryModalPaused()]),
         ],
       ),
     );
@@ -226,51 +222,5 @@ class _ReadingHistory extends ConsumerWidget {
         separatorBuilder: (context, index) => const Divider(),
       ),
     );
-  }
-}
-
-class _Footer extends ConsumerStatefulWidget {
-  const _Footer({super.key});
-
-  @override
-  ConsumerState<_Footer> createState() => _FooterState();
-}
-
-class _FooterState extends ConsumerState<_Footer> {
-  @override
-  Widget build(BuildContext context) {
-    final resetState = ref.read(inventoryManagerProvider.notifier).resetState;
-
-    ref.listen<InventoryManagerState>(inventoryManagerProvider, (previous, next) {
-      final wasNotSuccess = previous?.finishReqStatus != RequestStatus.success;
-      if (wasNotSuccess && next.finishReqStatus == RequestStatus.success) {
-        showFDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (context, style, animation) => FDialog(
-            style: style.call,
-            animation: animation,
-            title: const Text('Inventário concluído com sucesso!'),
-            actions: [
-              FButton(
-                onPress: () async {
-                  await context.router.replaceAll([const HomeRoute()]);
-                  await Future.delayed(const Duration(milliseconds: 500));
-                  resetState();
-                },
-                style: createLargeStyle(
-                  context: context,
-                  backgroundColor: context.theme.colors.secondary,
-                  foregroundColor: context.theme.colors.secondaryForeground,
-                ),
-                child: const Text('OK'),
-              ),
-            ],
-          ),
-        );
-      }
-    });
-
-    return Column(children: [const SizedBox(height: 8), ModalSheetPaused()]);
   }
 }

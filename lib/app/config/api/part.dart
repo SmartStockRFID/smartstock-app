@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:http/http.dart' as http;
 import 'package:smart_stock/app/config/api/base.dart';
-import 'package:smart_stock/app/config/exceptions.dart';
 
 // TODO: Implementar timeout, backoff exponencial, fallback e circuit-breaker
 // ignore: avoid_classes_with_only_static_members
@@ -10,16 +9,12 @@ class CarPartAPI {
   static Future<http.Response> getCarParts() async {
     late http.Response response;
 
-    try {
-      response = await APIConnector.get('pecas');
+    response = await APIConnector.get('pecas');
 
-      if (response.statusCode == 200) {
-        return response;
-      } else {
-        throw HttpException('Falha ao obter peças: ${response.statusCode}');
-      }
-    } catch (e) {
-      throw InternalSystemException('Erro em CarParAPI getCarParts: $e');
+    if (response.statusCode == 200) {
+      return response;
+    } else {
+      throw HttpException('Falha ao obter peças: ${response.statusCode}');
     }
   }
 }

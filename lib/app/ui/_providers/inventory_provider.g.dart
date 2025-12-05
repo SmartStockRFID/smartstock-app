@@ -44,10 +44,6 @@ InventoryManagerState _$InventoryManagerStateFromJson(
           .toList() ??
       const [],
   isPaused: json['isPaused'] as bool? ?? false,
-  hasEnded: json['hasEnded'] as bool? ?? false,
-  finishReqStatus:
-      $enumDecodeNullable(_$RequestStatusEnumMap, json['finishReqStatus']) ??
-      RequestStatus.idle,
   lastAddedProductReading: json['lastAddedProductReading'] == null
       ? null
       : ProductReadings.fromJson(
@@ -62,15 +58,6 @@ Map<String, dynamic> _$InventoryManagerStateToJson(
   'readings': instance.readings,
   'lastAddedProductReading': instance.lastAddedProductReading,
   'isPaused': instance.isPaused,
-  'hasEnded': instance.hasEnded,
-  'finishReqStatus': _$RequestStatusEnumMap[instance.finishReqStatus]!,
-};
-
-const _$RequestStatusEnumMap = {
-  RequestStatus.idle: 'idle',
-  RequestStatus.loading: 'loading',
-  RequestStatus.success: 'success',
-  RequestStatus.error: 'error',
 };
 
 // **************************************************************************
@@ -114,7 +101,7 @@ final class InventoryManagerProvider
   }
 }
 
-String _$inventoryManagerHash() => r'f75ad28688f7ba2191729aa40e276b9aa8b37081';
+String _$inventoryManagerHash() => r'aef1f97f209d9746e1acfd0f122ffd45148dd320';
 
 @JsonPersist()
 abstract class _$InventoryManagerBase extends $Notifier<InventoryManagerState> {

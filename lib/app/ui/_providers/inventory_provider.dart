@@ -6,12 +6,14 @@ import 'package:riverpod_annotation/experimental/json_persist.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:smart_stock/app/config/assets.dart';
 import 'package:smart_stock/app/config/dependencies.dart';
+import 'package:smart_stock/app/config/exceptions.dart';
+import 'package:smart_stock/app/config/preferences_manager.dart';
 import 'package:smart_stock/app/data/repositories/inventory_repository.dart';
 import 'package:smart_stock/app/domain/entities/inventory_entity.dart';
 import 'package:smart_stock/app/domain/firmware/reading_response.dart';
 import 'package:smart_stock/app/ui/_providers/ble_connection_provider.dart';
 import 'package:smart_stock/app/ui/_providers/storage_provider.dart';
-import 'package:smart_stock/app/ui/_shared/types.dart';
+import 'package:smart_stock/app/utils/internet.dart';
 import 'package:smart_stock/app/utils/logger.dart';
 import 'package:vibration/vibration.dart';
 import 'package:vibration/vibration_presets.dart';
@@ -62,36 +64,26 @@ class InventoryManagerState {
   final List<ProductReadings> readings;
   final ProductReadings? lastAddedProductReading;
   final bool isPaused;
-  final bool hasEnded;
-  final RequestStatus finishReqStatus;
 
   const InventoryManagerState({
     this.currentInventory,
     this.readings = const [],
     this.isPaused = false,
-    this.hasEnded = false,
-    this.finishReqStatus = RequestStatus.idle,
     this.lastAddedProductReading,
   });
-
-  bool get hasReqPending => [finishReqStatus].any((status) => status == RequestStatus.loading);
 
   int get readingsCount => readings.fold(0, (acc, r) => acc + r.tagCount);
 
   InventoryManagerState copyWith({
     InventorySummary? currentInventory,
     List<ProductReadings>? readings,
-    RequestStatus? finishReqStatus,
     bool? isPaused,
-    bool? hasEnded,
     ProductReadings? lastAddedProductReading,
   }) {
     return InventoryManagerState(
       currentInventory: currentInventory ?? this.currentInventory,
       readings: readings ?? this.readings,
-      finishReqStatus: finishReqStatus ?? this.finishReqStatus,
       isPaused: isPaused ?? this.isPaused,
-      hasEnded: hasEnded ?? this.hasEnded,
       lastAddedProductReading: lastAddedProductReading ?? this.lastAddedProductReading,
     );
   }
@@ -109,48 +101,44 @@ class InventoryManager extends _$InventoryManager {
 
   @override
   InventoryManagerState build() {
-    persist(ref.watch(storageProvider.future));
+    persist(
+      ref.watch(storageProvider.future),
+      options: const StorageOptions(cacheTime: StorageCacheTime(Duration(days: 7))),
+    );
     _audioPlayer.setReleaseMode(ReleaseMode.stop);
     return const InventoryManagerState();
   }
 
   void resetState() {
-    logger.d('resetState called!');
+    logger.i('resetState called!');
     state = const InventoryManagerState();
   }
 
-  Future<void> startInventoryFlow() async {
+  Future<void> startInventoryFlow({required bool offline}) async {
+    final Future<void> Function() initInventory = offline
+        ? initOfflineInventory
+        : initOnlineInventory;
+
     await Future.wait([initInventory(), ref.read(bleConnectionProvider).manager.enterOnReadMode()]);
   }
 
-  Future<void> initInventory() async {
-    final newInventory = await injector.get<InventoryRepository>().initInventory();
+  Future<void> initOfflineInventory() async {
+    final currentUser = await CurrentUserStorage.getValue();
+    if (currentUser == null) {
+      return;
+    }
+
+    final newInventory = InventorySummary(
+      id: null,
+      employeeUsername: currentUser,
+      createdAt: DateTime.now(),
+    );
     state = state.copyWith(currentInventory: newInventory);
   }
 
-  Future<void> finishInventory() async {
-    if (state.currentInventory != null) {
-      state = state.copyWith(finishReqStatus: RequestStatus.loading);
-      try {
-        try {
-          await injector.get<InventoryRepository>().postReadings(
-            state.currentInventory!.id,
-            state.readings,
-          );
-        } catch (err) {
-          logger.e('Erro ao buscar produtos da conferência!');
-        }
-        await injector.get<InventoryRepository>().finishInventory(state.currentInventory!.id);
-        state = state.copyWith(
-          finishReqStatus: RequestStatus.success,
-          hasEnded: true,
-          isPaused: false,
-        );
-      } catch (error) {
-        logger.e('Error on finishInventory $error');
-        state = state.copyWith(finishReqStatus: RequestStatus.error);
-      }
-    }
+  Future<void> initOnlineInventory() async {
+    final newInventory = await injector.get<InventoryRepository>().initInventory();
+    state = state.copyWith(currentInventory: newInventory);
   }
 
   void addNewReading(ReadingResponseContent reading) {
@@ -208,5 +196,25 @@ class InventoryManager extends _$InventoryManager {
 
   void setInventoryFromServer(InventorySummary inventory) {
     state = state.copyWith(currentInventory: inventory);
+  }
+
+  Future<void> finishInventory() async {
+    await checkIfHasInternet();
+
+    InventorySummary targetInventory;
+
+    if (state.currentInventory?.id != null) {
+      targetInventory = state.currentInventory!;
+    } else {
+      final inventoryRepo = injector.get<InventoryRepository>();
+      targetInventory =
+          await inventoryRepo.getActiveInventory() ?? await inventoryRepo.initInventory();
+      if (targetInventory.id == null) {
+        throw const InternalSystemException("This shoudln't be reached");
+      }
+    }
+
+    await injector.get<InventoryRepository>().postReadings(targetInventory.id!, state.readings);
+    await injector.get<InventoryRepository>().finishInventory(targetInventory.id!);
   }
 }

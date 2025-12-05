@@ -7,6 +7,13 @@ abstract class ApplicationException implements Exception {
   String toString() => 'ApplicationException -> $message';
 }
 
+class OfflineException extends ApplicationException {
+  const OfflineException();
+
+  @override
+  String toString() => 'OfflineExcpetion -> $message';
+}
+
 class InternalSystemException extends ApplicationException {
   const InternalSystemException(super.message);
 

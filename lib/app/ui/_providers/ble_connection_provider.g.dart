@@ -41,7 +41,7 @@ final class BleConnectionProvider
   }
 }
 
-String _$bleConnectionHash() => r'e88cd2f6f5dcb2d42cc4e0033883f86391007047';
+String _$bleConnectionHash() => r'1b441323ae18719eb1194bc293252c2c91419358';
 
 abstract class _$BleConnection extends $Notifier<BleConnectionState> {
   BleConnectionState build();

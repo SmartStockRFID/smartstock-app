@@ -26,15 +26,13 @@ class InventoryDetail {
 @JsonSerializable()
 @immutable
 class InventorySummary {
-  final int id;
+  final int? id;
   final String employeeUsername;
-  final String status;
   final DateTime createdAt;
 
   const InventorySummary({
     required this.id,
     required this.employeeUsername,
-    required this.status,
     required this.createdAt,
   });
 

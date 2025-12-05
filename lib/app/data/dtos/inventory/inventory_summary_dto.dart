@@ -4,9 +4,8 @@ import 'package:smart_stock/app/domain/entities/inventory_entity.dart';
 class InventorySummaryDTO {
   static InventorySummary fromJson(Map<String, dynamic> json) {
     return InventorySummary(
-      id: json['id'],
-      employeeUsername: json['username_funcionario'],
-      status: json['status'],
+      id: json['id'] as int,
+      employeeUsername: json['username_funcionario'] as String,
       createdAt: DateTime.parse(json['created_at'] as String),
     );
   }

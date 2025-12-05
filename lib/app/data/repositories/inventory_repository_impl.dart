@@ -8,7 +8,6 @@ import 'package:smart_stock/app/data/dtos/inventory/inventory_summary_dto.dart';
 import 'package:smart_stock/app/data/repositories/inventory_repository.dart';
 import 'package:smart_stock/app/domain/entities/inventory_entity.dart';
 import 'package:smart_stock/app/ui/_providers/inventory_provider.dart';
-import 'package:smart_stock/app/utils/logger.dart';
 
 class InventoryRepositoryImpl implements InventoryRepository {
   @override
@@ -50,7 +49,6 @@ class InventoryRepositoryImpl implements InventoryRepository {
 
   @override
   Future<void> postReadings(int inventoryId, List<ProductReadings> readings) async {
-    logger.d('Entrei em postReadings :)');
     final List<Map<String, dynamic>> processedReadings = [];
 
     for (final ProductReadings reading in readings) {
@@ -62,13 +60,13 @@ class InventoryRepositoryImpl implements InventoryRepository {
         });
       }
     }
-    logger.d('Vou mandar pra API :) $processedReadings');
 
     final response = await InventoryAPI.postReading(inventoryId, processedReadings);
-    logger.d('mandei vei :)');
 
     if (response.statusCode != 200) {
-      throw HttpException('Falha ao postar inventários: ${response.statusCode} - ${response.body}');
+      throw HttpException(
+        'Error posting inventory products: ${response.statusCode} - ${response.body}',
+      );
     }
   }
 
@@ -85,13 +83,15 @@ class InventoryRepositoryImpl implements InventoryRepository {
 
   @override
   Future<InventorySummary?> getActiveInventory() async {
-    final inventories = await getAllInventories();
+    final response = await InventoryAPI.getActiveInventory();
 
-    final activeConfIndex = inventories.indexWhere((conf) => conf.status == 'iniciada');
-    if (activeConfIndex != -1) {
-      final inventoryDetails = inventories[activeConfIndex];
-      return inventoryDetails;
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return InventorySummaryDTO.fromJson(data);
+    } else if (response.statusCode == 204) {
+      return null;
     }
-    return null;
+
+    throw HttpException('Falha ao finalizar inventário: ${response.statusCode} - ${response.body}');
   }
 }

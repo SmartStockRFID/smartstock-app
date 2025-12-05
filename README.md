@@ -80,6 +80,6 @@ lib/
 
 ## 👀 OBS
 
-- Para manter uma transição mais suave entre telas com o mesmo estilo de `AppBar`, optei por usar `AutoTabs` em vez de `Navigator.push()`, evitando o efeito padrão que troca toda a tela. Porém, como o `AutoTabs` simula a navegação, o botão nativo de voltar acaba fechando o app quando estamos em rotas internas. Resolvi isso usando `PopScope` e `SystemNavigator.pop()` no Android. No iOS, esse comportamento será diferente, pois o método não é suportado.
+- Para manter uma transição mais suave entre telas com o mesmo estilo de `AppBar`, optei por usar `AutoTabs` em vez de `Navigator.push()`, evitando o efeito padrão que troca toda a tela. Porém, como o `AutoTabs` simula a navegação, o botão nativo de voltar acaba fechando o app quando estamos em rotas internas. Resolvi isso usando `PopScope` e `SystemNavigator.pop()` no Android. No iOS, esse comportamento será diferente, pois o método não é suportado. Edit: acredito que personalizando a animação de troca de tela isso não seria necessário. No entanto, hoje essas telas também tem comportamentos compartilhados, então, caiu como luva.
 - Créditos do plano de fundo da tela inicial `stock.png`: https://www.pexels.com/photo/red-and-white-plastic-containers-on-shelf-3992851/ + https://pinetools.com/blur-image no filtro `Stack Blur` e radius 100 + https://imgonline.tools/pt/darken com 15 de fator de escurecimento.
-- A troca do ícone da aplicação no IOS precisa de ajustes para ficar funcional.
+- A troca do ícone da aplicação no IOS precisa de ajustes para ficar funcional. Também, devido a falta de hardware compatível, a versão IOS do aplicativo não foi testada.

@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:smart_stock/app/bluetooth/connnected_state.dart';
+import 'package:smart_stock/app/bluetooth/scan_state.dart';
 import 'package:smart_stock/app/routing/router.dart';
 import 'package:smart_stock/app/ui/_providers/ble_connection_provider.dart';
 import 'package:smart_stock/app/ui/_providers/inventory_provider.dart';
 import 'package:smart_stock/app/ui/_providers/stock_provider.dart';
 import 'package:smart_stock/app/ui/_themes/custom_forui.dart';
 import 'package:smart_stock/app/ui/home/status_panel_widget.dart';
+import 'package:smart_stock/app/utils/internet.dart';
 
 @RoutePage()
 class HomePage extends StatelessWidget {
@@ -29,9 +31,6 @@ class Navbar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final currentStsdate = ref.watch(bleConnectionProvider.select((state) => state.currentState));
-    final stockState = ref.watch(stockProvider);
-    final isConnected = currentStsdate is ConnectedState && stockState.hasValue;
     final bool hasActiveInventory =
         ref.watch(inventoryManagerProvider.select((state) => state.currentInventory)) != null;
 
@@ -39,14 +38,12 @@ class Navbar extends ConsumerWidget {
       spacing: 12,
       children: [
         NavLink(
-          isConnected: isConnected,
           icon: FIcons.clipboardCheck,
           title: routesTitles[InventoryConfirmationRoute.name] ?? '',
           badgeLabel: hasActiveInventory ? 'ABERTO' : null,
           href: hasActiveInventory ? const InventoryRoute() : const InventoryConfirmationRoute(),
         ),
         NavLink(
-          isConnected: isConnected,
           icon: FIcons.squarePen,
           title: routesTitles[LabelingRoute.name] ?? '',
           href: const LabelingRoute(),
@@ -56,24 +53,26 @@ class Navbar extends ConsumerWidget {
   }
 }
 
-class NavLink extends StatelessWidget {
+class NavLink extends ConsumerWidget {
   const NavLink({
     super.key,
-    required this.isConnected,
     required this.icon,
     required this.title,
     required this.href,
     this.badgeLabel,
   });
 
-  final bool isConnected;
   final IconData icon;
   final String title;
   final PageRouteInfo href;
   final String? badgeLabel;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currentBleState = ref.watch(bleConnectionProvider.select((state) => state.currentState));
+    final stockState = ref.watch(stockProvider);
+    final isConnected = currentBleState is ConnectedState && stockState.hasValue;
+
     return FButton(
       style: primaryLargeButton(context, disabled: !isConnected),
       prefix: Icon(icon, size: 20, color: Colors.white),
@@ -108,8 +107,25 @@ class NavLink extends StatelessWidget {
         ),
       ),
       onPress: () async {
-        if (isConnected && context.mounted) {
+        if (isConnected) {
           AutoTabsRouter.of(context).navigate(href);
+        } else if (await appIsOffline() && stockState.hasError && context.mounted) {
+          showFToast(
+            context: context,
+            alignment: FToastAlignment.topCenter,
+            title: const Text('Produtos não carregados', style: TextStyle(color: Colors.red)),
+            icon: const Icon(FIcons.packageSearch, color: Colors.red),
+          );
+        } else if (currentBleState is! ConnectedState) {
+          showFToast(
+            context: context,
+            alignment: FToastAlignment.topCenter,
+            title: const Text(
+              'Aguardando conexão com a pistola',
+              style: TextStyle(color: Colors.blue),
+            ),
+            icon: const Icon(FIcons.bluetooth, color: Colors.blue),
+          );
         }
       },
     );
