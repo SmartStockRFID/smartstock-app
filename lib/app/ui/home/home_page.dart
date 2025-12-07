@@ -3,13 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:smart_stock/app/bluetooth/connnected_state.dart';
-import 'package:smart_stock/app/bluetooth/scan_state.dart';
 import 'package:smart_stock/app/routing/router.dart';
-import 'package:smart_stock/app/ui/_providers/ble_connection_provider.dart';
-import 'package:smart_stock/app/ui/_providers/inventory_provider.dart';
-import 'package:smart_stock/app/ui/_providers/stock_provider.dart';
-import 'package:smart_stock/app/ui/_themes/custom_forui.dart';
-import 'package:smart_stock/app/ui/home/status_panel_widget.dart';
+import 'package:smart_stock/app/ui/_core/providers/ble_connection_provider.dart';
+import 'package:smart_stock/app/ui/_core/providers/inventory_provider.dart';
+import 'package:smart_stock/app/ui/_core/providers/stock_provider.dart';
+import 'package:smart_stock/app/ui/_core/theme/custom_forui.dart';
+import 'package:smart_stock/app/ui/home/widgets/status_panel_widget.dart';
 import 'package:smart_stock/app/utils/internet.dart';
 
 @RoutePage()
@@ -39,14 +38,14 @@ class Navbar extends ConsumerWidget {
       children: [
         NavLink(
           icon: FIcons.clipboardCheck,
-          title: routesTitles[InventoryConfirmationRoute.name] ?? '',
+          title: routesTitles[InventoryCheckRoute.name] ?? '',
           badgeLabel: hasActiveInventory ? 'ABERTO' : null,
-          href: hasActiveInventory ? const InventoryRoute() : const InventoryConfirmationRoute(),
+          href: hasActiveInventory ? const InventorySessionRoute() : const InventoryCheckRoute(),
         ),
         NavLink(
           icon: FIcons.squarePen,
-          title: routesTitles[LabelingRoute.name] ?? '',
-          href: const LabelingRoute(),
+          title: routesTitles[EncodingSetupRoute.name] ?? '',
+          href: const EncodingSetupRoute(),
         ),
       ],
     );
@@ -54,6 +53,11 @@ class Navbar extends ConsumerWidget {
 }
 
 class NavLink extends ConsumerWidget {
+  final IconData icon;
+
+  final String title;
+  final PageRouteInfo href;
+  final String? badgeLabel;
   const NavLink({
     super.key,
     required this.icon,
@@ -61,11 +65,6 @@ class NavLink extends ConsumerWidget {
     required this.href,
     this.badgeLabel,
   });
-
-  final IconData icon;
-  final String title;
-  final PageRouteInfo href;
-  final String? badgeLabel;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

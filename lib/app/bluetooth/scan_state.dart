@@ -1,5 +1,6 @@
 import 'dart:async';
-import 'package:flutter/services.dart'; // Importe para usar PlatformException
+
+import 'package:flutter/services.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:smart_stock/app/bluetooth/base_ble_state.dart';
 import 'package:smart_stock/app/bluetooth/bluetooth_off_state.dart';
@@ -15,6 +16,14 @@ class ScanState extends RetryState {
   StreamSubscription? _scanSubscription;
   StreamSubscription? _adapterStateSubscription;
   ScanState({required super.manager}) : super(origin: ErrorOrigin.scan);
+
+  @override
+  void dispose() {
+    logger.d('Disposing ScanState');
+    _scanSubscription?.cancel();
+    _adapterStateSubscription?.cancel();
+    super.dispose();
+  }
 
   @override
   Future<BleState> processState() async {
@@ -40,7 +49,7 @@ class ScanState extends RetryState {
       if (results.isNotEmpty && !promise.isCompleted) {
         final scannedPistol = results.first;
         logger.d('Dispositivo encontrado: ${scannedPistol.device.name}');
-        manager.lastScanResult = scannedPistol;
+        manager.lastScannedDevice = scannedPistol.device;
         promise.complete(ConnectState(manager: manager));
       }
     });
@@ -76,13 +85,5 @@ class ScanState extends RetryState {
       await _scanSubscription?.cancel();
       await _adapterStateSubscription?.cancel();
     }
-  }
-
-  @override
-  void dispose() {
-    logger.d('Disposing ScanState');
-    _scanSubscription?.cancel();
-    _adapterStateSubscription?.cancel();
-    super.dispose();
   }
 }

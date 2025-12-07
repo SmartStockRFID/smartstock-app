@@ -6,7 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:smart_stock/app/config/assets.dart';
 import 'package:smart_stock/app/config/constants.dart';
 import 'package:smart_stock/app/routing/router.dart';
-import 'package:smart_stock/app/ui/_themes/custom_forui.dart';
+import 'package:smart_stock/app/ui/_core/theme/custom_forui.dart';
 
 //TODO: Responsiveness. In any screen resolution less than 412px the app breaks. And also on horizontal orientation
 @RoutePage()

@@ -14,13 +14,12 @@ class ConnectState extends RetryState {
 
   @override
   Future<BleState> processState() async {
-    final scanResult = manager.lastScanResult;
-    if (scanResult == null) {
-      throw FSMException('ConnectState chamado sem scanResult!');
+    final device = manager.lastScannedDevice;
+    if (device == null) {
+      throw FSMException('ConnectState chamado sem lastScannedDevice!');
     }
 
-    final device = scanResult.device;
-    logger.d('Conectando ao dispositivo: ${device.name}');
+    logger.d('Conectando ao dispositivo: ${device.platformName}');
     final promise = Completer<BleState>();
 
     _adapterStateSubscription = FlutterBluePlus.adapterState.listen((state) {

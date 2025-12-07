@@ -1,16 +1,19 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:smart_stock/app/config/preferences_manager.dart';
 import 'package:smart_stock/app/config/token_storage.dart';
+import 'package:smart_stock/app/ui/auth/login_page.dart';
+import 'package:smart_stock/app/ui/devices/devices_page.dart';
+import 'package:smart_stock/app/ui/encoding/process/encoding_process_page.dart';
+import 'package:smart_stock/app/ui/encoding/setup/encoding_setup_page.dart';
 import 'package:smart_stock/app/ui/home/home_page.dart';
-import 'package:smart_stock/app/ui/inventory/confirmation_page.dart';
-import 'package:smart_stock/app/ui/inventory/inventory_page.dart';
-import 'package:smart_stock/app/ui/labeling/labeling_select_page.dart';
-import 'package:smart_stock/app/ui/labeling/writing_page.dart';
-import 'package:smart_stock/app/ui/login/login_page.dart';
-import 'package:smart_stock/app/ui/main_page.dart';
+import 'package:smart_stock/app/ui/inventory/check/inventory_check_page.dart';
+import 'package:smart_stock/app/ui/inventory/session/inventory_session_page.dart';
+import 'package:smart_stock/app/ui/shell/app_shell_page.dart';
 import 'package:smart_stock/app/ui/welcome/welcome_page.dart';
 
 part 'router.gr.dart';
+
+final routesTitles = {InventoryCheckRoute.name: 'Inventário', EncodingSetupRoute.name: 'Gravação'};
 
 @AutoRouterConfig()
 class AppRouter extends RootStackRouter {
@@ -18,25 +21,21 @@ class AppRouter extends RootStackRouter {
   List<AutoRoute> get routes => [
     AutoRoute(page: WelcomeRoute.page, initial: true, guards: [WelcomeRedirectGuard()]),
     AutoRoute(
-      page: MainLayoutRoute.page,
+      page: AppShellRoute.page,
       path: '/',
       guards: [AuthGuard()],
       children: [
-        AutoRoute(page: HomeRoute.page, path: 'home'),
-        AutoRoute(page: LabelingRoute.page, path: 'etiquetagem'),
-        AutoRoute(page: InventoryConfirmationRoute.page, path: 'inventario/iniciar'),
+        AutoRoute(page: HomeRoute.page),
+        AutoRoute(page: EncodingSetupRoute.page),
+        AutoRoute(page: InventoryCheckRoute.page),
       ],
     ),
-    AutoRoute(page: LoginRoute.page, path: '/login', keepHistory: false),
-    AutoRoute(page: InventoryRoute.page, path: '/inventario', guards: [AuthGuard()]),
-    AutoRoute(page: WritingRoute.page, path: '/etiquetagem/iniciar', guards: [AuthGuard()]),
+    AutoRoute(page: DevicesRoute.page),
+    AutoRoute(page: LoginRoute.page, keepHistory: false),
+    AutoRoute(page: InventorySessionRoute.page, guards: [AuthGuard()]),
+    AutoRoute(page: EncondingProcessRoute.page, guards: [AuthGuard()]),
   ];
 }
-
-final routesTitles = {
-  InventoryConfirmationRoute.name: 'Inventário',
-  LabelingRoute.name: 'Gravação',
-};
 
 class AuthGuard extends AutoRouteGuard {
   @override

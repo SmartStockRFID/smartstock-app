@@ -11,6 +11,110 @@
 part of 'router.dart';
 
 /// generated route for
+/// [AppShellPage]
+class AppShellRoute extends PageRouteInfo<void> {
+  const AppShellRoute({List<PageRouteInfo>? children})
+    : super(AppShellRoute.name, initialChildren: children);
+
+  static const String name = 'AppShellRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const AppShellPage();
+    },
+  );
+}
+
+/// generated route for
+/// [DevicesPage]
+class DevicesRoute extends PageRouteInfo<void> {
+  const DevicesRoute({List<PageRouteInfo>? children})
+    : super(DevicesRoute.name, initialChildren: children);
+
+  static const String name = 'DevicesRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return DevicesPage();
+    },
+  );
+}
+
+/// generated route for
+/// [EncodingSetupPage]
+class EncodingSetupRoute extends PageRouteInfo<void> {
+  const EncodingSetupRoute({List<PageRouteInfo>? children})
+    : super(EncodingSetupRoute.name, initialChildren: children);
+
+  static const String name = 'EncodingSetupRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const EncodingSetupPage();
+    },
+  );
+}
+
+/// generated route for
+/// [EncondingProcessPage]
+class EncondingProcessRoute extends PageRouteInfo<EncondingProcessRouteArgs> {
+  EncondingProcessRoute({
+    required String? targetProductName,
+    required WritingMode mode,
+    List<PageRouteInfo>? children,
+  }) : super(
+         EncondingProcessRoute.name,
+         args: EncondingProcessRouteArgs(
+           targetProductName: targetProductName,
+           mode: mode,
+         ),
+         initialChildren: children,
+       );
+
+  static const String name = 'EncondingProcessRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      final args = data.argsAs<EncondingProcessRouteArgs>();
+      return EncondingProcessPage(
+        targetProductName: args.targetProductName,
+        mode: args.mode,
+      );
+    },
+  );
+}
+
+class EncondingProcessRouteArgs {
+  const EncondingProcessRouteArgs({
+    required this.targetProductName,
+    required this.mode,
+  });
+
+  final String? targetProductName;
+
+  final WritingMode mode;
+
+  @override
+  String toString() {
+    return 'EncondingProcessRouteArgs{targetProductName: $targetProductName, mode: $mode}';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! EncondingProcessRouteArgs) return false;
+    return targetProductName == other.targetProductName && mode == other.mode;
+  }
+
+  @override
+  int get hashCode => targetProductName.hashCode ^ mode.hashCode;
+}
+
+/// generated route for
 /// [HomePage]
 class HomeRoute extends PageRouteInfo<void> {
   const HomeRoute({List<PageRouteInfo>? children})
@@ -27,49 +131,33 @@ class HomeRoute extends PageRouteInfo<void> {
 }
 
 /// generated route for
-/// [InventoryConfirmationPage]
-class InventoryConfirmationRoute extends PageRouteInfo<void> {
-  const InventoryConfirmationRoute({List<PageRouteInfo>? children})
-    : super(InventoryConfirmationRoute.name, initialChildren: children);
+/// [InventoryCheckPage]
+class InventoryCheckRoute extends PageRouteInfo<void> {
+  const InventoryCheckRoute({List<PageRouteInfo>? children})
+    : super(InventoryCheckRoute.name, initialChildren: children);
 
-  static const String name = 'InventoryConfirmationRoute';
+  static const String name = 'InventoryCheckRoute';
 
   static PageInfo page = PageInfo(
     name,
     builder: (data) {
-      return const InventoryConfirmationPage();
+      return const InventoryCheckPage();
     },
   );
 }
 
 /// generated route for
-/// [InventoryPage]
-class InventoryRoute extends PageRouteInfo<void> {
-  const InventoryRoute({List<PageRouteInfo>? children})
-    : super(InventoryRoute.name, initialChildren: children);
+/// [InventorySessionPage]
+class InventorySessionRoute extends PageRouteInfo<void> {
+  const InventorySessionRoute({List<PageRouteInfo>? children})
+    : super(InventorySessionRoute.name, initialChildren: children);
 
-  static const String name = 'InventoryRoute';
-
-  static PageInfo page = PageInfo(
-    name,
-    builder: (data) {
-      return const InventoryPage();
-    },
-  );
-}
-
-/// generated route for
-/// [LabelingPage]
-class LabelingRoute extends PageRouteInfo<void> {
-  const LabelingRoute({List<PageRouteInfo>? children})
-    : super(LabelingRoute.name, initialChildren: children);
-
-  static const String name = 'LabelingRoute';
+  static const String name = 'InventorySessionRoute';
 
   static PageInfo page = PageInfo(
     name,
     builder: (data) {
-      return const LabelingPage();
+      return const InventorySessionPage();
     },
   );
 }
@@ -119,22 +207,6 @@ class LoginRouteArgs {
 }
 
 /// generated route for
-/// [MainLayoutPage]
-class MainLayoutRoute extends PageRouteInfo<void> {
-  const MainLayoutRoute({List<PageRouteInfo>? children})
-    : super(MainLayoutRoute.name, initialChildren: children);
-
-  static const String name = 'MainLayoutRoute';
-
-  static PageInfo page = PageInfo(
-    name,
-    builder: (data) {
-      return const MainLayoutPage();
-    },
-  );
-}
-
-/// generated route for
 /// [WelcomeScreen]
 class WelcomeRoute extends PageRouteInfo<void> {
   const WelcomeRoute({List<PageRouteInfo>? children})
@@ -148,57 +220,4 @@ class WelcomeRoute extends PageRouteInfo<void> {
       return const WelcomeScreen();
     },
   );
-}
-
-/// generated route for
-/// [WritingPage]
-class WritingRoute extends PageRouteInfo<WritingRouteArgs> {
-  WritingRoute({
-    required String? targetProductName,
-    required WritingMode mode,
-    List<PageRouteInfo>? children,
-  }) : super(
-         WritingRoute.name,
-         args: WritingRouteArgs(
-           targetProductName: targetProductName,
-           mode: mode,
-         ),
-         initialChildren: children,
-       );
-
-  static const String name = 'WritingRoute';
-
-  static PageInfo page = PageInfo(
-    name,
-    builder: (data) {
-      final args = data.argsAs<WritingRouteArgs>();
-      return WritingPage(
-        targetProductName: args.targetProductName,
-        mode: args.mode,
-      );
-    },
-  );
-}
-
-class WritingRouteArgs {
-  const WritingRouteArgs({required this.targetProductName, required this.mode});
-
-  final String? targetProductName;
-
-  final WritingMode mode;
-
-  @override
-  String toString() {
-    return 'WritingRouteArgs{targetProductName: $targetProductName, mode: $mode}';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    if (other is! WritingRouteArgs) return false;
-    return targetProductName == other.targetProductName && mode == other.mode;
-  }
-
-  @override
-  int get hashCode => targetProductName.hashCode ^ mode.hashCode;
 }
