@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:smart_stock/app/config/constants.dart';
 import 'package:smart_stock/app/domain/firmware/firmware_api_response.dart';
 import 'package:smart_stock/app/domain/firmware/write_response.dart';
 import 'package:smart_stock/app/ui/_core/providers/ble_connection_provider.dart';
@@ -22,7 +23,7 @@ class WritingFeedbackBleListener extends _$WritingFeedbackBleListener {
 
     final currentWriting = ref.read(writingManagerProvider.notifier);
 
-    _sub = bleManager.rfidDataStream.listen((read) {
+    _sub = bleManager.rfidDataStream.listen((read) async {
       try {
         final microcontrollerResponse = FirmwareResponse.fromJson(read);
 
@@ -33,7 +34,12 @@ class WritingFeedbackBleListener extends _$WritingFeedbackBleListener {
         final result = WriteResponseContent.fromMap(microcontrollerResponse.content);
 
         if (result.ok && result.tagUid != null) {
-          currentWriting.addNewWritedTag(result.tagUid!);
+          await currentWriting.addNewWritedTag(
+            result.tagUid!,
+            (result.encodedOEM == null || result.encodedOEM == emptyTagOEM)
+                ? null
+                : result.encodedOEM,
+          );
         }
       } catch (err) {
         logger.e(err);

@@ -14,12 +14,12 @@ class EncodingSetupPage extends ConsumerStatefulWidget {
   const EncodingSetupPage({super.key});
 
   @override
-  ConsumerState<EncodingSetupPage> createState() => _EncondingSetupPageState();
+  ConsumerState<EncodingSetupPage> createState() => _EncodingSetupPageState();
 }
 
 enum WritingMode { PRODUCT_CODE, RESET }
 
-class _EncondingSetupPageState extends ConsumerState<EncodingSetupPage>
+class _EncodingSetupPageState extends ConsumerState<EncodingSetupPage>
     with SingleTickerProviderStateMixin {
   late final FSelectController<CarPart> selectController;
   final radioController = FSelectGroupController<WritingMode>.radio(
@@ -161,7 +161,7 @@ class _EncondingSetupPageState extends ConsumerState<EncodingSetupPage>
 
             if (context.mounted) {
               context.router.push(
-                EncondingProcessRoute(
+                EncodingProcessRoute(
                   targetProductName: selectController.value?.name,
                   mode: radioController.value.first,
                 ),

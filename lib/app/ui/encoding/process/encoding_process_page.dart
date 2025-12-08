@@ -14,11 +14,11 @@ import 'package:smart_stock/app/ui/encoding/setup/encoding_setup_page.dart';
 import 'package:smart_stock/app/utils/logger.dart';
 
 @RoutePage()
-class EncondingProcessPage extends HookConsumerWidget {
+class EncodingProcessPage extends HookConsumerWidget {
   final String? targetProductName;
   final WritingMode mode;
 
-  const EncondingProcessPage({required this.targetProductName, required this.mode});
+  const EncodingProcessPage({required this.targetProductName, required this.mode});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

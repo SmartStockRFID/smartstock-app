@@ -43,6 +43,78 @@ class DevicesRoute extends PageRouteInfo<void> {
 }
 
 /// generated route for
+/// [EncodingHistoryPage]
+class EncodingHistoryRoute extends PageRouteInfo<void> {
+  const EncodingHistoryRoute({List<PageRouteInfo>? children})
+    : super(EncodingHistoryRoute.name, initialChildren: children);
+
+  static const String name = 'EncodingHistoryRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return EncodingHistoryPage();
+    },
+  );
+}
+
+/// generated route for
+/// [EncodingProcessPage]
+class EncodingProcessRoute extends PageRouteInfo<EncodingProcessRouteArgs> {
+  EncodingProcessRoute({
+    required String? targetProductName,
+    required WritingMode mode,
+    List<PageRouteInfo>? children,
+  }) : super(
+         EncodingProcessRoute.name,
+         args: EncodingProcessRouteArgs(
+           targetProductName: targetProductName,
+           mode: mode,
+         ),
+         initialChildren: children,
+       );
+
+  static const String name = 'EncodingProcessRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      final args = data.argsAs<EncodingProcessRouteArgs>();
+      return EncodingProcessPage(
+        targetProductName: args.targetProductName,
+        mode: args.mode,
+      );
+    },
+  );
+}
+
+class EncodingProcessRouteArgs {
+  const EncodingProcessRouteArgs({
+    required this.targetProductName,
+    required this.mode,
+  });
+
+  final String? targetProductName;
+
+  final WritingMode mode;
+
+  @override
+  String toString() {
+    return 'EncodingProcessRouteArgs{targetProductName: $targetProductName, mode: $mode}';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! EncodingProcessRouteArgs) return false;
+    return targetProductName == other.targetProductName && mode == other.mode;
+  }
+
+  @override
+  int get hashCode => targetProductName.hashCode ^ mode.hashCode;
+}
+
+/// generated route for
 /// [EncodingSetupPage]
 class EncodingSetupRoute extends PageRouteInfo<void> {
   const EncodingSetupRoute({List<PageRouteInfo>? children})
@@ -56,62 +128,6 @@ class EncodingSetupRoute extends PageRouteInfo<void> {
       return const EncodingSetupPage();
     },
   );
-}
-
-/// generated route for
-/// [EncondingProcessPage]
-class EncondingProcessRoute extends PageRouteInfo<EncondingProcessRouteArgs> {
-  EncondingProcessRoute({
-    required String? targetProductName,
-    required WritingMode mode,
-    List<PageRouteInfo>? children,
-  }) : super(
-         EncondingProcessRoute.name,
-         args: EncondingProcessRouteArgs(
-           targetProductName: targetProductName,
-           mode: mode,
-         ),
-         initialChildren: children,
-       );
-
-  static const String name = 'EncondingProcessRoute';
-
-  static PageInfo page = PageInfo(
-    name,
-    builder: (data) {
-      final args = data.argsAs<EncondingProcessRouteArgs>();
-      return EncondingProcessPage(
-        targetProductName: args.targetProductName,
-        mode: args.mode,
-      );
-    },
-  );
-}
-
-class EncondingProcessRouteArgs {
-  const EncondingProcessRouteArgs({
-    required this.targetProductName,
-    required this.mode,
-  });
-
-  final String? targetProductName;
-
-  final WritingMode mode;
-
-  @override
-  String toString() {
-    return 'EncondingProcessRouteArgs{targetProductName: $targetProductName, mode: $mode}';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    if (other is! EncondingProcessRouteArgs) return false;
-    return targetProductName == other.targetProductName && mode == other.mode;
-  }
-
-  @override
-  int get hashCode => targetProductName.hashCode ^ mode.hashCode;
 }
 
 /// generated route for

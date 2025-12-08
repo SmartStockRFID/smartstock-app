@@ -46,92 +46,83 @@ class DevicesList extends HookConsumerWidget with DevicesState {
       };
     }, []);
 
-    return RefreshIndicator(
-      onRefresh: () async {
-        await FlutterBluePlus.turnOff();
+    return BaseList(
+      isLoading: false,
+      emptyMessage: 'Nenhuma pistola em alcance',
+      data: devices.value,
+      itemBuilder: (device) {
+        final alreadyConnected = device.isConnected;
+        return Container(
+          margin: const EdgeInsets.all(3.0),
+          padding: const EdgeInsets.all(3.0),
+          child: Row(
+            spacing: 10,
+            children: [
+              CircleAvatar(
+                backgroundColor: Colors.black87,
+                child: SvgPicture.asset(Assets.scannerIcon, height: 24, color: Colors.white),
+              ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      device.platformName.isNotEmpty ? device.platformName : '',
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      style: context.theme.typography.base.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: alreadyConnected ? Colors.black54 : Colors.black,
+                      ),
+                    ),
+                    Text(
+                      textAlign: TextAlign.start,
+                      device.remoteId.toString(),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      style: context.theme.typography.base.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: alreadyConnected ? Colors.black54 : Colors.black,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              FButton(
+                style: alreadyConnected || connectBleMutation(ref) is MutationPending
+                    ? createDisabledButtonStyle(context)
+                    : FButtonStyle.primary(),
+                onPress: () async {
+                  if (alreadyConnected) {
+                    return;
+                  }
+                  deviceConnectingId.value = device.remoteId.toString();
+
+                  await connectBleMutation.run(ref, connectBleRun(context, ref, pistol: device));
+
+                  deviceConnectingId.value = null;
+                },
+                child:
+                    connectBleState(ref) is MutationPending &&
+                        deviceConnectingId.value == device.remoteId.toString()
+                    ? const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        child: SizedBox(height: 14, width: 14, child: CircularProgressIndicator()),
+                      )
+                    : Text(
+                        alreadyConnected ? 'Em uso' : 'Conectar',
+                        style: context.theme.typography.sm.copyWith(
+                          color: alreadyConnected ? Colors.black87 : Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+              ),
+            ],
+          ),
+        );
       },
-      child: BaseList(
-        isLoading: false,
-        emptyMessage: 'Nenhuma pistola em alcance',
-        data: devices.value,
-        itemBuilder: (device) {
-          final alreadyConnected = device.isConnected;
-          return Container(
-            margin: const EdgeInsets.all(3.0),
-            padding: const EdgeInsets.all(3.0),
-            child: Row(
-              spacing: 10,
-              children: [
-                CircleAvatar(
-                  backgroundColor: Colors.black87,
-                  child: SvgPicture.asset(Assets.scannerIcon, height: 24, color: Colors.white),
-                ),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        device.platformName.isNotEmpty ? device.platformName : '',
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                        style: context.theme.typography.base.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: alreadyConnected ? Colors.black54 : Colors.black,
-                        ),
-                      ),
-                      Text(
-                        textAlign: TextAlign.start,
-                        device.remoteId.toString(),
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                        style: context.theme.typography.base.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: alreadyConnected ? Colors.black54 : Colors.black,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                FButton(
-                  style: alreadyConnected || connectBleMutation(ref) is MutationPending
-                      ? createDisabledButtonStyle(context)
-                      : FButtonStyle.primary(),
-                  onPress: () async {
-                    if (alreadyConnected) {
-                      return;
-                    }
-                    deviceConnectingId.value = device.remoteId.toString();
-
-                    await connectBleMutation.run(ref, connectBleRun(context, ref, pistol: device));
-
-                    deviceConnectingId.value = null;
-                  },
-                  child:
-                      connectBleState(ref) is MutationPending &&
-                          deviceConnectingId.value == device.remoteId.toString()
-                      ? const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 20),
-                          child: SizedBox(
-                            height: 14,
-                            width: 14,
-                            child: CircularProgressIndicator(),
-                          ),
-                        )
-                      : Text(
-                          alreadyConnected ? 'Em uso' : 'Conectar',
-                          style: context.theme.typography.sm.copyWith(
-                            color: alreadyConnected ? Colors.black87 : Colors.white,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                ),
-              ],
-            ),
-          );
-        },
-        heightPercentage: 0.8,
-        widthPercentage: 1,
-      ),
+      heightPercentage: 0.8,
+      widthPercentage: 1,
     );
   }
 }

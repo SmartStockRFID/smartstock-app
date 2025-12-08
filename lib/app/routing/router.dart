@@ -4,6 +4,7 @@ import 'package:smart_stock/app/config/token_storage.dart';
 import 'package:smart_stock/app/domain/auth.dart';
 import 'package:smart_stock/app/ui/auth/login_page.dart';
 import 'package:smart_stock/app/ui/devices/devices_page.dart';
+import 'package:smart_stock/app/ui/encoding/history/encoding_history_page.dart';
 import 'package:smart_stock/app/ui/encoding/process/encoding_process_page.dart';
 import 'package:smart_stock/app/ui/encoding/setup/encoding_setup_page.dart';
 import 'package:smart_stock/app/ui/home/home_page.dart';
@@ -34,7 +35,8 @@ class AppRouter extends RootStackRouter {
     AutoRoute(page: DevicesRoute.page),
     AutoRoute(page: LoginRoute.page, keepHistory: false),
     AutoRoute(page: InventorySessionRoute.page, guards: [AuthGuard()]),
-    AutoRoute(page: EncondingProcessRoute.page, guards: [AuthGuard()]),
+    AutoRoute(page: EncodingProcessRoute.page, guards: [AuthGuard()]),
+    AutoRoute(page: EncodingHistoryRoute.page, guards: [AuthGuard()]),
   ];
 }
 

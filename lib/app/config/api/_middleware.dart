@@ -1,5 +1,5 @@
 // Implemented based on this great article: https://dev.to/7twilight/mastering-auth-in-flutter-with-dio-from-simple-access-tokens-to-a-refresh-flow-27cf
-// TODO: Also, not full implemented. A more complete solution is showed on the article.
+// TODO: Lacks point "3) Drawbacks & the Flag + Queue Optimization implementation" to complete the article.
 
 import 'package:dio/dio.dart';
 import 'package:smart_stock/app/config/env.dart';

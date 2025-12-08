@@ -43,7 +43,7 @@ final class WritingFeedbackBleListenerProvider
 }
 
 String _$writingFeedbackBleListenerHash() =>
-    r'716d91aff1d55504a9e108972f5f02cdf318e60e';
+    r'7f2dcb3bd0cbb23a8a1b7df9fb832daa8e98765c';
 
 abstract class _$WritingFeedbackBleListener extends $Notifier<void> {
   void build();
