@@ -9,9 +9,9 @@ import 'package:smart_stock/app/utils/internet.dart';
 
 @RoutePage()
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({this.shouldRedirect = false});
-
   final bool shouldRedirect;
+
+  const LoginScreen({this.shouldRedirect = false});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -24,6 +24,17 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   late final _usernameSelectController = FSelectController<String>(vsync: this);
 
   @override
+  Widget build(BuildContext context) {
+    return LoginInterface(
+      formKey: _formKey,
+      usernameController: _usernameController,
+      passwordController: _passwordController,
+      onLogin: _login,
+      usernameSelectController: _usernameSelectController,
+    );
+  }
+
+  @override
   void dispose() {
     _usernameController.dispose();
     _passwordController.dispose();
@@ -33,7 +44,10 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
 
   Future<void> _login() async {
     if (_formKey.currentState!.validate()) {
-      final username = _usernameSelectController.value ?? _usernameController.text;
+      final username = _usernameController.text.isNotEmpty
+          ? _usernameController.text
+          : _usernameSelectController.value!;
+
       final password = _passwordController.text;
 
       try {
@@ -51,20 +65,19 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
           payload: LoginRequestDTO(password: password, username: username),
         );
 
-        if (response.statusCode >= 200 && response.statusCode < 300) {
-          if (!mounted) {
-            return;
-          }
+        if (!mounted) {
+          return;
+        }
 
+        if (response.statusCode != null &&
+            response.statusCode! >= 200 &&
+            response.statusCode! < 300) {
           if (widget.shouldRedirect) {
             context.router.replaceAll([const HomeRoute()]);
           } else {
             context.router.pop();
           }
         } else if (response.statusCode == 401) {
-          if (!mounted) {
-            return;
-          }
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('E-mail ou senha inválidos!'),
@@ -72,9 +85,6 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
             ),
           );
         } else {
-          if (!mounted) {
-            return;
-          }
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Erro no servidor! Por favor, aguarde.'),
@@ -93,16 +103,5 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         rethrow;
       }
     }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return LoginInterface(
-      formKey: _formKey,
-      usernameController: _usernameController,
-      passwordController: _passwordController,
-      onLogin: _login,
-      usernameSelectController: _usernameSelectController,
-    );
   }
 }

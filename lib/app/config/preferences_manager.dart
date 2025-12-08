@@ -10,7 +10,7 @@ typedef VoidSetPref = Future<void> Function();
 typedef DeletePref = Future<void> Function();
 
 Future<SharedPreferences> getPrefs() async {
-  return await SharedPreferences.getInstance();
+  return SharedPreferences.getInstance();
 }
 
 class CurrentUserStorage {

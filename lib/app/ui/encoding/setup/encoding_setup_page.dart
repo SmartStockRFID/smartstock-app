@@ -52,7 +52,8 @@ class _EncondingSetupPageState extends ConsumerState<EncodingSetupPage>
               const SizedBox(height: 4),
               FSelectGroup(
                 controller: radioController,
-                validator: (values) => values?.isEmpty ?? true ? 'Please select a value.' : null,
+                validator: (values) =>
+                    values?.isEmpty ?? true ? 'Por favor selecione um valor.' : null,
                 onChange: (value) {
                   setState(() {});
                 },
@@ -82,6 +83,14 @@ class _EncondingSetupPageState extends ConsumerState<EncodingSetupPage>
                         return FSelect<CarPart>.searchBuilder(
                           enabled: radioController.value.firstOrNull == WritingMode.PRODUCT_CODE,
                           controller: selectController,
+                          contentEmptyBuilder: (context, style) => Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
+                            child: Text(
+                              'Sem produtos correspondentes',
+                              style: style.emptyTextStyle,
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
                           searchFieldProperties: const FSelectSearchFieldProperties(
                             hint: 'Buscar produto...',
                           ),

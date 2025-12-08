@@ -119,6 +119,7 @@ class NavLink extends ConsumerWidget {
           showFToast(
             context: context,
             alignment: FToastAlignment.topCenter,
+            duration: const Duration(seconds: 1),
             title: const Text(
               'Aguardando conexão com a pistola',
               style: TextStyle(color: Colors.blue),

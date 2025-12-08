@@ -81,7 +81,6 @@ class InventoryManager extends _$InventoryManager {
 
   Future<void> finishInventory() async {
     await checkIfHasInternet();
-
     InventorySummary targetInventory;
 
     if (state.currentInventory?.id != null) {

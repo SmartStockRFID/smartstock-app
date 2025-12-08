@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:smart_stock/app/config/preferences_manager.dart';
 import 'package:smart_stock/app/config/token_storage.dart';
+import 'package:smart_stock/app/domain/auth.dart';
 import 'package:smart_stock/app/ui/auth/login_page.dart';
 import 'package:smart_stock/app/ui/devices/devices_page.dart';
 import 'package:smart_stock/app/ui/encoding/process/encoding_process_page.dart';
@@ -42,19 +43,21 @@ class AuthGuard extends AutoRouteGuard {
   Future<void> onNavigation(NavigationResolver resolver, StackRouter router) async {
     // the navigation is paused until resolver.next() is called with either
     // true to resume/continue navigation or false to abort navigation
-    final authenticated = await TokenStorage.getToken() != null;
+    final tokens = await TokenStorage.getTokens();
+    final refresh = tokens.refresh;
+
+    final authenticated = refresh != null && refreshTokenIsFresh(refresh.expiresAt);
 
     if (authenticated) {
-      // if user is authenticated we continue
       resolver.next(true);
     } else {
+      await router.push(LoginRoute());
+      resolver.next(true);
       // we redirect the user to our login page
       // tip: use resolver.redirectUntil to have the redirected route
       // automatically removed from the stack when the resolver is completed
       // var result = await context.router.push<bool>(LoginRoute());
 
-      await router.push(LoginRoute());
-      resolver.next(true);
       // resolver.redirectUntil(
       //   LoginRoute(onResult: (success) {
       //     // if success == true the navigation will be resumed

@@ -1,6 +1,7 @@
 // lib/app/bluetooth/connnected_state.dart
 
 import 'dart:async';
+
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:smart_stock/app/bluetooth/base_ble_state.dart';
 import 'package:smart_stock/app/bluetooth/bluetooth_off_state.dart';
@@ -14,6 +15,14 @@ class ConnectedState extends NormalBleState {
   StreamSubscription? _adapterSub;
 
   ConnectedState({required this.connectedPistol, required super.manager});
+
+  @override
+  void dispose() {
+    logger.d('Descartando ConnectedState');
+    _pistolSub?.cancel();
+    _adapterSub?.cancel();
+    super.dispose();
+  }
 
   @override
   Future<BleState> processState() async {
@@ -57,13 +66,5 @@ class ConnectedState extends NormalBleState {
     await _adapterSub?.cancel();
 
     return nextState;
-  }
-
-  @override
-  void dispose() {
-    logger.d('Descartando ConnectedState');
-    _pistolSub?.cancel();
-    _adapterSub?.cancel();
-    super.dispose();
   }
 }

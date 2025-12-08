@@ -11,6 +11,7 @@ import 'package:smart_stock/app/ui/_core/widgets/custom_card.dart';
 import 'package:smart_stock/app/ui/encoding/logic/current_writing_provider.dart';
 import 'package:smart_stock/app/ui/encoding/process/logic/writing_feedback_ble_listener_provider.dart';
 import 'package:smart_stock/app/ui/encoding/setup/encoding_setup_page.dart';
+import 'package:smart_stock/app/utils/logger.dart';
 
 @RoutePage()
 class EncondingProcessPage extends HookConsumerWidget {
@@ -42,9 +43,13 @@ class EncondingProcessPage extends HookConsumerWidget {
         canPop: true,
         onPopInvokedWithResult: (didPop, result) async {
           if (didPop) {
-            ref
-                .read(bleConnectionProvider.select((state) => state.currentState.manager))
-                .enterOnReadMode();
+            try {
+              ref
+                  .read(bleConnectionProvider.select((state) => state.currentState.manager))
+                  .enterOnReadMode();
+            } catch (err) {
+              logger.e('Erro ao entrar em readMode');
+            }
           }
         },
         child: SafeArea(

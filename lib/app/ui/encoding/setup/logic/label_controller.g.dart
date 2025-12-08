@@ -41,7 +41,7 @@ final class LabelControllerProvider
   }
 }
 
-String _$labelControllerHash() => r'57958a03c9d032a1d1b6a0d4a252206cb926c924';
+String _$labelControllerHash() => r'5ab00307e61584520e332e61cb4528342a1c53f5';
 
 abstract class _$LabelController extends $Notifier<AsyncValue<void>> {
   AsyncValue<void> build();

@@ -22,7 +22,6 @@ class LabelController extends _$LabelController {
         bleConnectionProvider.select((state) => state.currentState.manager),
       );
       await bleManager.writeCharacteristic(
-        bleManager.connectedPistol,
         mode == WritingMode.RESET ? emptyTagOEM : (productOem ?? ''),
       );
 

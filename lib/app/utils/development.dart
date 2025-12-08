@@ -9,7 +9,7 @@ Future<void> clearSharedPreferences() async {
   }
 
   await CurrentUserStorage.deleteValue();
-  await TokenStorage.deleteToken();
+  await TokenStorage.deleteTokens();
   await FirstTimeOnAppStorage.$deleteValue();
   await SavedLoginsStorage.$deleteValues();
   await CurrentSessionTimestampProvider.$deleteValue();

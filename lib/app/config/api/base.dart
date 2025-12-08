@@ -1,72 +1,49 @@
-import 'dart:convert';
-import 'dart:io';
-import 'package:http/http.dart' as http;
+// ignore_for_file: avoid_classes_with_only_static_members, non_constant_identifier_names
+
+import 'package:dio/dio.dart' as dio;
+import 'package:smart_stock/app/config/api/_middleware.dart';
 import 'package:smart_stock/app/config/env.dart';
-import 'package:smart_stock/app/config/exceptions.dart';
-import 'package:smart_stock/app/config/token_storage.dart';
 import 'package:smart_stock/app/utils/internet.dart';
+import 'package:smart_stock/app/utils/logger.dart';
 
-// ignore: avoid_classes_with_only_static_members
+final _apiInstance = dio.Dio();
+
 class APIConnector {
-  static final String baseUrl = Enviroment.backendBaseURL()!;
-  static const defaultHeaders = {'Content-Type': 'application/json', 'Accept': 'application/json'};
+  static final baseUrl = Enviroment.backendBaseURL()!;
+  static const defaultHeaders = {
+    dio.Headers.contentTypeHeader: 'application/json',
+    dio.Headers.acceptHeader: 'application/json',
+  };
 
-  /// Generic GET
-  static Future<http.Response> get(String endpoint) async {
+  static Future<dio.Response> fetch(
+    String endpoint, {
+    required HTTPVerb method,
+    dynamic body,
+  }) async {
+    _apiInstance.interceptors.add(AuthorizationInterceptor());
+
     await checkIfHasInternet();
 
-    final url = Uri.parse('$baseUrl/$endpoint');
     try {
-      final response = await http.get(url, headers: defaultHeaders);
+      final url = Uri.parse('$baseUrl/$endpoint').toString();
 
-      await _validateResponse(response, endpoint);
-      return response;
-    } catch (e) {
-      throw InternalSystemException('Error in BaseAPI GET [$endpoint]: $e');
-    }
-  }
-
-  /// Generic POST -> TODO: tipar esse dynamic melhor
-  static Future<http.Response> post(String endpoint, dynamic body) async {
-    await checkIfHasInternet();
-
-    final url = Uri.parse('$baseUrl/$endpoint');
-    try {
-      final response = await http.post(url, headers: defaultHeaders, body: jsonEncode(body));
-
-      await _validateResponse(response, endpoint);
-      return response;
-    } catch (e) {
-      throw InternalSystemException('Error in BaseAPI POST [$endpoint]: $e');
-    }
-  }
-
-  /// Generic PUT
-  static Future<http.Response> put(String endpoint, Map<String, dynamic> body) async {
-    await checkIfHasInternet();
-
-    final url = Uri.parse('$baseUrl/$endpoint');
-    try {
-      final response = await http.put(url, headers: defaultHeaders, body: jsonEncode(body));
-
-      await _validateResponse(response, endpoint);
-      return response;
-    } catch (e) {
-      throw InternalSystemException('Error in BaseAPI PUT [$endpoint]: $e');
-    }
-  }
-
-  /// Validates HTTP responses
-  static Future<void> _validateResponse(http.Response response, String endpoint) async {
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      return;
-    } else {
-      if (response.statusCode == 401) {
-        await TokenStorage.deleteToken();
-      }
-      throw HttpException(
-        'Request to [$endpoint] failed: ${response.statusCode} - ${response.body}',
+      final response = await _apiInstance.fetch(
+        dio.RequestOptions(path: url, data: body, headers: defaultHeaders, method: method.value),
       );
+
+      return response;
+    } catch (e) {
+      logger.e('APIConnector error: $e');
+      rethrow;
     }
   }
+}
+
+enum HTTPVerb {
+  GET('GET'),
+  POST('POST'),
+  PUT('PUT');
+
+  final String value;
+  const HTTPVerb(this.value);
 }
