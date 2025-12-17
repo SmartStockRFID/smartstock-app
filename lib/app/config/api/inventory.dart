@@ -4,9 +4,9 @@ import 'package:smart_stock/app/config/api/base.dart';
 class InventoryAPI {
   final String baseUrl = 'conferencia';
 
-  static Future<dio.Response> finishInventory(int inventoryId) async {
-    return APIConnector.fetch('conferencia/$inventoryId/encerrar', method: HTTPVerb.PUT);
-  }
+  // static Future<dio.Response> finishInventory(int inventoryId) async {
+  //   return APIConnector.fetch('conferencia/$inventoryId/encerrar', method: HTTPVerb.PUT);
+  // }
 
   static Future<dio.Response> getActiveInventory() async {
     return APIConnector.fetch('conferencia-ativa', method: HTTPVerb.GET);

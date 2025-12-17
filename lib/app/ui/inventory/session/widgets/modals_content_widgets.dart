@@ -32,6 +32,7 @@ class TimeInfo extends ConsumerWidget with TimeInfoState {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final inventory = currentInventory(ref);
+    final syncedAt = lastSyncedAt(ref);
 
     return Row(
       spacing: 8,
@@ -42,12 +43,12 @@ class TimeInfo extends ConsumerWidget with TimeInfoState {
           inventory != null
               ? TextSpan(
                   children: [
-                    if (inventory.id == null)
+                    if (inventory.id == null || syncedAt == null)
                       const TextSpan(text: 'Iniciado local às ')
                     else
                       const TextSpan(text: 'Sincronizado às '),
                     TextSpan(
-                      text: formatTimestamp(inventory.createdAt.toLocal()),
+                      text: formatTimestamp((syncedAt ?? inventory.createdAt).toLocal()),
                       style: context.theme.typography.xl.copyWith(
                         fontWeight: FontWeight.bold,
                         color: const Color.fromARGB(255, 130, 130, 130),
@@ -75,6 +76,8 @@ class TimeInfo extends ConsumerWidget with TimeInfoState {
 mixin class TimeInfoState {
   InventorySummary? currentInventory(WidgetRef ref) =>
       ref.watch(inventoryManagerProvider.select((state) => state.currentInventory));
+  DateTime? lastSyncedAt(WidgetRef ref) =>
+      ref.watch(inventoryManagerProvider.select((state) => state.lastSyncedAt));
 }
 
 class _ScoreboardItem extends StatelessWidget {
