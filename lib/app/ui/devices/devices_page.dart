@@ -48,7 +48,7 @@ class DevicesList extends HookConsumerWidget with DevicesState {
 
     return BaseList(
       isLoading: false,
-      emptyMessage: 'Nenhuma pistola em alcance',
+      emptyMessage: 'Nenhum leitor em alcance',
       data: devices.value,
       itemBuilder: (device) {
         final alreadyConnected = device.isConnected;
@@ -132,7 +132,7 @@ class DevicesPage extends HookConsumerWidget with DevicesState {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      appBar: baseAppBar(title: 'Pistolas'),
+      appBar: baseAppBar(title: 'Leitores'),
       backgroundColor: Colors.white,
       body: ToastRunner(child: DevicesList()),
     );

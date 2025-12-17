@@ -163,7 +163,7 @@ class _CurrentItem extends HookConsumerWidget {
                     ),
                   ),
                   Text(
-                    'UNIDADE REGISTRADA${lastReading.tagCount == 1 ? '' : 'S'}',
+                    'UNIDADE${lastReading.tagCount == 1 ? '' : 'S'} REGISTRADA${lastReading.tagCount == 1 ? '' : 'S'}',
                     style: context.theme.typography.sm.copyWith(letterSpacing: 2),
                   ),
                 ],

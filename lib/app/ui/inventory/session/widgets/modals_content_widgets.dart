@@ -45,7 +45,7 @@ class TimeInfo extends ConsumerWidget with TimeInfoState {
                     if (inventory.id == null)
                       const TextSpan(text: 'Iniciado local às ')
                     else
-                      const TextSpan(text: 'Iniciado às '),
+                      const TextSpan(text: 'Sincronizado às '),
                     TextSpan(
                       text: formatTimestamp(inventory.createdAt.toLocal()),
                       style: context.theme.typography.xl.copyWith(

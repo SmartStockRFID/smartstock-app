@@ -1,4 +1,3 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
@@ -13,11 +12,39 @@ import 'package:smart_stock/app/bluetooth/permission_denied_state.dart';
 import 'package:smart_stock/app/bluetooth/scan_state.dart';
 import 'package:smart_stock/app/config/assets.dart';
 import 'package:smart_stock/app/domain/stock.dart';
-import 'package:smart_stock/app/routing/router.dart';
 import 'package:smart_stock/app/ui/_core/providers/ble_connection_provider.dart';
 import 'package:smart_stock/app/ui/_core/providers/stock_provider.dart';
+import 'package:smart_stock/app/ui/_core/theme/custom_forui.dart';
 import 'package:smart_stock/app/ui/_core/widgets/custom_card.dart';
 import 'package:smart_stock/app/ui/_core/widgets/update_stock_btn.dart';
+
+class ModalContent extends ConsumerWidget {
+  final Widget child;
+
+  const ModalContent({required this.child, super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) => Scaffold(
+    body: FToaster(
+      child: Container(
+        height: double.infinity,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: context.theme.colors.background,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(12),
+            topRight: Radius.circular(12),
+          ),
+          border: Border.symmetric(vertical: BorderSide(color: context.theme.colors.border)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8.0),
+          child: SafeArea(child: child),
+        ),
+      ),
+    ),
+  );
+}
 
 enum StatusColors {
   OK(Colors.green),
@@ -39,20 +66,64 @@ class StatusPanelWidget extends ConsumerWidget {
     final stockState = ref.watch(stockProvider);
 
     final bleStatusColor = _getBleStatusColor(bleState);
-    final stockStatusColor = _getStockStatusColor(
-      stockState,
-      ref.watch(stockProvider.notifier).updatedAt,
-    );
+    final lastStockUpdate = ref.watch(stockProvider.notifier).updatedAt;
+    final stockStatusColor = _getStockStatusColor(stockState, lastStockUpdate);
+
+    final stockFresh = lastStockUpdate != null && isStockFresh(lastStockUpdate);
 
     final typography = context.theme.typography;
 
     return InkWell(
       onTap: () {
-        context.router.push(const DevicesRoute());
+        showFSheet(
+          context: context,
+          builder: (BuildContext context) {
+            return ModalContent(
+              child: Column(
+                children: [
+                  Text(
+                    'Status da conexão',
+                    style: context.theme.typography.xl2.copyWith(fontWeight: FontWeight.w600),
+                  ),
+                  ListTile(
+                    leading: CircleAvatar(
+                      backgroundColor: Colors.grey[200],
+                      child: SvgPicture.asset(Assets.scannerIcon, height: 28, color: Colors.black),
+                    ),
+                  ),
+                  ListTile(
+                    leading: CircleAvatar(
+                      backgroundColor: Colors.grey[200],
+                      child: SvgPicture.asset(Assets.stockIcon, height: 26, color: Colors.black),
+                    ),
+                  ),
+                  FButton(
+                    style: createLargeStyle(
+                      context: context,
+                      backgroundColor: Colors.green,
+                      foregroundColor: Colors.lightGreen,
+                    ),
+                    onPress: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Text(
+                      'VOLTAR',
+                      style: context.theme.typography.xl2.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+          side: FLayout.btt,
+        );
+        // context.router.push(const DevicesRoute());
       },
       child: CustomCard(
         child: Column(
-          spacing: 20,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -76,7 +147,12 @@ class StatusPanelWidget extends ConsumerWidget {
                 ),
               ],
             ),
-            UpdateStockButton(),
+            if (stockFresh)
+              const Center()
+            else ...[
+              const SizedBox(height: 20),
+              UpdateStockButton(),
+            ],
           ],
         ),
       ),

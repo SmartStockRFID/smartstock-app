@@ -35,7 +35,7 @@ class FinishButton extends ConsumerWidget with InventoryModalInterruptState {
         finishInventoryMutation.run(ref, finishInventoryRun(context, ref));
       },
       child: Text(
-        finishState(ref) is MutationPending ? 'CONCLUINDO...' : 'CONCLUIR INVENTÁRIO',
+        finishState(ref) is MutationPending ? 'CONCLUINDO...' : 'SINCRONIZAR',
         style: context.theme.typography.xl.copyWith(
           color: Colors.white,
           fontWeight: FontWeight.bold,
@@ -52,7 +52,7 @@ class InventoryModalFinish extends ConsumerWidget
     final bool btnDisabled = finishState(ref) is MutationSuccess || currentInventory(ref) == null;
 
     return IconButton(
-      icon: Icon(Icons.stop, size: 32, color: btnDisabled ? Colors.grey : Colors.white),
+      icon: Icon(FIcons.rss, size: 24, color: btnDisabled ? Colors.grey : Colors.white),
       onPressed: () {
         if (btnDisabled) {
           return;
@@ -74,7 +74,7 @@ class InventoryModalFinish extends ConsumerWidget
                   Column(
                     children: [
                       Text(
-                        'Concluir o inventário?',
+                        'Sincronizar o inventário?',
                         style: context.theme.typography.xl2.copyWith(fontWeight: FontWeight.bold),
                       ),
                       TimeInfo(),

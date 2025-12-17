@@ -9,6 +9,7 @@ import 'package:smart_stock/app/config/preferences_manager.dart';
 import 'package:smart_stock/app/config/token_storage.dart';
 import 'package:smart_stock/app/routing/router.dart';
 import 'package:smart_stock/app/ui/_core/widgets/loading_widget.dart';
+import 'package:smart_stock/app/ui/shell/widgets/firmware_update_widgert.dart';
 
 final currentSessionProvider =
     FutureProvider.autoDispose<({String? username, DateTime? timestamp})>((ref) async {
@@ -64,6 +65,13 @@ class MainDrawer extends ConsumerWidget {
                   : null,
               child: currentSession.isLoading ? const LoadingWidget() : null,
             ),
+          ),
+          ListTile(
+            leading: const Icon(FIcons.cpu),
+            title: const Text('Atualizar leitor'),
+            onTap: () async {
+              showFirmwareUpdateModal(context);
+            },
           ),
           ListTile(
             leading: const Icon(FIcons.logOut),

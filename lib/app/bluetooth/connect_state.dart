@@ -40,7 +40,7 @@ class ConnectState extends RetryState {
     });
 
     try {
-      await device.connect(autoConnect: false, timeout: const Duration(seconds: 15), mtu: 247);
+      await device.connect(autoConnect: false, timeout: const Duration(seconds: 15));
       if (device.isConnected && !promise.isCompleted) {
         logger.d('Dispositivo conectado com sucesso.');
         manager.connectedPistol = device;

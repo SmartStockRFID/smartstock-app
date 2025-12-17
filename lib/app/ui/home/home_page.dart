@@ -121,7 +121,7 @@ class NavLink extends ConsumerWidget {
             alignment: FToastAlignment.topCenter,
             duration: const Duration(seconds: 1),
             title: const Text(
-              'Aguardando conexão com a pistola',
+              'Aguardando conexão com o leitor',
               style: TextStyle(color: Colors.blue),
             ),
             icon: const Icon(FIcons.bluetooth, color: Colors.blue),
