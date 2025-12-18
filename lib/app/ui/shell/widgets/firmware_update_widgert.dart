@@ -118,91 +118,86 @@ class FirmwareUpdateModal extends HookConsumerWidget {
         const SizedBox(height: 18),
         firmwareVersionsQuery.when(
           data: (latestVersion) {
-            if (true) {
-              if (false) {
+            if (currentFirmwareVersion.value != null) {
+              if (awaitingBleConnection.value) {
                 return loadingWidget('Aguardando resposta do leitor');
               } else if (latestVersion == null) {
                 return errorWidget(
                   'Comunicação falhou',
                   'O servidor não conseguiu responder qual é a versão mais recente do firmware',
                 );
-              } else if (true) {
-                if (true) {
-                  return Column(
-                    children: [
-                      ...(true
-                          ? [
-                              Text(
-                                'Atualizando para ${latestVersion.version}...',
-                                style: context.theme.typography.base.copyWith(color: Colors.black),
-                              ),
-                              const SizedBox(height: 12),
-                              Text(
-                                'Por favor, não feche o aplicativo ou desligue o leitor até a atualização terminar',
-                                style: context.theme.typography.xs.copyWith(color: Colors.black54),
-                              ),
-                              const SizedBox(height: 24),
+              } else if (latestVersion.version > currentFirmwareVersion.value) {
+                // Todo: Cara, nao sei se essa logica das condiiconais ta correta nao, melhor revisar
+                return Column(
+                  children: [
+                    ...(updateFirmwareState is MutationPending
+                        ? [
+                            Text(
+                              'Atualizando para ${latestVersion.version}...',
+                              style: context.theme.typography.base.copyWith(color: Colors.black),
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              'Por favor, não feche o aplicativo ou desligue o leitor até a atualização terminar',
+                              style: context.theme.typography.xs.copyWith(color: Colors.black54),
+                            ),
+                            const SizedBox(height: 24),
 
-                              const FProgress(),
-                            ]
-                          : [
-                              Text(
-                                'Update para ${latestVersion.version} disponível!',
-                                style: context.theme.typography.base.copyWith(color: Colors.black),
-                              ),
-                              Text(
-                                latestVersion.releaseNotes,
-                                style: context.theme.typography.sm.copyWith(color: Colors.black54),
-                              ),
-                            ]),
-                      const SizedBox(height: 24),
-                      // FButton(
-                      //   onPress: () {
-                      //     if (updateFirmwareState is MutationPending) {
-                      //       return;
-                      //     }
-                      //     updateFirmwareMutation.run(ref, (tsx) async {
-                      //       await ref
-                      //           .read(bleConnectionProvider)
-                      //           .currentState
-                      //           .manager
-                      //           .upgrade(latestVersion.url);
-                      //       if (context.mounted) {
-                      //         context.pop();
-                      //       }
-                      //     });
-                      //   },
-                      //   style: primaryLargeButton(
-                      //     context,
-                      //     disabled: updateFirmwareState is MutationPending,
-                      //   ),
-                      //   child: updateFirmwareState is MutationPending
-                      //       ? Text(
-                      //           'ATUALIZANDO...',
-                      //           style: context.theme.typography.xl.copyWith(
-                      //             fontWeight: FontWeight.bold,
-                      //             color: Colors.white,
-                      //           ),
-                      //         )
-                      //       : Text(
-                      //           'ATUALIZAR',
-                      //           style: context.theme.typography.xl.copyWith(
-                      //             fontWeight: FontWeight.bold,
-                      //             color: Colors.white,
-                      //           ),
-                      //         ),
-                      // ),
-                    ],
-                  );
-                }
+                            const FProgress(),
+                          ]
+                        : [
+                            Text(
+                              'Update para ${latestVersion.version} disponível!',
+                              style: context.theme.typography.base.copyWith(color: Colors.black),
+                            ),
+                            Text(
+                              latestVersion.releaseNotes,
+                              style: context.theme.typography.sm.copyWith(color: Colors.black54),
+                            ),
+                          ]),
+                    const SizedBox(height: 24),
+                    // FButton(
+                    //   onPress: () {
+                    //     if (updateFirmwareState is MutationPending) {
+                    //       return;
+                    //     }
+                    //     updateFirmwareMutation.run(ref, (tsx) async {
+                    //       await ref
+                    //           .read(bleConnectionProvider)
+                    //           .currentState
+                    //           .manager
+                    //           .upgrade(latestVersion.url);
+                    //       if (context.mounted) {
+                    //         context.pop();
+                    //       }
+                    //     });
+                    //   },
+                    //   style: primaryLargeButton(
+                    //     context,
+                    //     disabled: updateFirmwareState is MutationPending,
+                    //   ),
+                    //   child: updateFirmwareState is MutationPending
+                    //       ? Text(
+                    //           'ATUALIZANDO...',
+                    //           style: context.theme.typography.xl.copyWith(
+                    //             fontWeight: FontWeight.bold,
+                    //             color: Colors.white,
+                    //           ),
+                    //         )
+                    //       : Text(
+                    //           'ATUALIZAR',
+                    //           style: context.theme.typography.xl.copyWith(
+                    //             fontWeight: FontWeight.bold,
+                    //             color: Colors.white,
+                    //           ),
+                    //         ),
+                    // ),
+                  ],
+                );
+              } else {
                 return Text(
                   'Firmware já na última versão ${currentFirmwareVersion.value}',
                   style: context.theme.typography.base.copyWith(color: Colors.blue[600]),
-                );
-              } else {
-                return errorWidget(
-                  'Comunicação falhou',
-                  'Não foi possível obter a versão atual do firmware do leitor',
                 );
               }
             }
