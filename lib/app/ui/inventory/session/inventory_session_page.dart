@@ -1,9 +1,10 @@
+import 'dart:async';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:hooks_riverpod/experimental/mutation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:smart_stock/app/domain/entities/part_entity.dart';
@@ -13,13 +14,17 @@ import 'package:smart_stock/app/ui/_core/providers/inventory_provider.dart';
 import 'package:smart_stock/app/ui/_core/providers/stock_provider.dart';
 import 'package:smart_stock/app/ui/_core/widgets/app_bar.dart';
 import 'package:smart_stock/app/ui/_core/widgets/custom_card.dart';
-import 'package:smart_stock/app/ui/inventory/session/logic/finish_inventory_mutation.dart';
 import 'package:smart_stock/app/ui/inventory/session/logic/inventory_ble_listener_provider.dart';
 import 'package:smart_stock/app/ui/inventory/session/widgets/inventory_modals_widgets.dart';
+import 'package:smart_stock/app/utils/logger.dart';
 
 class InventorySessionInterface extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    Timer.periodic(const Duration(minutes: 1), (timer) {
+      logger.i('Sincronização automática feita!');
+      ref.read(inventoryManagerProvider.notifier).syncInventory();
+    });
     ref.watch(inventoryBleListenerProvider);
     return Padding(
       padding: const EdgeInsets.all(12.0),
@@ -54,7 +59,6 @@ class InventorySessionPage extends ConsumerStatefulWidget {
 }
 
 mixin class InventorySessionState {
-  bool hasEnded(WidgetRef ref) => ref.watch(finishInventoryMutation) is MutationSuccess;
   int? inventoryId(WidgetRef ref) =>
       ref.watch(inventoryManagerProvider.select((state) => state.currentInventory?.id));
 
@@ -107,6 +111,7 @@ class _CurrentItem extends HookConsumerWidget {
     ProductReadings lastReading,
   ) {
     final theme = Theme.of(context);
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -163,7 +168,7 @@ class _CurrentItem extends HookConsumerWidget {
                     ),
                   ),
                   Text(
-                    'UNIDADE REGISTRADA${lastReading.tagCount == 1 ? '' : 'S'}',
+                    'UNIDADE${lastReading.tagCount == 1 ? '' : 'S'} REGISTRADA${lastReading.tagCount == 1 ? '' : 'S'}',
                     style: context.theme.typography.sm.copyWith(letterSpacing: 2),
                   ),
                 ],
@@ -192,8 +197,6 @@ class _InventorySessionPageState extends ConsumerState<InventorySessionPage>
             Text('Inventário ${inventoryId(ref) ?? 'local'}'),
             if (isPaused(ref))
               const Icon(Icons.circle, color: Colors.grey, size: 12)
-            else if (hasEnded(ref))
-              const Icon(Icons.circle, color: Colors.blue, size: 12)
             else
               FadeTransition(
                 opacity: _animationController,

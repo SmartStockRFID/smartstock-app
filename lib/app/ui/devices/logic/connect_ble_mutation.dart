@@ -29,7 +29,7 @@ Future<void> Function(MutationTransaction tsx) connectBleRun(
     if (!pistol.isConnected && context.mounted) {
       showFToast(
         context: context,
-        title: const Text('Erro ao se conectar com a pistola', style: TextStyle(color: Colors.red)),
+        title: const Text('Erro ao se conectar com o leitor', style: TextStyle(color: Colors.red)),
         icon: const Icon(FIcons.circleX, color: Colors.red),
       );
     }

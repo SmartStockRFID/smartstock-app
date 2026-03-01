@@ -79,25 +79,6 @@ class InventoryManager extends _$InventoryManager {
     return const InventoryManagerState();
   }
 
-  Future<void> finishInventory() async {
-    await checkIfHasInternet();
-    InventorySummary targetInventory;
-
-    if (state.currentInventory?.id != null) {
-      targetInventory = state.currentInventory!;
-    } else {
-      final inventoryRepo = injector.get<InventoryRepository>();
-      targetInventory =
-          await inventoryRepo.getActiveInventory() ?? await inventoryRepo.initInventory();
-      if (targetInventory.id == null) {
-        throw const InternalSystemException("This shoudln't be reached");
-      }
-    }
-
-    await injector.get<InventoryRepository>().postReadings(targetInventory.id!, state.readings);
-    await injector.get<InventoryRepository>().finishInventory(targetInventory.id!);
-  }
-
   Future<void> initOfflineInventory() async {
     final currentUser = await CurrentUserStorage.getValue();
     if (currentUser == null) {
@@ -146,6 +127,34 @@ class InventoryManager extends _$InventoryManager {
       ref.read(bleConnectionProvider).currentState.manager.enterOnReadMode(),
     ]);
   }
+
+  Future<void> syncInventory() async {
+    await checkIfHasInternet();
+    InventorySummary targetInventory;
+
+    if (state.currentInventory?.id != null) {
+      targetInventory = state.currentInventory!;
+    } else {
+      final inventoryRepo = injector.get<InventoryRepository>();
+      targetInventory =
+          await inventoryRepo.getActiveInventory() ?? await inventoryRepo.initInventory();
+      if (targetInventory.id == null) {
+        throw const InternalSystemException("This shoudln't be reached");
+      }
+    }
+
+    final notSyncedReadings = [...state.readings];
+
+    for (int i = 0; i < notSyncedReadings.length; i++) {
+      final readings = notSyncedReadings[i].readTags
+          .where((tag) => !state.syncedTags.contains(tag.tagUid))
+          .toList();
+      notSyncedReadings[i] = notSyncedReadings[i].copyWith(readTags: readings);
+    }
+
+    await injector.get<InventoryRepository>().postReadings(targetInventory.id!, notSyncedReadings);
+    state = state.copyWith(lastSyncedAt: DateTime.now());
+  }
 }
 
 @JsonSerializable()
@@ -155,12 +164,16 @@ class InventoryManagerState {
   final List<ProductReadings> readings;
   final ProductReadings? lastAddedProductReading;
   final bool isPaused;
+  final List<String> syncedTags;
+  final DateTime? lastSyncedAt;
 
   const InventoryManagerState({
     this.currentInventory,
     this.readings = const [],
     this.isPaused = false,
+    this.syncedTags = const [],
     this.lastAddedProductReading,
+    this.lastSyncedAt,
   });
 
   factory InventoryManagerState.fromJson(Map<String, dynamic> json) =>
@@ -173,12 +186,16 @@ class InventoryManagerState {
     List<ProductReadings>? readings,
     bool? isPaused,
     ProductReadings? lastAddedProductReading,
+    List<String>? syncedTags,
+    DateTime? lastSyncedAt,
   }) {
     return InventoryManagerState(
       currentInventory: currentInventory ?? this.currentInventory,
       readings: readings ?? this.readings,
       isPaused: isPaused ?? this.isPaused,
       lastAddedProductReading: lastAddedProductReading ?? this.lastAddedProductReading,
+      syncedTags: syncedTags ?? this.syncedTags,
+      lastSyncedAt: lastSyncedAt ?? this.lastSyncedAt,
     );
   }
 

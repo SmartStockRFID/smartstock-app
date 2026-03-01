@@ -5,7 +5,7 @@ import 'package:forui/forui.dart';
 import 'package:smart_stock/app/domain/entities/inventory_entity.dart';
 import 'package:smart_stock/app/ui/_core/providers/inventory_provider.dart';
 import 'package:smart_stock/app/ui/_core/theme/custom_forui.dart';
-import 'package:smart_stock/app/ui/inventory/session/logic/finish_inventory_mutation.dart';
+import 'package:smart_stock/app/ui/inventory/session/logic/sync_inventory_mutation.dart';
 import 'package:smart_stock/app/ui/inventory/session/widgets/modals_content_widgets.dart';
 import 'package:smart_stock/app/utils/fortunes.dart';
 
@@ -32,10 +32,10 @@ class FinishButton extends ConsumerWidget with InventoryModalInterruptState {
           return;
         }
 
-        finishInventoryMutation.run(ref, finishInventoryRun(context, ref));
+        syncInventoryMutation.run(ref, finishInventoryRun(context, ref));
       },
       child: Text(
-        finishState(ref) is MutationPending ? 'CONCLUINDO...' : 'CONCLUIR INVENTÁRIO',
+        finishState(ref) is MutationPending ? 'SINCRONIZANDO...' : 'SINCRONIZAR',
         style: context.theme.typography.xl.copyWith(
           color: Colors.white,
           fontWeight: FontWeight.bold,
@@ -49,10 +49,10 @@ class InventoryModalFinish extends ConsumerWidget
     with InventoryModalInterruptState, InventoryModalInterruptEvent {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final bool btnDisabled = finishState(ref) is MutationSuccess || currentInventory(ref) == null;
+    final bool btnDisabled = currentInventory(ref) == null;
 
     return IconButton(
-      icon: Icon(Icons.stop, size: 32, color: btnDisabled ? Colors.grey : Colors.white),
+      icon: Icon(FIcons.rss, size: 24, color: btnDisabled ? Colors.grey : Colors.white),
       onPressed: () {
         if (btnDisabled) {
           return;
@@ -74,7 +74,7 @@ class InventoryModalFinish extends ConsumerWidget
                   Column(
                     children: [
                       Text(
-                        'Concluir o inventário?',
+                        'Sincronizar o inventário?',
                         style: context.theme.typography.xl2.copyWith(fontWeight: FontWeight.bold),
                       ),
                       TimeInfo(),
@@ -134,28 +134,18 @@ mixin class InventoryModalInterruptState {
   InventorySummary? currentInventory(WidgetRef ref) =>
       ref.watch(inventoryManagerProvider.select((state) => state.currentInventory));
 
-  MutationState finishState(WidgetRef ref) => ref.watch(finishInventoryMutation);
+  MutationState finishState(WidgetRef ref) => ref.watch(syncInventoryMutation);
 }
 
 class InventoryModalPaused extends ConsumerWidget
     with InventoryModalInterruptState, InventoryModalInterruptEvent {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final bool btnDisabled = finishState(ref) is! MutationIdle;
-
     return FButton(
       style: secondaryLargeButton(context),
-      prefix: Icon(FIcons.pause, size: 20, color: btnDisabled ? Colors.grey : Colors.black),
-      child: Text(
-        'PAUSAR',
-        style: context.theme.typography.xl2.copyWith(
-          color: btnDisabled ? Colors.grey : Colors.black,
-        ),
-      ),
+      prefix: const Icon(FIcons.pause, size: 20, color: Colors.black),
+      child: Text('PAUSAR', style: context.theme.typography.xl2.copyWith(color: Colors.black)),
       onPress: () {
-        if (btnDisabled) {
-          return;
-        }
         pauseInventory(ref);
         showFSheet(
           barrierDismissible: false,

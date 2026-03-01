@@ -10,10 +10,10 @@ import 'package:smart_stock/app/domain/interfaces/inventory_interfaces.dart';
 import 'package:smart_stock/app/utils/json.dart';
 
 class InventoryRepositoryImpl implements InventoryRepository {
-  @override
-  Future<void> finishInventory(int inventoryId) async {
-    await InventoryAPI.finishInventory(inventoryId);
-  }
+  // @override
+  // Future<void> finishInventory(int inventoryId) async {
+  //   await InventoryAPI.finishInventory(inventoryId);
+  // }
 
   @override
   Future<InventorySummary?> getActiveInventory() async {

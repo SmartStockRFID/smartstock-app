@@ -41,7 +41,7 @@ final class WritingManagerProvider
   }
 }
 
-String _$writingManagerHash() => r'49ffdc03fa7db2d8cbac73eff530380d460c3ee1';
+String _$writingManagerHash() => r'68e3022c49c153139648972b7274a917bbe748d6';
 
 abstract class _$WritingManager extends $Notifier<WritingManagerState> {
   WritingManagerState build();

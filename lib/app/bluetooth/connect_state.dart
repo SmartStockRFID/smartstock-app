@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:smart_stock/app/bluetooth/base_ble_state.dart';
 import 'package:smart_stock/app/bluetooth/bluetooth_off_state.dart';
@@ -11,6 +12,12 @@ class ConnectState extends RetryState {
   StreamSubscription<BluetoothAdapterState>? _adapterStateSubscription;
 
   ConnectState({required super.manager}) : super(origin: ErrorOrigin.connect);
+
+  @override
+  void dispose() {
+    _adapterStateSubscription?.cancel();
+    super.dispose();
+  }
 
   @override
   Future<BleState> processState() async {
@@ -50,11 +57,5 @@ class ConnectState extends RetryState {
     }
 
     return promise.future;
-  }
-
-  @override
-  void dispose() {
-    _adapterStateSubscription?.cancel();
-    super.dispose();
   }
 }

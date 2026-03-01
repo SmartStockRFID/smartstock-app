@@ -168,7 +168,7 @@ class _ConnectionChecker extends ConsumerWidget {
       child: Column(
         spacing: 12,
         children: [
-          _StatusItem(isReady: bleState is ConnectedState, text: 'Pistola conectada'),
+          _StatusItem(isReady: bleState is ConnectedState, text: 'Leitor conectado'),
           stockState.when(
             data: (_) => _StatusItem(
               isReady: true,
