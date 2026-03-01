@@ -4,120 +4,130 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:smart_stock/app/bluetooth/connnected_state.dart';
 import 'package:smart_stock/app/routing/router.dart';
-import 'package:smart_stock/app/ui/home/ble_status_widget.dart';
-import 'package:smart_stock/app/ui/home/stock_status_widget.dart';
-import 'package:smart_stock/app/ui/providers/ble_connection_provider.dart';
-import 'package:smart_stock/app/ui/shared/app_bar.dart';
+import 'package:smart_stock/app/ui/_core/providers/ble_connection_provider.dart';
+import 'package:smart_stock/app/ui/_core/providers/inventory_provider.dart';
+import 'package:smart_stock/app/ui/_core/providers/stock_provider.dart';
+import 'package:smart_stock/app/ui/_core/theme/custom_forui.dart';
+import 'package:smart_stock/app/ui/home/widgets/status_panel_widget.dart';
+import 'package:smart_stock/app/utils/internet.dart';
 
 @RoutePage()
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
-
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
+class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        appBar: baseAppBar(title: 'Página inicial'),
-        backgroundColor: Colors.white,
-        body: const Column(
+    return const Column(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Center(child: StatusPanelWidget()),
+        Navbar(),
+      ],
+    );
+  }
+}
+
+class Navbar extends ConsumerWidget {
+  const Navbar({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final bool hasActiveInventory =
+        ref.watch(inventoryManagerProvider.select((state) => state.currentInventory)) != null;
+
+    return Column(
+      spacing: 12,
+      children: [
+        NavLink(
+          icon: FIcons.clipboardCheck,
+          title: routesTitles[InventoryCheckRoute.name] ?? '',
+          badgeLabel: hasActiveInventory ? 'ABERTO' : null,
+          href: hasActiveInventory ? const InventorySessionRoute() : const InventoryCheckRoute(),
+        ),
+        NavLink(
+          icon: FIcons.squarePen,
+          title: routesTitles[EncodingSetupRoute.name] ?? '',
+          href: const EncodingSetupRoute(),
+        ),
+      ],
+    );
+  }
+}
+
+class NavLink extends ConsumerWidget {
+  final IconData icon;
+
+  final String title;
+  final PageRouteInfo href;
+  final String? badgeLabel;
+  const NavLink({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.href,
+    this.badgeLabel,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currentBleState = ref.watch(bleConnectionProvider.select((state) => state.currentState));
+    final stockState = ref.watch(stockProvider);
+    final isConnected = currentBleState is ConnectedState && stockState.hasValue;
+
+    return FButton(
+      style: primaryLargeButton(context, disabled: !isConnected),
+      prefix: Icon(icon, size: 20, color: Colors.white),
+      child: Expanded(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [BleStatusWidget()],
+            Text(
+              title,
+              style: context.theme.typography.xl2.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.w700,
               ),
             ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8.0),
-              child: Column(
-                spacing: 8,
-                children: [
-                  ConferenceButton(),
-                  LabelingButton(),
-                  ResetButton(),
-                  ConferencesHistory(),
-                ],
-              ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.end,
+              spacing: 2,
+              children: [
+                if (badgeLabel != null)
+                  FBadge(
+                    style: FBadgeStyle.secondary(),
+                    child: const Text('ABERTO', style: TextStyle(fontWeight: FontWeight.bold)),
+                  )
+                else
+                  const Center(),
+                const Icon(FIcons.chevronRight, size: 20, color: Colors.white),
+              ],
             ),
-            Center(child: StockStatusWidget()),
           ],
         ),
       ),
-    );
-  }
-}
-
-class ConferenceButton extends ConsumerWidget {
-  const ConferenceButton({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final pistolConnection = ref.watch(bleConnectionProvider);
-    bool isConnected() => pistolConnection.fsm.currentState is ConnectedState;
-    return FButton(
-      prefix: const Icon(FIcons.scanText, size: 16, color: Colors.white),
-      child: const Text('Leitura'),
-      onPress: () {
-        if (isConnected()) {
-          context.router.push(const ConferenceConfirmationRoute());
+      onPress: () async {
+        if (isConnected) {
+          AutoTabsRouter.of(context).navigate(href);
+        } else if (await appIsOffline() && stockState.hasError && context.mounted) {
+          showFToast(
+            context: context,
+            alignment: FToastAlignment.topCenter,
+            title: const Text('Produtos não carregados', style: TextStyle(color: Colors.red)),
+            icon: const Icon(FIcons.packageSearch, color: Colors.red),
+          );
+        } else if (currentBleState is! ConnectedState) {
+          showFToast(
+            context: context,
+            alignment: FToastAlignment.topCenter,
+            duration: const Duration(seconds: 1),
+            title: const Text(
+              'Aguardando conexão com o leitor',
+              style: TextStyle(color: Colors.blue),
+            ),
+            icon: const Icon(FIcons.bluetooth, color: Colors.blue),
+          );
         }
       },
-    );
-  }
-}
-
-class LabelingButton extends ConsumerWidget {
-  const LabelingButton({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final pistolConnection = ref.watch(bleConnectionProvider);
-    bool isConnected() => pistolConnection.fsm.currentState is ConnectedState;
-    return FButton(
-      prefix: const Icon(FIcons.squarePen, size: 16, color: Colors.white),
-      child: const Text('Etiquetagem'),
-      onPress: () {
-        if (isConnected()) {
-          context.router.push(const LabelingRoute());
-        }
-      },
-    );
-  }
-}
-
-class ResetButton extends ConsumerWidget {
-  const ResetButton({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final pistolConnection = ref.watch(bleConnectionProvider);
-    bool isConnected() => pistolConnection.fsm.currentState is ConnectedState;
-    return FButton(
-      prefix: const Icon(FIcons.rotateCcw, size: 16, color: Colors.white),
-      child: const Text('Regravação/Reset'),
-      onPress: () {
-        if (isConnected()) {}
-      },
-    );
-  }
-}
-
-class ConferencesHistory extends StatelessWidget {
-  const ConferencesHistory({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return FButton(
-      prefix: const Icon(FIcons.clipboardList, size: 16, color: Colors.black),
-      onPress: () {},
-      style: FButtonStyle.secondary(),
-      child: const Text('Histórico de conferências'),
     );
   }
 }

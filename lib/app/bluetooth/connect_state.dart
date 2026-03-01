@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:smart_stock/app/bluetooth/base_ble_state.dart';
 import 'package:smart_stock/app/bluetooth/bluetooth_off_state.dart';
@@ -13,14 +14,19 @@ class ConnectState extends RetryState {
   ConnectState({required super.manager}) : super(origin: ErrorOrigin.connect);
 
   @override
+  void dispose() {
+    _adapterStateSubscription?.cancel();
+    super.dispose();
+  }
+
+  @override
   Future<BleState> processState() async {
-    final scanResult = manager.lastScanResult;
-    if (scanResult == null) {
-      throw FSMException('ConnectState chamado sem scanResult!');
+    final device = manager.lastScannedDevice;
+    if (device == null) {
+      throw FSMException('ConnectState chamado sem lastScannedDevice!');
     }
 
-    final device = scanResult.device;
-    logger.d('Conectando ao dispositivo: ${device.name}');
+    logger.d('Conectando ao dispositivo: ${device.platformName}');
     final promise = Completer<BleState>();
 
     _adapterStateSubscription = FlutterBluePlus.adapterState.listen((state) {
@@ -51,11 +57,5 @@ class ConnectState extends RetryState {
     }
 
     return promise.future;
-  }
-
-  @override
-  void dispose() {
-    _adapterStateSubscription?.cancel();
-    super.dispose();
   }
 }

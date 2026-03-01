@@ -1,3 +1,11 @@
+class APIException extends InternetException {
+  final int code;
+  const APIException(super.message, {required this.code});
+
+  @override
+  String toString() => '$code: $message';
+}
+
 abstract class ApplicationException implements Exception {
   final String message;
 
@@ -5,6 +13,13 @@ abstract class ApplicationException implements Exception {
 
   @override
   String toString() => 'ApplicationException -> $message';
+}
+
+class BleException extends InternetException {
+  const BleException(super.message);
+
+  @override
+  String toString() => message;
 }
 
 class InternalSystemException extends ApplicationException {
@@ -21,10 +36,9 @@ class InternetException extends ApplicationException {
   String toString() => 'InternetException -> $message';
 }
 
-class APIException extends InternetException {
-  final int code;
-  const APIException(super.message, {required this.code});
+class OfflineException extends ApplicationException {
+  const OfflineException();
 
   @override
-  String toString() => '$code: $message';
+  String toString() => 'OfflineExcpetion -> $message';
 }

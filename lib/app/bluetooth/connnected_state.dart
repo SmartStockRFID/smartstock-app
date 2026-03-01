@@ -1,6 +1,7 @@
 // lib/app/bluetooth/connnected_state.dart
 
 import 'dart:async';
+
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:smart_stock/app/bluetooth/base_ble_state.dart';
 import 'package:smart_stock/app/bluetooth/bluetooth_off_state.dart';
@@ -16,23 +17,27 @@ class ConnectedState extends NormalBleState {
   ConnectedState({required this.connectedPistol, required super.manager});
 
   @override
+  void dispose() {
+    logger.d('Descartando ConnectedState');
+    _pistolSub?.cancel();
+    _adapterSub?.cancel();
+    super.dispose();
+  }
+
+  @override
   Future<BleState> processState() async {
     logger.d('Dispositivo conectado: ${connectedPistol.remoteId}');
 
     final promise = Completer<BleState>();
 
-    // --- ADIÇÃO IMPORTANTE ---
-    // Inicia a escuta das características assim que entramos neste estado.
     try {
-      await manager.readCharacteristic(connectedPistol);
+      manager.connectedPistol = connectedPistol;
+      await manager.readCharacteristic();
       logger.d('✅ Assinatura de notificações ativada com sucesso!');
     } catch (e) {
-      logger.e('❌ Falha ao ativar notificações: $e');
-      // Se falhar, voltamos ao estado anterior para tentar reconectar.
+      logger.e('Falha ao ativar notificações: $e');
       return BluetoothOnState(manager: manager);
     }
-    // --- FIM DA ADIÇÃO ---
-
 
     // Ouve por mudanças no estado da conexão do dispositivo
     _pistolSub = connectedPistol.connectionState.listen((state) {
@@ -57,18 +62,9 @@ class ConnectedState extends NormalBleState {
     // Sem timeout. O estado permanecerá aqui até que algo aconteça.
     final nextState = await promise.future;
 
-    // A limpeza agora é feita aqui, após a conclusão da promise.
     await _pistolSub?.cancel();
     await _adapterSub?.cancel();
 
     return nextState;
-  }
-
-  @override
-  void dispose() {
-    logger.d('Descartando ConnectedState');
-    _pistolSub?.cancel();
-    _adapterSub?.cancel();
-    super.dispose();
   }
 }

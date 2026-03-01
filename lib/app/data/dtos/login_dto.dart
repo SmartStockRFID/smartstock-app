@@ -6,22 +6,32 @@ class LoginRequestDTO {
 
   LoginRequestDTO({required this.username, required this.password});
 
+  String toJson() => json.encode(toMap());
+
   Map<String, dynamic> toMap() {
     return {'username': username, 'password': password};
   }
-
-  String toJson() => json.encode(toMap());
 }
 
 class LoginResponseDTO {
-  final String token;
+  final String accessToken;
+  final DateTime accessTokenExpiration;
+  final String refreshToken;
+  final DateTime refreshTokenExpiration;
 
-  LoginResponseDTO({required this.token});
+  LoginResponseDTO({
+    required this.accessToken,
+    required this.accessTokenExpiration,
+    required this.refreshToken,
+    required this.refreshTokenExpiration,
+  });
 
   factory LoginResponseDTO.fromMap(Map<String, dynamic> map) {
-    return LoginResponseDTO(token: map['access_token'] as String);
+    return LoginResponseDTO(
+      accessToken: map['access_token'] as String,
+      accessTokenExpiration: DateTime.parse(map['access_expire'] as String),
+      refreshToken: map['refresh_token'] as String,
+      refreshTokenExpiration: DateTime.parse(map['refresh_expire'] as String),
+    );
   }
-
-  factory LoginResponseDTO.fromJson(String source) =>
-      LoginResponseDTO.fromMap(json.decode(source) as Map<String, dynamic>);
 }

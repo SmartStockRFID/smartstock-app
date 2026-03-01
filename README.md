@@ -5,10 +5,8 @@
   <img src="https://img.shields.io/badge/Dart-0175C2?style=for-the-badge&logo=dart&logoColor=white" alt="Dart"/>
 </p>
 
-
-Aplicativo móvel desenvolvido em Flutter para conexão com a pistola RFID 🏷️<br> 
- Projetado para se conectar a uma pistola RFID via Bluetooth Low Energy (BLE) para otimizar a contagem e conferência de produtos.
-
+Aplicativo móvel desenvolvido em Flutter para conexão com o leitor RFID 🏷️<br>
+Projetado para se conectar a uma leitor RFID via Bluetooth Low Energy (BLE) para otimizar a contagem e inventário de produtos.
 
 ## 🚀 Começando
 
@@ -16,17 +14,17 @@ Siga estas instruções para obter uma cópia do projeto em funcionamento na sua
 
 ### Pré-requisitos
 
-  * [Flutter SDK](https://flutter.dev/docs/get-started/install) (versão 3.x ou superior)
-  * Um editor de código, como [VS Code](https://code.visualstudio.com/) ou [Android Studio](https://developer.android.com/studio)
-  * Um dispositivo ou emulador Android
+- [Flutter SDK](https://flutter.dev/docs/get-started/install) (versão 3.x ou superior)
+- Um editor de código, como [VS Code](https://code.visualstudio.com/) ou [Android Studio](https://developer.android.com/studio)
+- Um dispositivo ou emulador Android
 
 ### Instalação
 
 1.  **Clone o repositório:**
 
     ```bash
-    git clone https://github.com/SmartStockRFID/ssrfid-mobile
-    cd ssrfid-mobile
+    git clone {repositório do ssrfid-app}
+    cd ssrfid-app
     ```
 
 2.  **Instale as dependências:**
@@ -36,13 +34,7 @@ Siga estas instruções para obter uma cópia do projeto em funcionamento na sua
     ```
 
 3.  **Configure as variáveis de ambiente:**
-    Crie um arquivo `.env` na raiz do projeto, baseado no arquivo `.env.example`. Preencha com as informações necessárias:
-
-    ```env
-    RFID_SERVICE_UUID="UUID_DE_SERVIÇO_BLE_DA_PISTOLA"
-    RFID_CHARACTERISTIC_UUID="UUID_DE_CARAC_BLE_DA_PISTOLA"
-    BACKEND_BASE_URL="URL_DA_API"
-    ```
+    Crie um arquivo `.env` na raiz do projeto, baseado no arquivo `.env.example`. Preencha com as informações necessárias.
 
 4.  **Gere os arquivos de rota:**
     O projeto utiliza `auto_route` para navegação. Execute o seguinte comando para gerar os arquivos necessários:
@@ -76,12 +68,20 @@ lib/
 
 ## 🛠️ Tecnologias Utilizadas
 
-  * **Framework:** [Flutter](https://flutter.dev/)
-  * **Gerenciamento de Estado:** [Riverpod](https://riverpod.dev/)
-  * **Navegação:** [AutoRoute](https://pub.dev/packages/auto_route)
-  * **Comunicação Bluetooth:** [flutter\_blue\_plus](https://pub.dev/packages/flutter_blue_plus)
-  * **Requisições HTTP:** [http](https://pub.dev/packages/http)
-  * **Componentes de UI:** [forui](https://pub.dev/packages/forui)
-  * **Injeção de Dependência:** [get\_it](https://pub.dev/packages/get_it)
-  * **Variáveis de Ambiente:** [flutter\_dotenv](https://pub.dev/packages/flutter_dotenv)
-  * **Logging:** [logger](https://pub.dev/packages/logger)
+- **Framework:** [Flutter](https://flutter.dev/)
+- **Gerenciamento de Estado:** [Riverpod](https://riverpod.dev/)
+- **Navegação:** [AutoRoute](https://pub.dev/packages/auto_route)
+- **Comunicação Bluetooth:** [flutter_blue_plus](https://pub.dev/packages/flutter_blue_plus)
+- **Requisições HTTP:** [http](https://pub.dev/packages/http)
+- **Componentes de UI:** [forui](https://pub.dev/packages/forui)
+- **Injeção de Dependência:** [get_it](https://pub.dev/packages/get_it)
+- **Variáveis de Ambiente:** [flutter_dotenv](https://pub.dev/packages/flutter_dotenv)
+- **Logging:** [logger](https://pub.dev/packages/logger)
+
+## 👀 OBS
+
+- Para manter uma transição mais suave entre telas com o mesmo estilo de `AppBar`, optei por usar `AutoTabs` em vez de `Navigator.push()`, evitando o efeito padrão que troca toda a tela. Porém, como o `AutoTabs` simula a navegação, o botão nativo de voltar acaba fechando o app quando estamos em rotas internas. Resolvi isso usando `PopScope` e `SystemNavigator.pop()` no Android. No iOS, esse comportamento será diferente, pois o método não é suportado. Edit: acredito que personalizando a animação de troca de tela isso não seria necessário. No entanto, hoje essas telas também tem comportamentos compartilhados, então, caiu como luva.
+- Créditos do plano de fundo da tela inicial `stock.png`: https://www.pexels.com/photo/red-and-white-plastic-containers-on-shelf-3992851/ + https://pinetools.com/blur-image no filtro `Stack Blur` e radius 100 + https://imgonline.tools/pt/darken com 15 de fator de escurecimento.
+- A troca do ícone da aplicação no IOS precisa de ajustes para ficar funcional. Também, devido a falta de hardware compatível, a versão IOS do aplicativo não foi testada.
+
+flutter build apk --ofuscate --split-debug-info=/output
