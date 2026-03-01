@@ -2,12 +2,12 @@ import 'package:logger/logger.dart';
 
 final logger = Logger(
   printer: PrettyPrinter(
-    methodCount: 1, // número de chamadas de método a serem exibidas
-    errorMethodCount:
-        8, // número de chamadas de método se a stacktrace for fornecida
-    lineLength: 120, // largura da linha do log
-    colors: true, // logs coloridos
-    printEmojis: true, // imprimir um emoji para cada mensagem de log,
-    dateTimeFormat: DateTimeFormat.none,
+    methodCount: 2, // Number of method calls to be displayed
+    errorMethodCount: 8, // Number of method calls if stacktrace is provided
+    lineLength: 120, // Width of the output
+    colors: true, // Colorful log messages
+    printEmojis: true, // Print an emoji for each log message
+    // Should each log print contain a timestamp
+    dateTimeFormat: DateTimeFormat.onlyTimeAndSinceStart,
   ),
 );
