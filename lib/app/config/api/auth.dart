@@ -9,7 +9,7 @@ final _authApiInstance = Dio();
 
 // ignore: avoid_classes_with_only_static_members
 class AuthAPI {
-  static final String baseUrl = Enviroment.backendBaseURL()!;
+  static final String baseUrl = Enviroment.backendBaseURL();
 
   static Future<Response> login({required LoginRequestDTO payload}) async {
     const endpoint = 'auth/login';
@@ -30,7 +30,7 @@ class AuthAPI {
 
       await CurrentUserStorage.setValue(payload.username);
       await SavedLoginsStorage.saveValue(payload.username);
-      await CurrentSessionTimestampProvider.setValue();
+      await CurrentSessionTimestampStorage.setValue();
     }
     return response;
   }

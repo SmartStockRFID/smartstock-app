@@ -14,7 +14,7 @@ import 'package:smart_stock/app/ui/shell/widgets/firmware_update_widgert.dart';
 final currentSessionProvider =
     FutureProvider.autoDispose<({String? username, DateTime? timestamp})>((ref) async {
       final username = await CurrentUserStorage.getValue();
-      final timestamp = await CurrentSessionTimestampProvider.getValue();
+      final timestamp = await CurrentSessionTimestampStorage.getValue();
 
       return (username: username, timestamp: timestamp);
     });

@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/experimental/mutation.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:smart_stock/app/bluetooth/connnected_state.dart';
+import 'package:smart_stock/app/config/env.dart';
+import 'package:smart_stock/app/config/preferences_manager.dart';
 import 'package:smart_stock/app/domain/interfaces/firmware_version_interface.dart';
 import 'package:smart_stock/app/ui/_core/providers/ble_connection_provider.dart';
 import 'package:smart_stock/app/utils/internet.dart';
@@ -16,8 +18,11 @@ final lastFirmwareVersion = FutureProvider<FirmwareVersion?>((ref) async {
 
   await checkIfHasInternet();
 
+  final firmwareUpdateList =
+      await FirmwareUpdateUrlStorage.getValue() ?? Enviroment.firmwareUpdateListURL();
+
   final response = await Dio().get(
-    Uri.parse('https://sruanm.github.io/ssrfid-firmware-deploy/versions.json').toString(),
+    Uri.parse(firmwareUpdateList).toString(),
     options: Options(headers: headers),
   );
 

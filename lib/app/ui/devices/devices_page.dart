@@ -15,7 +15,7 @@ import 'package:smart_stock/app/ui/_core/widgets/base_list_widget.dart';
 import 'package:smart_stock/app/ui/devices/logic/connect_ble_mutation.dart';
 import 'package:smart_stock/app/ui/shell/app_shell_page.dart';
 
-final Guid rfidServiceUUID = Guid(Enviroment.rfidServiceUUID()!);
+final Guid rfidServiceUUID = Guid(Enviroment.rfidServiceUUID());
 
 class DevicesList extends HookConsumerWidget with DevicesState {
   @override

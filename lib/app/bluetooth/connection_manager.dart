@@ -10,10 +10,10 @@ import 'package:smart_stock/app/utils/logger.dart';
 import 'package:version/version.dart';
 
 final Guid firmwareVersionCharacteristicUUID = Guid(
-  Enviroment.firmwareVersionCharacteristicUUID()!,
+  Enviroment.firmwareVersionCharacteristicUUID(),
 );
-final Guid rfidCharacteristicUUID = Guid(Enviroment.rfidCharacteristicUUID()!);
-final Guid rfidServiceUUID = Guid(Enviroment.rfidServiceUUID()!);
+final Guid rfidCharacteristicUUID = Guid(Enviroment.rfidCharacteristicUUID());
+final Guid rfidServiceUUID = Guid(Enviroment.rfidServiceUUID());
 
 class ConnectionManager {
   BluetoothDevice? connectedPistol;

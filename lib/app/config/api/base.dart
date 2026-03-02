@@ -9,7 +9,7 @@ import 'package:smart_stock/app/utils/logger.dart';
 final _apiInstance = dio.Dio();
 
 class APIConnector {
-  static final baseUrl = Enviroment.backendBaseURL()!;
+  static final baseUrl = Enviroment.backendBaseURL();
   static const defaultHeaders = {
     dio.Headers.contentTypeHeader: 'application/json',
     dio.Headers.acceptHeader: 'application/json',
