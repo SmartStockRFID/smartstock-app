@@ -1,34 +1,14 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:forui/forui.dart';
-import 'package:smart_stock/app/bluetooth/base_ble_state.dart';
-import 'package:smart_stock/app/bluetooth/bluetooth_off_state.dart';
-import 'package:smart_stock/app/bluetooth/checking_ble_state.dart';
-import 'package:smart_stock/app/bluetooth/connect_state.dart';
-import 'package:smart_stock/app/bluetooth/connnected_state.dart';
-import 'package:smart_stock/app/bluetooth/error_state.dart';
-import 'package:smart_stock/app/bluetooth/permission_denied_state.dart';
-import 'package:smart_stock/app/bluetooth/scan_state.dart';
 import 'package:smart_stock/app/config/assets.dart';
-import 'package:smart_stock/app/domain/stock.dart';
-import 'package:smart_stock/app/routing/router.dart';
+import 'package:smart_stock/app/domain/status_color.dart';
 import 'package:smart_stock/app/ui/_core/providers/ble_connection_provider.dart';
 import 'package:smart_stock/app/ui/_core/providers/stock_provider.dart';
 import 'package:smart_stock/app/ui/_core/widgets/custom_card.dart';
 import 'package:smart_stock/app/ui/_core/widgets/update_stock_btn.dart';
-
-enum StatusColors {
-  OK(Colors.green),
-  LOADING(Colors.blue),
-  OUTDATED(Colors.orange),
-  ERROR(Colors.red),
-  DEFAULT(Colors.grey);
-
-  final Color color;
-  const StatusColors(this.color);
-}
+import 'package:smart_stock/app/ui/home/widgets/status_sheet_widget.dart';
 
 class StatusPanelWidget extends ConsumerWidget {
   const StatusPanelWidget({super.key});
@@ -38,8 +18,8 @@ class StatusPanelWidget extends ConsumerWidget {
     final bleState = ref.watch(bleConnectionProvider.select((state) => state.currentState));
     final stockState = ref.watch(stockProvider);
 
-    final bleStatusColor = _getBleStatusColor(bleState);
-    final stockStatusColor = _getStockStatusColor(
+    final bleStatusColor = getBleStatusColor(bleState);
+    final stockStatusColor = getStockStatusColor(
       stockState,
       ref.watch(stockProvider.notifier).updatedAt,
     );
@@ -48,7 +28,13 @@ class StatusPanelWidget extends ConsumerWidget {
 
     return InkWell(
       onTap: () {
-        context.router.push(const DevicesRoute());
+        showStatusSheet(
+          context,
+          bleStatusColor: bleStatusColor,
+          stockStatusColor: stockStatusColor,
+          connectedDevice: bleState.manager.connectedPistol,
+        );
+        
       },
       child: CustomCard(
         child: Column(
@@ -80,34 +66,6 @@ class StatusPanelWidget extends ConsumerWidget {
           ],
         ),
       ),
-    );
-  }
-
-  Color _getBleStatusColor(BleState? currentState) {
-    if (currentState is ConnectedState) {
-      return StatusColors.OK.color;
-    }
-    if (currentState is CheckingBleState ||
-        currentState is ScanState ||
-        currentState is ConnectState) {
-      return StatusColors.LOADING.color;
-    }
-    if (currentState is BluetoothOffState ||
-        currentState is PermissionDeniedState ||
-        currentState is ErrorState) {
-      return StatusColors.ERROR.color;
-    }
-    return StatusColors.DEFAULT.color;
-  }
-
-  // Função para mapear o estado do Backend para a UI
-  Color _getStockStatusColor(AsyncValue stockState, DateTime? updatedAt) {
-    return stockState.when(
-      data: (_) => updatedAt == null
-          ? Colors.pinkAccent
-          : (isStockFresh(updatedAt) ? StatusColors.OK.color : StatusColors.OUTDATED.color),
-      error: (err, trace) => StatusColors.ERROR.color,
-      loading: () => StatusColors.LOADING.color,
     );
   }
 }
