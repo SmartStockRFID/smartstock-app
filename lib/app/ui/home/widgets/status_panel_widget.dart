@@ -7,7 +7,6 @@ import 'package:smart_stock/app/domain/status_color.dart';
 import 'package:smart_stock/app/ui/_core/providers/ble_connection_provider.dart';
 import 'package:smart_stock/app/ui/_core/providers/stock_provider.dart';
 import 'package:smart_stock/app/ui/_core/widgets/custom_card.dart';
-import 'package:smart_stock/app/ui/_core/widgets/update_stock_btn.dart';
 import 'package:smart_stock/app/ui/home/widgets/status_sheet_widget.dart';
 
 class StatusPanelWidget extends ConsumerWidget {
@@ -16,9 +15,9 @@ class StatusPanelWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bleState = ref.watch(bleConnectionProvider.select((state) => state.currentState));
-    final stockState = ref.watch(stockProvider);
-
     final bleStatusColor = getBleStatusColor(bleState);
+
+    final stockState = ref.watch(stockProvider);
     final stockStatusColor = getStockStatusColor(
       stockState,
       ref.watch(stockProvider.notifier).updatedAt,
@@ -28,41 +27,26 @@ class StatusPanelWidget extends ConsumerWidget {
 
     return InkWell(
       onTap: () {
-        showStatusSheet(
-          context,
-          bleStatusColor: bleStatusColor,
-          stockStatusColor: stockStatusColor,
-          connectedDevice: bleState.manager.connectedPistol,
-        );
-        
+        showStatusSheet(context);
       },
       child: CustomCard(
-        child: Column(
-          spacing: 20,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
+            Text(
+              'Status da conexão',
+              textAlign: TextAlign.start,
+              style: typography.base.copyWith(fontWeight: FontWeight.bold, color: Colors.black87),
+            ),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              spacing: 8,
               children: [
-                Text(
-                  'Status da conexão',
-                  textAlign: TextAlign.start,
-                  style: typography.base.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                ),
-                Row(
-                  spacing: 8,
-                  children: [
-                    _StatusItem(color: bleStatusColor, height: 36, svgPath: Assets.scannerIcon),
-                    _StatusItem(svgPath: Assets.stockIcon, height: 32, color: stockStatusColor),
-                    const SizedBox(width: 2),
-                    const Icon(FIcons.chevronRight, size: 18),
-                  ],
-                ),
+                _StatusItem(color: bleStatusColor, height: 36, svgPath: Assets.scannerIcon),
+                _StatusItem(svgPath: Assets.stockIcon, height: 32, color: stockStatusColor),
+                const SizedBox(width: 2),
+                const Icon(FIcons.chevronRight, size: 18),
               ],
             ),
-            UpdateStockButton(),
           ],
         ),
       ),
