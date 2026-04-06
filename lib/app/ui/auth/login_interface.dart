@@ -13,16 +13,24 @@ import 'package:smart_stock/app/ui/_core/widgets/loading_widget.dart';
 
 const notOnLoginsText = 'Não está listado?';
 
+final backendUrlProvider = FutureProvider.autoDispose<String>((ref) async {
+  return AppConfig.getBackUrl();
+});
+
 final loginMutation = Mutation<void>();
 
-final savedInfoProvider = FutureProvider<(String?, List<String>?)>((ref) async {
-  final result = await Future.wait([CurrentUserStorage.getValue(), SavedLoginsStorage.getValues()]);
-  return (result[0] as String?, result[1] as List<String>?);
+final savedInfoProvider = FutureProvider.autoDispose<(String?, List<String>?)>((ref) async {
+  final [currentUser, savedLogins] = await Future.wait([
+    CurrentUserStorage.getValue(),
+    SavedLoginsStorage.getValues(),
+  ]);
+  return (currentUser as String?, savedLogins as List<String>?);
 });
 
 class LoginForm extends HookConsumerWidget {
   final GlobalKey<FormState> formKey;
-
+  final GlobalKey<FormState> newBackendServerURLFormKey;
+  final TextEditingController newBackendServerURLController;
   final TextEditingController usernameController;
   final TextEditingController passwordController;
   final FSelectController<String> usernameSelectController;
@@ -30,7 +38,9 @@ class LoginForm extends HookConsumerWidget {
   final BuildContext context;
   const LoginForm({
     super.key,
+    required this.newBackendServerURLFormKey,
     required this.formKey,
+    required this.newBackendServerURLController,
     required this.usernameController,
     required this.passwordController,
     required this.onLogin,
@@ -132,12 +142,126 @@ class LoginForm extends HookConsumerWidget {
                 ),
                 const SizedBox(height: 24.0),
                 const Spacer(),
-                Text(
-                  'Não tem uma conta?\nContate o administrador do sistema.',
-                  textAlign: TextAlign.center,
-                  style: context.theme.typography.sm,
-                ),
-                const SizedBox(height: 12),
+                ref
+                    .watch(backendUrlProvider)
+                    .when(
+                      data: (backendUrl) {
+                        return InkWell(
+                          onTap: () => showDialog(
+                            context: context,
+                            builder: (BuildContext context) => AlertDialog(
+                              title: Text('Mudar servidor', style: context.theme.typography.xl2),
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                spacing: 24,
+                                children: [
+                                  Text.rich(
+                                    TextSpan(
+                                      children: [
+                                        TextSpan(
+                                          text: 'Atual: ',
+                                          style: context.theme.typography.sm.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        TextSpan(
+                                          text: backendUrl,
+                                          style: context.theme.typography.sm,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Form(
+                                    key: newBackendServerURLFormKey,
+                                    child: buildInputField(
+                                      context: context,
+                                      controller: newBackendServerURLController,
+                                      labelText: 'URL do novo servidor',
+                                      obscureText: false,
+                                      validator: (value) =>
+                                          (Uri.tryParse(
+                                                newBackendServerURLController.text,
+                                              )?.host.isNotEmpty ??
+                                              false)
+                                          ? null
+                                          : 'Não é uma URL válida',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              actions: <Widget>[
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context, 'Cancel'),
+                                  child: const Text('Cancelar'),
+                                ),
+                                TextButton(
+                                  onPressed: () async {
+                                    final formOk = newBackendServerURLFormKey.currentState
+                                        ?.validate();
+                                    if (formOk == true) {
+                                      await BackendApiUrlStorage.setValue(
+                                        newBackendServerURLController.text,
+                                      );
+                                      ref.invalidate(backendUrlProvider, asReload: true);
+                                      newBackendServerURLController.text = '';
+                                      if (context.mounted) {
+                                        Navigator.pop(context);
+                                      }
+                                    }
+                                  },
+                                  child: const Text('OK'),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          child: ref
+                              .watch(backendUrlProvider)
+                              .when(
+                                data: (backendUrl) {
+                                  return SizedBox(
+                                    height: 64,
+                                    child: Row(
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      spacing: 5,
+                                      children: [
+                                        Flexible(
+                                          child: Text.rich(
+                                            overflow: TextOverflow.ellipsis,
+                                            TextSpan(
+                                              children: [
+                                                const TextSpan(text: 'Conectando-se a: '),
+                                                TextSpan(
+                                                  text:
+                                                      Uri.tryParse(backendUrl)?.host ??
+                                                      'Servidor desconhecido',
+                                                  style: context.theme.typography.sm.copyWith(
+                                                    color: Colors.blueAccent,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            style: context.theme.typography.sm,
+                                          ),
+                                        ),
+                                        Icon(
+                                          FIcons.chevronDown,
+                                          size: context.theme.typography.sm.fontSize,
+                                          color: Colors.blueAccent,
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                                error: (err, trace) => const SizedBox(),
+                                loading: () => const SizedBox(),
+                              ),
+                        );
+                      },
+                      error: (err, trace) => const SizedBox(),
+                      loading: () => const SizedBox(),
+                    ),
                 FButton(
                   onPress: () {
                     if (loginPending) {
@@ -164,6 +288,8 @@ class LoginForm extends HookConsumerWidget {
 
 class LoginInterface extends StatelessWidget {
   final GlobalKey<FormState> formKey;
+  final GlobalKey<FormState> newBackendServerURLFormKey;
+  final TextEditingController newBackendServerURLController;
   final TextEditingController usernameController;
   final TextEditingController passwordController;
   final Future<void> Function() onLogin;
@@ -172,6 +298,8 @@ class LoginInterface extends StatelessWidget {
   const LoginInterface({
     super.key,
     required this.formKey,
+    required this.newBackendServerURLFormKey,
+    required this.newBackendServerURLController,
     required this.usernameController,
     required this.passwordController,
     required this.onLogin,
@@ -198,7 +326,7 @@ class LoginInterface extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                if (useNewlandTheme)
+                if (AppConfig.useNewlandTheme)
                   SvgPicture.asset(
                     Assets.newlandLogo,
                     color: Colors.black,
@@ -219,8 +347,10 @@ class LoginInterface extends StatelessWidget {
                 ),
                 const SizedBox(height: 48.0),
                 LoginForm(
-                  usernameSelectController: usernameSelectController,
+                  newBackendServerURLFormKey: newBackendServerURLFormKey,
+                  newBackendServerURLController: newBackendServerURLController,
                   formKey: formKey,
+                  usernameSelectController: usernameSelectController,
                   usernameController: usernameController,
                   passwordController: passwordController,
                   onLogin: onLogin,

@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:smart_stock/app/config/env.dart';
+import 'package:smart_stock/app/config/constants.dart';
 import 'package:smart_stock/app/config/preferences_manager.dart';
 import 'package:smart_stock/app/config/token_storage.dart';
 import 'package:smart_stock/app/data/dtos/login_dto.dart';
@@ -9,9 +9,8 @@ final _authApiInstance = Dio();
 
 // ignore: avoid_classes_with_only_static_members
 class AuthAPI {
-  static final String baseUrl = Enviroment.backendBaseURL();
-
   static Future<Response> login({required LoginRequestDTO payload}) async {
+    final baseUrl = await AppConfig.getBackUrl();
     const endpoint = 'auth/login';
     final url = Uri.parse('$baseUrl/$endpoint').toString();
 

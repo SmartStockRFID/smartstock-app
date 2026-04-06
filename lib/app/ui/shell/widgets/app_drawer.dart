@@ -39,7 +39,7 @@ class MainDrawer extends ConsumerWidget {
         children: [
           UserAccountsDrawerHeader(
             decoration: BoxDecoration(
-              color: useNewlandTheme ? context.theme.colors.primary : Colors.deepPurple,
+              color: AppConfig.useNewlandTheme ? context.theme.colors.primary : Colors.deepPurple,
             ),
             accountName: Text(
               currentSession.when(

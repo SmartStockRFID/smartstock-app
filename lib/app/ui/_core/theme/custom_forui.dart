@@ -65,7 +65,7 @@ FBaseButtonStyle Function(FButtonStyle) createLargeStyle({
             enabled: foregroundColor, // <-- USA A COR DE TEXTO FORNECIDA
             disabled: colors.disable(foregroundColor),
           ).copyWith(
-            padding: EdgeInsets.symmetric(horizontal: 32, vertical: useNewlandTheme ? 18 : 16),
+            padding: EdgeInsets.symmetric(horizontal: 32, vertical: AppConfig.useNewlandTheme ? 18 : 16),
             textStyle: FWidgetStateMap.all(textStyle),
           ),
       iconContentStyle: FButtonIconContentStyle.inherit(

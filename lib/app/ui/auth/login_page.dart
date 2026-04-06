@@ -19,6 +19,8 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStateMixin {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _newBackendServerURLFormKey = GlobalKey<FormState>();
+  final TextEditingController _newBackendServerURL = TextEditingController();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   late final _usernameSelectController = FSelectController<String>(vsync: this);
@@ -26,6 +28,8 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   @override
   Widget build(BuildContext context) {
     return LoginInterface(
+      newBackendServerURLFormKey: _newBackendServerURLFormKey,
+      newBackendServerURLController: _newBackendServerURL,
       formKey: _formKey,
       usernameController: _usernameController,
       passwordController: _passwordController,

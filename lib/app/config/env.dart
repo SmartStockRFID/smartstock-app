@@ -30,6 +30,9 @@ abstract final class Enviroment {
         throw const InternalSystemException('Please set all enviroments on .env.example!');
       }
     }
+    if (Uri.tryParse(backendBaseURL())?.host.isEmpty ?? true) {
+      throw const InternalSystemException('BACKEND_BASE_URL should be a valid URL!');
+    }
   }
 }
 

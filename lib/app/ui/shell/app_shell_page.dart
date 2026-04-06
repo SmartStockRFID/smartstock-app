@@ -126,7 +126,7 @@ class AppShellPage extends HookConsumerWidget {
   AppBar? _getAppBar(BuildContext context, String routeName, bool isAtHome) {
     if (isAtHome) {
       return baseAppBar(
-        widgetTitle: useNewlandTheme
+        widgetTitle: AppConfig.useNewlandTheme
             ? SvgPicture.asset(Assets.newlandLogo, height: MediaQuery.of(context).size.height / 20)
             : Icon(FIcons.origami, size: MediaQuery.of(context).size.height / 20),
       );
