@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:smart_stock/app/data/dtos/login_dto.dart';
+import 'package:smart_stock/app/data/dtos/auth/login_dto.dart';
 
 part 'token_storage.g.dart';
 

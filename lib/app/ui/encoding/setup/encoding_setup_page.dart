@@ -2,7 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
-import 'package:smart_stock/app/domain/entities/part_entity.dart';
+import 'package:smart_stock/app/domain/entities/product_entity.dart';
 import 'package:smart_stock/app/routing/router.dart';
 import 'package:smart_stock/app/ui/_core/providers/stock_provider.dart';
 import 'package:smart_stock/app/ui/_core/theme/custom_forui.dart';
@@ -21,7 +21,7 @@ enum WritingMode { PRODUCT_CODE, RESET }
 
 class _EncodingSetupPageState extends ConsumerState<EncodingSetupPage>
     with SingleTickerProviderStateMixin {
-  late final FSelectController<CarPart> selectController;
+  late final FSelectController<Product> selectController;
   final radioController = FSelectGroupController<WritingMode>.radio(
     WritingMode.PRODUCT_CODE,
   ); // If you want to remove this default, please check for .value.first on code
@@ -79,8 +79,8 @@ class _EncodingSetupPageState extends ConsumerState<EncodingSetupPage>
                   Padding(
                     padding: const EdgeInsets.all(12.0),
                     child: stockState.when(
-                      data: (parts) {
-                        return FSelect<CarPart>.searchBuilder(
+                      data: (products) {
+                        return FSelect<Product>.searchBuilder(
                           enabled: radioController.value.firstOrNull == WritingMode.PRODUCT_CODE,
                           controller: selectController,
                           contentEmptyBuilder: (context, style) => Padding(
@@ -105,17 +105,17 @@ class _EncodingSetupPageState extends ConsumerState<EncodingSetupPage>
                           ),
                           hint: 'Escolha o produto a ser gravado',
                           contentPhysics: const BouncingScrollPhysics(),
-                          format: (part) => part.name,
+                          format: (product) => product.name,
                           filter: (query) => query.isEmpty
-                              ? parts
-                              : parts.where(
+                              ? products
+                              : products.where(
                                   (p) => p.name.toLowerCase().startsWith(query.toLowerCase()),
                                 ),
-                          contentBuilder: (context, _, parts) => [
-                            for (final part in parts)
+                          contentBuilder: (context, _, products) => [
+                            for (final product in products)
                               FSelectItem(
-                                value: part,
-                                title: Text(part.name, style: const TextStyle(color: Colors.black)),
+                                value: product,
+                                title: Text(product.name, style: const TextStyle(color: Colors.black)),
                               ),
                           ],
                           contentLoadingBuilder: (context, style) =>
@@ -194,7 +194,7 @@ class _EncodingSetupPageState extends ConsumerState<EncodingSetupPage>
   @override
   void initState() {
     super.initState();
-    selectController = FSelectController<CarPart>(vsync: this);
+    selectController = FSelectController<Product>(vsync: this);
 
     selectController.addListener(() {
       setState(() {});

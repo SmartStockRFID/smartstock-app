@@ -12,7 +12,7 @@ part of 'stock_provider.dart';
 @ProviderFor(Stock)
 const stockProvider = StockProvider._();
 
-final class StockProvider extends $AsyncNotifierProvider<Stock, List<CarPart>> {
+final class StockProvider extends $AsyncNotifierProvider<Stock, List<Product>> {
   const StockProvider._()
     : super(
         from: null,
@@ -32,20 +32,20 @@ final class StockProvider extends $AsyncNotifierProvider<Stock, List<CarPart>> {
   Stock create() => Stock();
 }
 
-String _$stockHash() => r'c3fe44f3b8b1ccb8f099c5df925387a42288230f';
+String _$stockHash() => r'594b27b3c31147c6a9035223a25cb716a13a5c58';
 
-abstract class _$Stock extends $AsyncNotifier<List<CarPart>> {
-  FutureOr<List<CarPart>> build();
+abstract class _$Stock extends $AsyncNotifier<List<Product>> {
+  FutureOr<List<Product>> build();
   @$mustCallSuper
   @override
   void runBuild() {
     final created = build();
-    final ref = this.ref as $Ref<AsyncValue<List<CarPart>>, List<CarPart>>;
+    final ref = this.ref as $Ref<AsyncValue<List<Product>>, List<Product>>;
     final element =
         ref.element
             as $ClassProviderElement<
-              AnyNotifier<AsyncValue<List<CarPart>>, List<CarPart>>,
-              AsyncValue<List<CarPart>>,
+              AnyNotifier<AsyncValue<List<Product>>, List<Product>>,
+              AsyncValue<List<Product>>,
               Object?,
               Object?
             >;

@@ -7,7 +7,7 @@ import 'package:forui/forui.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:smart_stock/app/domain/entities/part_entity.dart';
+import 'package:smart_stock/app/domain/entities/product_entity.dart';
 import 'package:smart_stock/app/domain/interfaces/inventory_interfaces.dart';
 import 'package:smart_stock/app/routing/router.dart';
 import 'package:smart_stock/app/ui/_core/providers/inventory_provider.dart';
@@ -107,7 +107,7 @@ class _CurrentItem extends HookConsumerWidget {
 
   Widget _buildReadingState(
     BuildContext context,
-    AsyncValue<List<CarPart>> stockState,
+    AsyncValue<List<Product>> stockState,
     ProductReadings lastReading,
   ) {
     final theme = Theme.of(context);
@@ -122,12 +122,12 @@ class _CurrentItem extends HookConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               stockState.when(
-                data: (parts) {
-                  final productIndex = parts.indexWhere(
+                data: (products) {
+                  final productIndex = products.indexWhere(
                     (p) => p.productCode == lastReading.productOEM,
                   );
                   return Text(
-                    productIndex != -1 ? parts[productIndex].name : 'DESCONHECIDO',
+                    productIndex != -1 ? products[productIndex].name : 'DESCONHECIDO',
                     style: theme.textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                       height: 1.2,
@@ -273,10 +273,10 @@ class _ReadingHistory extends ConsumerWidget {
           return ListTile(
             contentPadding: EdgeInsets.zero,
             title: stockState.when(
-              data: (parts) {
-                final productIndex = parts.indexWhere((p) => p.productCode == reading.productOEM);
+                data: (products) {
+                  final productIndex = products.indexWhere((p) => p.productCode == reading.productOEM);
                 return Text(
-                  productIndex != -1 ? parts[productIndex].name : 'Desconhecido',
+                    productIndex != -1 ? products[productIndex].name : 'Desconhecido',
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 );
               },

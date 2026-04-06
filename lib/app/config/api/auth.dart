@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:smart_stock/app/config/constants.dart';
 import 'package:smart_stock/app/config/preferences_manager.dart';
 import 'package:smart_stock/app/config/token_storage.dart';
-import 'package:smart_stock/app/data/dtos/login_dto.dart';
+import 'package:smart_stock/app/data/dtos/auth/login_dto.dart';
 import 'package:smart_stock/app/utils/json.dart';
 
 final _authApiInstance = Dio();

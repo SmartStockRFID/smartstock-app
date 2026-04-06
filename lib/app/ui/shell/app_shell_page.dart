@@ -10,7 +10,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:smart_stock/app/config/assets.dart';
 import 'package:smart_stock/app/config/constants.dart';
 import 'package:smart_stock/app/config/preferences_manager.dart';
-import 'package:smart_stock/app/domain/entities/part_entity.dart';
+import 'package:smart_stock/app/domain/entities/product_entity.dart';
 import 'package:smart_stock/app/domain/firmware/reading_response.dart';
 import 'package:smart_stock/app/routing/router.dart';
 import 'package:smart_stock/app/ui/_core/providers/stock_provider.dart';
@@ -191,7 +191,7 @@ class QuickReadCurrentItem extends HookConsumerWidget {
 
   Widget _buildReadingState(
     BuildContext context,
-    AsyncValue<List<CarPart>> stockState,
+    AsyncValue<List<Product>> stockState,
     ReadingResponseContent currentRead,
   ) {
     final isResetedTag = currentRead.productOEM == emptyTagOEM;
@@ -206,15 +206,15 @@ class QuickReadCurrentItem extends HookConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               stockState.when(
-                data: (parts) {
-                  final productIndex = parts.indexWhere(
+                data: (products) {
+                  final productIndex = products.indexWhere(
                     (p) => p.productCode == currentRead.productOEM,
                   );
                   return Text(
                     isResetedTag
                         ? 'Etiqueta não gravada'
                         : productIndex != -1
-                        ? parts[productIndex].name
+                        ? products[productIndex].name
                         : 'Desconhecido',
                     style: context.theme.typography.xl3.copyWith(
                       fontWeight: FontWeight.bold,

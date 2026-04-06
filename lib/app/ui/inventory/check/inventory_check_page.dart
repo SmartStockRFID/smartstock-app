@@ -9,7 +9,7 @@ import 'package:smart_stock/app/config/dependencies.dart';
 import 'package:smart_stock/app/config/preferences_manager.dart';
 import 'package:smart_stock/app/data/repositories/inventory_repository.dart';
 import 'package:smart_stock/app/domain/entities/inventory_entity.dart';
-import 'package:smart_stock/app/domain/entities/part_entity.dart';
+import 'package:smart_stock/app/domain/entities/product_entity.dart';
 import 'package:smart_stock/app/domain/stock.dart';
 import 'package:smart_stock/app/routing/router.dart';
 import 'package:smart_stock/app/ui/_core/providers/ble_connection_provider.dart';
@@ -195,7 +195,7 @@ mixin class _InitInventoryState {
       ref.watch(initInventoryMutation.select((state) => state is MutationIdle));
   AsyncValue<({InventorySummary? inventory, bool ok})> queryActiveInventory(WidgetRef ref) =>
       ref.watch(getActiveInventoryProvider);
-  AsyncValue<List<CarPart>> stockState(WidgetRef ref) => ref.watch(stockProvider);
+  AsyncValue<List<Product>> stockState(WidgetRef ref) => ref.watch(stockProvider);
 }
 
 class _InventoryStatus extends ConsumerWidget {

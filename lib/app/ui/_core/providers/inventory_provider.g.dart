@@ -20,11 +20,19 @@ InventoryManagerState _$InventoryManagerStateFromJson(
           .toList() ??
       const [],
   isPaused: json['isPaused'] as bool? ?? false,
+  syncedTags:
+      (json['syncedTags'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList() ??
+      const [],
   lastAddedProductReading: json['lastAddedProductReading'] == null
       ? null
       : ProductReadings.fromJson(
           json['lastAddedProductReading'] as Map<String, dynamic>,
         ),
+  lastSyncedAt: json['lastSyncedAt'] == null
+      ? null
+      : DateTime.parse(json['lastSyncedAt'] as String),
 );
 
 Map<String, dynamic> _$InventoryManagerStateToJson(
@@ -34,6 +42,8 @@ Map<String, dynamic> _$InventoryManagerStateToJson(
   'readings': instance.readings,
   'lastAddedProductReading': instance.lastAddedProductReading,
   'isPaused': instance.isPaused,
+  'syncedTags': instance.syncedTags,
+  'lastSyncedAt': instance.lastSyncedAt?.toIso8601String(),
 };
 
 // **************************************************************************
@@ -77,7 +87,7 @@ final class InventoryManagerProvider
   }
 }
 
-String _$inventoryManagerHash() => r'3430a96797f852783cf29e83bbb4c6440e38173b';
+String _$inventoryManagerHash() => r'5935fa40daae665bd802f144e1e484aab32de626';
 
 @JsonPersist()
 abstract class _$InventoryManagerBase extends $Notifier<InventoryManagerState> {
