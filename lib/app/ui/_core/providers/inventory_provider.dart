@@ -77,6 +77,18 @@ class InventoryManager extends _$InventoryManager {
     return const InventoryManagerState();
   }
 
+  Future<void> finishInventory() async {
+    await checkIfHasInternet();
+
+    if (state.currentInventory == null) {
+      return;
+    }
+
+    await syncInventory();
+
+    await injector.get<InventoryRepository>().finishInventory(state.currentInventory!.id);
+  }
+
   Future<void> initInventory() async {
     final newInventory = await injector.get<InventoryRepository>().initInventory();
     state = state.copyWith(currentInventory: newInventory);
@@ -110,14 +122,9 @@ class InventoryManager extends _$InventoryManager {
 
   Future<void> syncInventory() async {
     await checkIfHasInternet();
-    InventorySummary targetInventory;
 
-    if (state.currentInventory?.id != null) {
-      targetInventory = state.currentInventory!;
-    } else {
-      final inventoryRepo = injector.get<InventoryRepository>();
-      targetInventory =
-          await inventoryRepo.getActiveInventory() ?? await inventoryRepo.initInventory();
+    if (state.currentInventory == null) {
+      return;
     }
 
     final notSyncedReadings = [...state.readings];
@@ -129,7 +136,10 @@ class InventoryManager extends _$InventoryManager {
       notSyncedReadings[i] = notSyncedReadings[i].copyWith(readTags: readings);
     }
 
-    await injector.get<InventoryRepository>().postReadings(targetInventory.id, notSyncedReadings);
+    await injector.get<InventoryRepository>().postReadings(
+      state.currentInventory!.id,
+      notSyncedReadings,
+    );
     state = state.copyWith(lastSyncedAt: DateTime.now());
   }
 }

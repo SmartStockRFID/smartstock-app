@@ -9,6 +9,7 @@ import 'package:smart_stock/app/ui/_core/providers/inventory_provider.dart';
 import 'package:smart_stock/app/ui/_core/providers/stock_provider.dart';
 import 'package:smart_stock/app/ui/_core/theme/custom_forui.dart';
 import 'package:smart_stock/app/ui/home/widgets/status_panel_widget.dart';
+import 'package:smart_stock/app/ui/inventory/check/logic/future_providers.dart';
 import 'package:smart_stock/app/utils/internet.dart';
 
 @RoutePage()
@@ -37,6 +38,9 @@ class Navbar extends ConsumerWidget {
       spacing: 12,
       children: [
         NavLink(
+          callback: hasActiveInventory
+              ? null
+              : (ref) => {ref.invalidate(getActiveInventoryProvider, asReload: true)},
           icon: FIcons.clipboardCheck,
           title: routesTitles[InventoryCheckRoute.name] ?? '',
           badgeLabel: hasActiveInventory ? 'ABERTO' : null,
@@ -58,12 +62,14 @@ class NavLink extends ConsumerWidget {
   final String title;
   final PageRouteInfo href;
   final String? badgeLabel;
+  final void Function(WidgetRef)? callback;
   const NavLink({
     super.key,
     required this.icon,
     required this.title,
     required this.href,
     this.badgeLabel,
+    this.callback,
   });
 
   @override
@@ -107,6 +113,7 @@ class NavLink extends ConsumerWidget {
       ),
       onPress: () async {
         if (isConnected) {
+          callback?.call(ref);
           AutoTabsRouter.of(context).navigate(href);
         } else if (await appIsOffline() && stockState.hasError && context.mounted) {
           showFToast(

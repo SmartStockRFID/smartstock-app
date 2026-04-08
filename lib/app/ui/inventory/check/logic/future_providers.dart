@@ -10,7 +10,7 @@ final currentUserProvider = FutureProvider.autoDispose<String>((ref) async {
 });
 
 final getActiveInventoryProvider = FutureProvider<InventorySummary?>((ref) async {
-  final inventoryFromCache = ref.read(inventoryManagerProvider).currentInventory;
+  final inventoryFromCache = ref.watch(inventoryManagerProvider).currentInventory;
 
   if (inventoryFromCache != null) {
     return inventoryFromCache;
