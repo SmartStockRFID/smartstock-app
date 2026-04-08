@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/experimental/mutation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_stock/app/routing/router.dart';
 import 'package:smart_stock/app/ui/_core/providers/inventory_provider.dart';
-import 'package:smart_stock/app/ui/inventory/check/inventory_check_page.dart';
+import 'package:smart_stock/app/ui/inventory/check/logic/future_providers.dart';
 import 'package:vibration/vibration.dart';
 import 'package:vibration/vibration_presets.dart';
 

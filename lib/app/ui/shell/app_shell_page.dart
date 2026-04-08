@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -9,24 +7,14 @@ import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:smart_stock/app/config/assets.dart';
 import 'package:smart_stock/app/config/constants.dart';
-import 'package:smart_stock/app/config/preferences_manager.dart';
-import 'package:smart_stock/app/domain/entities/product_entity.dart';
-import 'package:smart_stock/app/domain/firmware/reading_response.dart';
 import 'package:smart_stock/app/routing/router.dart';
-import 'package:smart_stock/app/ui/_core/providers/stock_provider.dart';
-import 'package:smart_stock/app/ui/_core/theme/custom_forui.dart';
 import 'package:smart_stock/app/ui/_core/widgets/app_bar.dart';
-import 'package:smart_stock/app/ui/_core/widgets/custom_card.dart';
-import 'package:smart_stock/app/ui/_core/widgets/loading_widget.dart';
-import 'package:smart_stock/app/ui/inventory/session/widgets/inventory_modals_widgets.dart';
 import 'package:smart_stock/app/ui/shell/logic/quick_read_provider.dart';
 import 'package:smart_stock/app/ui/shell/widgets/app_drawer.dart';
+import 'package:smart_stock/app/ui/shell/widgets/first_session_toast_widget.dart';
+import 'package:smart_stock/app/ui/shell/widgets/quick_read_sheet_widget.dart';
 import 'package:vibration/vibration.dart';
 import 'package:vibration/vibration_presets.dart';
-
-final getIsFirstSession = FutureProvider<bool>((ref) async {
-  return await FirstTimeOnAppStorage.getValue();
-});
 
 @RoutePage()
 class AppShellPage extends HookConsumerWidget {
@@ -41,53 +29,7 @@ class AppShellPage extends HookConsumerWidget {
         isModalOpen.value = true;
         Vibration.vibrate(preset: VibrationPreset.quickSuccessAlert);
 
-        await showFSheet(
-          style: getModalBlurStyle(context).call,
-          context: context,
-          side: FLayout.btt,
-          builder: (context) => ModalContent(
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                // mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Column(
-                    children: [
-                      Text(
-                        'Leitura rápida',
-                        style: context.theme.typography.xl2.copyWith(fontWeight: FontWeight.bold),
-                      ),
-
-                      const Text(
-                        'O conteúdo atual da etiqueta lida é:',
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                    ],
-                  ),
-                  QuickReadCurrentItem(firstRead: state.value!),
-                  FButton(
-                    style: createLargeStyle(
-                      context: context,
-                      backgroundColor: Colors.green,
-                      foregroundColor: Colors.lightGreen,
-                    ),
-                    onPress: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: Text(
-                      'VOLTAR',
-                      style: context.theme.typography.xl2.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
+        await showQuickReadSheet(context, state.value!);
         isModalOpen.value = false;
       }
     });
@@ -113,7 +55,7 @@ class AppShellPage extends HookConsumerWidget {
             child: SafeArea(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                child: FToaster(child: ToastRunner(child: child)),
+                child: FToaster(child: FirstSessionToastRunner(child: child)),
               ),
             ),
           ),
@@ -140,127 +82,20 @@ class AppShellPage extends HookConsumerWidget {
 
     return baseAppBar(
       title: routesTitles[routeName],
-      leadingButton: isAtHome ? null : backButton,
-      actions: [
-        Padding(
-          padding: const EdgeInsets.only(right: 8),
-          child: IconButton(
-            icon: const Icon(FIcons.history, size: 24, color: Colors.white),
-            onPressed: () {
-              context.router.push(const EncodingHistoryRoute());
-            },
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class QuickReadCurrentItem extends HookConsumerWidget {
-  final ReadingResponseContent firstRead;
-
-  const QuickReadCurrentItem({required this.firstRead});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final streamRead = ref.watch(quickReadProvider);
-    final stockState = ref.watch(stockProvider);
-    final currentRead = streamRead.value ?? firstRead;
-
-    final isValueChanging = useState(false);
-
-    ref.listen(quickReadProvider, (_, state) async {
-      if (state.hasValue) {
-        isValueChanging.value = true;
-
-        await Future.delayed(const Duration(milliseconds: 120));
-
-        isValueChanging.value = false;
-      }
-    });
-
-    return CustomCard(
-      child: SizedBox(
-        height: 150,
-        child: isValueChanging.value
-            ? const LoadingWidget()
-            : Center(child: _buildReadingState(context, stockState, currentRead)),
-      ),
-    );
-  }
-
-  Widget _buildReadingState(
-    BuildContext context,
-    AsyncValue<List<Product>> stockState,
-    ReadingResponseContent currentRead,
-  ) {
-    final isResetedTag = currentRead.productOEM == emptyTagOEM;
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Expanded(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              stockState.when(
-                data: (products) {
-                  final productIndex = products.indexWhere(
-                    (p) => p.productCode == currentRead.productOEM,
-                  );
-                  return Text(
-                    isResetedTag
-                        ? 'Etiqueta não gravada'
-                        : productIndex != -1
-                        ? products[productIndex].name
-                        : 'Desconhecido',
-                    style: context.theme.typography.xl3.copyWith(
-                      fontWeight: FontWeight.bold,
-                      height: 1.2,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  );
-                },
-                error: (e, st) => const Text('Desconhecido'),
-                loading: () {
-                  return const LoadingWidget();
-                },
+      leadingButton: backButton,
+      actions: routeName == EncodingSetupRoute.name
+          ? [
+              Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: IconButton(
+                  icon: const Icon(FIcons.history, size: 24, color: Colors.white),
+                  onPressed: () {
+                    context.router.push(const EncodingHistoryRoute());
+                  },
+                ),
               ),
-              const SizedBox(height: 8),
-              Text(
-                'OEM: ${isResetedTag ? 'Limpo' : currentRead.productOEM}',
-                style: context.theme.typography.lg.copyWith(color: Colors.grey),
-              ),
-            ],
-          ),
-        ),
-      ],
+            ]
+          : [],
     );
-  }
-}
-
-class ToastRunner extends HookConsumerWidget {
-  final Widget child;
-
-  const ToastRunner({required this.child});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    ref.listen(getIsFirstSession, (_, state) async {
-      if (state.hasValue && state.value == true) {
-        showFToast(
-          context: context,
-          title: const Text('Dica: Leitura rápida'),
-          description: const Text('Aperte o gatilho para ver o conteúdo de uma etiqueta'),
-          alignment: FToastAlignment.bottomCenter,
-        );
-        await FirstTimeOnAppStorage.setNegative();
-      }
-    });
-
-    return child;
   }
 }

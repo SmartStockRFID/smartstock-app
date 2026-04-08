@@ -4,7 +4,7 @@ import 'package:forui/forui.dart';
 import 'package:smart_stock/app/ui/_core/providers/stock_provider.dart';
 import 'package:smart_stock/app/utils/internet.dart';
 
-class UpdateStockButton extends ConsumerWidget with UpdateStockState, UpdateStockEvent {
+class UpdateStockButton extends ConsumerWidget with _ConsumerState, _ConsumerEvent {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return FButton(
@@ -43,11 +43,11 @@ class UpdateStockButton extends ConsumerWidget with UpdateStockState, UpdateStoc
   }
 }
 
-mixin class UpdateStockEvent {
+mixin class _ConsumerEvent {
   Future<bool> refetchStock(WidgetRef ref) => ref.read(stockProvider.notifier).refresh();
 }
 
-mixin class UpdateStockState {
+mixin class _ConsumerState {
   bool stockIsLoading(WidgetRef ref) =>
       ref.watch(stockProvider.select((state) => state.isLoading || state.isRefreshing));
 }

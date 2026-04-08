@@ -10,8 +10,8 @@ import 'package:smart_stock/app/routing/router.dart';
 import 'package:smart_stock/app/ui/_core/providers/ble_connection_provider.dart';
 import 'package:smart_stock/app/ui/_core/providers/stock_provider.dart';
 import 'package:smart_stock/app/ui/_core/theme/custom_forui.dart';
+import 'package:smart_stock/app/ui/_core/widgets/modal_content.dart';
 import 'package:smart_stock/app/ui/_core/widgets/update_stock_btn.dart';
-import 'package:smart_stock/app/ui/inventory/session/widgets/inventory_modals_widgets.dart';
 
 Future<void> showStatusSheet(BuildContext context) async {
   return showFSheet(
@@ -84,7 +84,7 @@ class BleListTile extends ConsumerWidget {
     } else if (bleStatusColor == StatusColors.LOADING.color) {
       bleStatusText = 'Buscando dispositivos...';
     } else if (bleStatusColor == StatusColors.OK.color) {
-      bleStatusText = connectedDevice?.platformName ?? 'Conectado';
+      bleStatusText = connectedDevice?.remoteId.str ?? 'Conectado';
     }
 
     return ListTile(
@@ -110,7 +110,7 @@ class StockListTile extends ConsumerWidget {
     );
 
     return ListTile(
-      title: _buildLastUpdateInfo(context, ref),
+      title: Row(children: [const SizedBox(width: 3), _buildLastUpdateInfo(context, ref)]),
       leading: SvgPicture.asset(Assets.stockIcon, height: 32, color: stockStatusColor),
     );
   }
