@@ -33,7 +33,7 @@ Future<void> showStatusSheet(BuildContext context) async {
                 child: DecoratedBox(
                   decoration: const BoxDecoration(color: Colors.white),
                   child: ListView(
-                    padding: const EdgeInsets.all(8),
+                    padding: const EdgeInsets.symmetric(vertical: 8),
                     children: <Widget>[
                       const BleListTile(),
                       const StockListTile(),

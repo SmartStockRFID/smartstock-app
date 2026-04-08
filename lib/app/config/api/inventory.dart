@@ -12,10 +12,6 @@ class InventoryAPI {
     return APIConnector.fetch('inventarios-ativo', method: HTTPVerb.GET);
   }
 
-  static Future<dio.Response> getAllInventories() async {
-    return APIConnector.fetch('inventarios', method: HTTPVerb.GET);
-  }
-
   // TODO: Trocar esse dynamic por um tipo verdadeiro
   static Future<dio.Response> postReading(int inventoryId, dynamic readings) async {
     return APIConnector.fetch(
@@ -26,8 +22,6 @@ class InventoryAPI {
   }
 
   static Future<dio.Response> startInventory(String employeeUsername) async {
-    final Map<String, dynamic> body = {'username_funcionario': employeeUsername};
-
-    return APIConnector.fetch('inventarios', method: HTTPVerb.POST, body: body);
+    return APIConnector.fetch('inventarios', method: HTTPVerb.POST);
   }
 }

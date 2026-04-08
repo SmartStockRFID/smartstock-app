@@ -87,7 +87,7 @@ final class InventoryManagerProvider
   }
 }
 
-String _$inventoryManagerHash() => r'5935fa40daae665bd802f144e1e484aab32de626';
+String _$inventoryManagerHash() => r'2aa60f112da021cb948e8a0e499145725b619e9c';
 
 @JsonPersist()
 abstract class _$InventoryManagerBase extends $Notifier<InventoryManagerState> {

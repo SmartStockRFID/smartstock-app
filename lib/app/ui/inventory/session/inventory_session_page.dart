@@ -34,8 +34,6 @@ class InventorySessionInterface extends ConsumerWidget {
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  // _Scoreboard(confState: confState),
-                  // const SizedBox(height: 16),
                   _CurrentItem(),
                   const SizedBox(height: 16),
                   _ReadingHistory(),

@@ -20,7 +20,7 @@ import 'package:smart_stock/app/ui/_core/widgets/custom_card.dart';
 import 'package:smart_stock/app/ui/_core/widgets/loading_widget.dart';
 import 'package:smart_stock/app/ui/_core/widgets/update_stock_btn.dart';
 import 'package:smart_stock/app/ui/inventory/check/logic/init_inventory_mutation.dart';
-import 'package:smart_stock/app/utils/logger.dart';
+import 'package:smart_stock/app/utils/internet.dart';
 import 'package:vibration/vibration.dart';
 import 'package:vibration/vibration_presets.dart';
 
@@ -28,27 +28,16 @@ final currentUserProvider = FutureProvider.autoDispose<String>((ref) async {
   return await CurrentUserStorage.getValue() ?? 'Inautorizado';
 });
 
-final getActiveInventoryProvider =
-    FutureProvider.autoDispose<({InventorySummary? inventory, bool ok})>((ref) async {
-      final inventoryFromCache = ref.read(inventoryManagerProvider).currentInventory;
+final getActiveInventoryProvider = FutureProvider<InventorySummary?>((ref) async {
+  final inventoryFromCache = ref.read(inventoryManagerProvider).currentInventory;
 
-      if (inventoryFromCache != null) {
-        return (inventory: inventoryFromCache, ok: true);
-      }
+  if (inventoryFromCache != null) {
+    return inventoryFromCache;
+  }
 
-      try {
-        final inventoryFromServer = await injector.get<InventoryRepository>().getActiveInventory();
-
-        if (inventoryFromServer != null) {
-          ref.read(inventoryManagerProvider.notifier).setInventoryFromServer(inventoryFromServer);
-          return (inventory: inventoryFromServer, ok: true);
-        }
-        return (inventory: null, ok: true);
-      } catch (error) {
-        logger.e(error);
-        return (inventory: null, ok: false);
-      }
-    });
+  final inventoryRepository = injector.get<InventoryRepository>();
+  return inventoryRepository.getActiveInventory();
+});
 
 class InitInventoryButton extends HookConsumerWidget with _InitInventoryState {
   @override
@@ -57,6 +46,7 @@ class InitInventoryButton extends HookConsumerWidget with _InitInventoryState {
         currentUser(ref).hasValue &&
         !currentUser(ref).isLoading &&
         !queryActiveInventory(ref).isLoading &&
+        !queryActiveInventory(ref).hasError &&
         stockState(ref).hasValue &&
         isInitIdle(ref);
 
@@ -75,34 +65,27 @@ class InitInventoryButton extends HookConsumerWidget with _InitInventoryState {
           return;
         }
 
-        if (queryActiveInventory(ref).value?.inventory != null) {
+        final activeInventory = queryActiveInventory(ref).value;
+
+        if (activeInventory != null) {
+          ref.read(inventoryManagerProvider.notifier).setInventoryFromServer(activeInventory);
           Vibration.vibrate(preset: VibrationPreset.quickSuccessAlert);
           context.router.replaceAll([const HomeRoute(), const InventorySessionRoute()]);
-        } else {
-          if (!isInitIdle(ref)) {
-            return;
-          }
-
+        } else if (isInitIdle(ref)) {
           initInventoryMutation.run(ref, initInventoryRun(context, ref));
         }
       },
       child: currentUser(ref).when(
-        data: (username) => queryActiveInventory(ref).when(
-          data: (invState) {
+        data: (loggedUsername) => queryActiveInventory(ref).when(
+          data: (inventory) {
             String btnLabel;
-
-            if (invState.inventory == null) {
-              if (invState.ok) {
-                btnLabel = 'INICIAR AGORA';
-              } else {
-                btnLabel = 'INICIAR OFFLINE';
-              }
-            } else if (invState.inventory!.employeeUsername == username) {
+            if (inventory == null) {
+              btnLabel = 'INICIAR AGORA';
+            } else if (inventory.employeeUsername == loggedUsername) {
               btnLabel = 'CONTINUAR AGORA';
             } else {
               btnLabel = 'ENTRAR NA SESSÃO';
             }
-
             return Text(
               btnLabel,
               style: context.theme.typography.xl2.copyWith(color: Colors.white),
@@ -110,10 +93,10 @@ class InitInventoryButton extends HookConsumerWidget with _InitInventoryState {
           },
           error: (e, st) =>
               Text('ERRO', style: context.theme.typography.xl2.copyWith(color: Colors.white)),
-          loading: () => const LoadingWidget(),
+          loading: () => const LoadingWidget(color: Colors.white),
         ),
-        error: (err, trace) => const Text('Inautorizado'),
-        loading: () => const LoadingWidget(),
+        error: (err, trace) => const Text('INAUTORIZADO'),
+        loading: () => const LoadingWidget(color: Colors.white),
       ),
     );
   }
@@ -138,12 +121,7 @@ class InventoryCheckPage extends ConsumerWidget {
             physics: AlwaysScrollableScrollPhysics(),
             child: Column(
               spacing: 16,
-              children: [
-                _ResponsibleEmployee(),
-                _InventoryStatus(),
-                _ConnectionChecker(),
-                // _Alert(),
-              ],
+              children: [_ResponsibleEmployee(), _InventoryStatus(), _ConnectionChecker()],
             ),
           ),
         ),
@@ -161,7 +139,6 @@ class _ConnectionChecker extends ConsumerWidget {
     final stockState = ref.watch(stockProvider);
     final stockLastUpdate = ref.watch(stockProvider.notifier).updatedAt;
     final bleState = ref.watch(bleConnectionProvider.select((state) => state.currentState));
-    // final isInventor yConnectedToServer = ref.watch(inventoryManagerProvider.select((state)=>state.currentInventory));
 
     return CustomCard(
       title: const Text('Checklist de Prontidão'),
@@ -193,7 +170,7 @@ mixin class _InitInventoryState {
   AsyncValue<String> currentUser(WidgetRef ref) => ref.watch(currentUserProvider);
   bool isInitIdle(WidgetRef ref) =>
       ref.watch(initInventoryMutation.select((state) => state is MutationIdle));
-  AsyncValue<({InventorySummary? inventory, bool ok})> queryActiveInventory(WidgetRef ref) =>
+  AsyncValue<InventorySummary?> queryActiveInventory(WidgetRef ref) =>
       ref.watch(getActiveInventoryProvider);
   AsyncValue<List<Product>> stockState(WidgetRef ref) => ref.watch(stockProvider);
 }
@@ -212,42 +189,38 @@ class _InventoryStatus extends ConsumerWidget {
         children: [
           currentUser.when(
             data: (username) => queryActiveInventory.when(
-              data: (invState) {
-                String message;
-                bool hasError = false;
+              data: (inventory) {
+                String feedback;
 
-                if (invState.inventory == null) {
-                  if (invState.ok) {
-                    message = 'Nenhum inventário em andamento';
-                  } else {
-                    message = 'Erro ao se comunicar com o servidor';
-                    hasError = true;
-                  }
-                } else if (invState.inventory!.employeeUsername == username) {
-                  message = 'Retomar inventário #${invState.inventory!.id}?';
+                if (inventory == null) {
+                  feedback = 'Nenhum inventário em andamento';
+                } else if (inventory.employeeUsername == username) {
+                  feedback = 'Retomar inventário #${inventory.id}?';
                 } else {
-                  message =
-                      '${invState.inventory!.employeeUsername} está realizando o inventário #${invState.inventory!.id}';
+                  feedback =
+                      '${inventory.employeeUsername} está realizando o inventário #${inventory.id}';
                 }
 
-                return Center(
-                  child: Text(
-                    message,
-                    style: context.theme.typography.xl2.copyWith(
-                      color: hasError ? Colors.red : Colors.black,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                );
+                return buildTextFeeback(context, feedback);
               },
-              error: (e, st) => const Text('Erro ao carregar dados do servidor'),
+              error: (e, st) =>
+                  buildTextFeeback(context, 'Erro ao carregar dados do servidor', error: true),
               loading: () => const LoadingWidget(),
             ),
-            error: (err, trace) => const Text('Inautorizado'),
+            error: (err, trace) =>
+                buildTextFeeback(context, 'Erro ao carregar usuário logado', error: true),
             loading: () => const LoadingWidget(),
           ),
         ],
       ),
+    );
+  }
+
+  Text buildTextFeeback(BuildContext context, String message, {bool error = false}) {
+    return Text(
+      message,
+      style: context.theme.typography.xl2.copyWith(color: error ? Colors.red : Colors.black),
+      textAlign: TextAlign.center,
     );
   }
 }

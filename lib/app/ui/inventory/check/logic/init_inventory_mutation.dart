@@ -12,9 +12,7 @@ final initInventoryMutation = Mutation<void>();
 
 Future<void> Function(MutationTransaction) initInventoryRun(BuildContext context, WidgetRef ref) {
   return (tsx) async {
-    final isOnline = tsx.get(getActiveInventoryProvider).value?.ok ?? false;
-
-    await tsx.get(inventoryManagerProvider.notifier).startInventoryFlow(offline: !isOnline);
+    await tsx.get(inventoryManagerProvider.notifier).startInventoryFlow();
 
     Vibration.vibrate(preset: VibrationPreset.quickSuccessAlert);
 
