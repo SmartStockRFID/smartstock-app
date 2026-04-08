@@ -47,7 +47,7 @@ class InventorySessionPage extends ConsumerStatefulWidget {
   ConsumerState<InventorySessionPage> createState() => _InventorySessionPageState();
 }
 
-mixin class InventorySessionState {
+mixin class InventorySessionConsumerState {
   int? inventoryId(WidgetRef ref) =>
       ref.watch(inventoryManagerProvider.select((state) => state.currentInventory?.id));
 
@@ -56,7 +56,7 @@ mixin class InventorySessionState {
 }
 
 class _InventorySessionPageState extends ConsumerState<InventorySessionPage>
-    with InventorySessionState, SingleTickerProviderStateMixin {
+    with InventorySessionConsumerState, SingleTickerProviderStateMixin {
   late final AnimationController _animationController;
 
   @override

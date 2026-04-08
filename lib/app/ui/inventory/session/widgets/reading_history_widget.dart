@@ -2,21 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:smart_stock/app/domain/interfaces/inventory_interfaces.dart';
+import 'package:smart_stock/app/domain/reading.dart';
 import 'package:smart_stock/app/ui/_core/providers/inventory_provider.dart';
 import 'package:smart_stock/app/ui/_core/providers/stock_provider.dart';
 import 'package:smart_stock/app/ui/_core/widgets/custom_card.dart';
-
+import 'package:smart_stock/app/utils/reading.dart';
 
 class ReadingHistory extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final stockState = ref.watch(stockProvider);
-    final readings = ref.watch(inventoryManagerProvider.select((state) => state.readings));
-    final readingsCount = ref.watch(
-      inventoryManagerProvider.select((state) => state.readingsCount),
-    );
+    final validReadings = stockState.value != null
+        ? ref
+              .watch(inventoryManagerProvider.select((state) => state.readings))
+              .where((reading) => isProductReadingsValid(reading, stockState.value!))
+              .toList()
+        : <ProductReadings>[];
+    final validTagsCount = getProductReadingsTagsCount(validReadings);
 
-    if (readings.isEmpty) {
+    if (validReadings.isEmpty) {
       return const SizedBox.shrink();
     }
 
@@ -30,7 +35,7 @@ class ReadingHistory extends ConsumerWidget {
           ),
           FBadge(
             child: Text(
-              '$readingsCount lidos',
+              '$validTagsCount lidos',
               style: context.theme.typography.lg.copyWith(
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
@@ -42,9 +47,9 @@ class ReadingHistory extends ConsumerWidget {
       child: ListView.separated(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
-        itemCount: readings.length,
+        itemCount: validReadings.length,
         itemBuilder: (context, index) {
-          final reading = readings[index];
+          final reading = validReadings[index];
           return ListTile(
             contentPadding: EdgeInsets.zero,
             title: stockState.when(

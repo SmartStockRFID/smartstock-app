@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:smart_stock/app/domain/entities/product_entity.dart';
 import 'package:smart_stock/app/domain/interfaces/inventory_interfaces.dart';
+import 'package:smart_stock/app/domain/reading.dart';
 import 'package:smart_stock/app/ui/_core/providers/inventory_provider.dart';
 import 'package:smart_stock/app/ui/_core/providers/stock_provider.dart';
 import 'package:smart_stock/app/ui/_core/widgets/custom_card.dart';
@@ -13,19 +14,23 @@ class CurrentItem extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final stockState = ref.watch(stockProvider);
-    final lastReading = ref.watch(
-      inventoryManagerProvider.select((state) => state.lastAddedProductReading),
-    );
 
     final isValueChanging = useState(false);
+    final showedReading = useState<ProductReadings?>(null);
 
     ref.listen(inventoryManagerProvider.select((state) => state.lastAddedProductReading), (
       _,
-      _,
+      lastReading,
     ) async {
-      isValueChanging.value = true;
-      await Future.delayed(const Duration(milliseconds: 500));
-      isValueChanging.value = false;
+      if (stockState.hasValue &&
+          lastReading != null &&
+          isProductReadingsValid(lastReading, stockState.value!)) {
+        showedReading.value = lastReading;
+
+        isValueChanging.value = true;
+        await Future.delayed(const Duration(milliseconds: 500));
+        isValueChanging.value = false;
+      }
     });
 
     return CustomCard(
@@ -35,27 +40,29 @@ class CurrentItem extends HookConsumerWidget {
         height: 240,
         child: Padding(
           padding: const EdgeInsets.all(8),
-          child: Center(
-            child: lastReading == null
-                ? Text(
-                    'Aguardando leitura...',
-                    style: context.theme.typography.xl2.copyWith(fontWeight: FontWeight.bold),
-                  )
-                : _ReadingState(context: context, stockState: stockState, lastReading: lastReading),
-          ),
+          child: showedReading.value == null
+              ? Text(
+                  'Aguardando leitura...',
+                  style: context.theme.typography.xl2.copyWith(fontWeight: FontWeight.bold),
+                )
+              : _ReadingView(
+                  context: context,
+                  stockState: stockState,
+                  lastReading: showedReading.value!,
+                ),
         ),
       ),
     );
   }
 }
 
-class _ReadingState extends StatelessWidget {
+class _ReadingView extends StatelessWidget {
   final BuildContext context;
 
   final AsyncValue<List<Product>> stockState;
   final ProductReadings lastReading;
 
-  const _ReadingState({required this.context, required this.stockState, required this.lastReading});
+  const _ReadingView({required this.context, required this.stockState, required this.lastReading});
 
   @override
   Widget build(BuildContext context) {

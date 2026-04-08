@@ -19,12 +19,8 @@ final backendUrlProvider = FutureProvider.autoDispose<String>((ref) async {
 
 final loginMutation = Mutation<void>();
 
-final savedInfoProvider = FutureProvider.autoDispose<(String?, List<String>?)>((ref) async {
-  final [currentUser, savedLogins] = await Future.wait([
-    CurrentUserStorage.getValue(),
-    SavedLoginsStorage.getValues(),
-  ]);
-  return (currentUser as String?, savedLogins as List<String>?);
+final savedLoginsProvider = FutureProvider.autoDispose<List<String>?>((ref) async {
+  return SavedLoginsStorage.getValues();
 });
 
 class LoginForm extends HookConsumerWidget {
@@ -77,16 +73,13 @@ class LoginForm extends HookConsumerWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 ref
-                    .watch(savedInfoProvider)
+                    .watch(savedLoginsProvider)
                     .when(
-                      data: (data) {
-                        final String? currentUser = data.$1;
-                        final List<String>? savedLogins = data.$2;
-
+                      data: (savedLogins) {
                         if (wantToUseSelect.value &&
                             savedLogins != null &&
-                            savedLogins.isNotEmpty &&
-                            currentUser != null) {
+                            savedLogins.isNotEmpty == true) {
+                          usernameSelectController.value = savedLogins.lastOrNull;
                           return FSelect<String>.rich(
                             style: (style) => style.copyWith(
                               selectFieldStyle: (contStyle) => contStyle.copyWith(

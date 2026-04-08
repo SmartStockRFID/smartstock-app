@@ -156,8 +156,6 @@ class InventoryManagerState {
   factory InventoryManagerState.fromJson(Map<String, dynamic> json) =>
       _$InventoryManagerStateFromJson(json);
 
-  int get readingsCount => readings.fold(0, (acc, r) => acc + r.tagCount);
-
   InventoryManagerState copyWith({
     InventorySummary? currentInventory,
     List<ProductReadings>? readings,

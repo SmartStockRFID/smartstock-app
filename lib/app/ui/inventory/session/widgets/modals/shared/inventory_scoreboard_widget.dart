@@ -1,24 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:smart_stock/app/domain/interfaces/inventory_interfaces.dart';
+import 'package:smart_stock/app/domain/reading.dart';
 import 'package:smart_stock/app/ui/_core/providers/inventory_provider.dart';
+import 'package:smart_stock/app/ui/_core/providers/stock_provider.dart';
+import 'package:smart_stock/app/utils/reading.dart';
 
 class Scoreboard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final readings = ref.watch(inventoryManagerProvider.select((state) => state.readings));
-    final readingsCount = ref.watch(
-      inventoryManagerProvider.select((state) => state.readingsCount),
-    );
+    final stockState = ref.watch(stockProvider);
+    final validReadings = stockState.value != null
+        ? ref
+              .watch(inventoryManagerProvider.select((state) => state.readings))
+              .where((reading) => isProductReadingsValid(reading, stockState.value!))
+              .toList()
+        : <ProductReadings>[];
+    final validReadingsCount = getProductReadingsTagsCount(validReadings);
 
     return Column(
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            _ScoreboardItem(count: readings.length, label: 'Produtos Únicos'),
+            _ScoreboardItem(count: validReadings.length, label: 'Produtos Únicos'),
             const VerticalDivider(width: 20, color: Colors.grey),
-            _ScoreboardItem(count: readingsCount, label: 'Etiquetas Lidas'),
+            _ScoreboardItem(count: validReadingsCount, label: 'Etiquetas Lidas'),
           ],
         ),
       ],
