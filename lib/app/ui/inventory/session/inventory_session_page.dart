@@ -274,7 +274,9 @@ class _ReadingHistory extends ConsumerWidget {
             contentPadding: EdgeInsets.zero,
             title: stockState.when(
                 data: (products) {
-                  final productIndex = products.indexWhere((p) => p.productCode == reading.productOEM);
+                  final productIndex = products.indexWhere(
+                    (p) => p.productCode == reading.productOEM,
+                  );
                 return Text(
                     productIndex != -1 ? products[productIndex].name : 'Desconhecido',
                   style: const TextStyle(fontWeight: FontWeight.bold),

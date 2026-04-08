@@ -44,7 +44,7 @@ class StatusPanelWidget extends ConsumerWidget {
                 _StatusItem(color: bleStatusColor, height: 36, svgPath: Assets.scannerIcon),
                 _StatusItem(svgPath: Assets.stockIcon, height: 32, color: stockStatusColor),
                 const SizedBox(width: 2),
-                const Icon(FIcons.chevronRight, size: 18),
+                const Icon(FIcons.chevronDown, size: 18),
               ],
             ),
           ],

@@ -249,28 +249,6 @@ class ToastRunner extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // final otaProgress = ref.watch(bleConnectionProvider).currentState.manager.otaProgress;
-    // final progress = useState<int?>();
-
-    // parei aqui: qual eh o problema atual: eu consigo fazer a atualizacao, mas o modal de update fecha, nao sei pq.
-    // eu tava tentando botar esse toast aqui, bora ve se da certo.
-    // mas sinceramente, acho q uma opcao valida eh embelzar a tela de update disponivel
-    // e colcoar so ela no tcc. e ai eu commito a versao de agora q ja ta funcionado e dps
-    // vejo a questao do modal fechando dps de temrinar de escrver.
-
-    // mas antes, nao faz mal terimnar RAPIDO esse codiginuinho aqui e testar.
-
-    // LEMBRETE: commitar essas alteraacoes aqui em uma branch diferente da demo.
-
-    // useEffect(() {
-    //   if (otaProgress != null) {
-    //     otaProgress.listen();
-    //   }
-    //   return () {};
-    // }, [otaProgress]);
-
-    // otaProgress?.listen((event) {});
-
     ref.listen(getIsFirstSession, (_, state) async {
       if (state.hasValue && state.value == true) {
         showFToast(
