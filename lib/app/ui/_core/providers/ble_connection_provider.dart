@@ -11,7 +11,7 @@ import 'package:smart_stock/app/config/env.dart';
 
 part 'ble_connection_provider.g.dart';
 
-final Guid rfidServiceUUID = Guid(Enviroment.rfidServiceUUID()!);
+final Guid rfidServiceUUID = Guid(Enviroment.rfidServiceUUID());
 
 @Riverpod(keepAlive: true)
 class BleConnection extends _$BleConnection {

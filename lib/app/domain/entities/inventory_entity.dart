@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:smart_stock/app/domain/entities/event_entity.dart';
 import 'package:smart_stock/app/domain/entities/reading_entity.dart';
 
 part 'inventory_entity.g.dart';
@@ -10,7 +9,6 @@ class InventoryDetail {
   final int id;
   final String status;
   final List<Reading> readings;
-  final List<Event> events;
   final DateTime createdAt;
 
   InventoryDetail({
@@ -18,7 +16,6 @@ class InventoryDetail {
     required this.id,
     required this.status,
     required this.readings,
-    required this.events,
     required this.createdAt,
   });
 }
@@ -26,7 +23,7 @@ class InventoryDetail {
 @JsonSerializable()
 @immutable
 class InventorySummary {
-  final int? id;
+  final int id;
   final String employeeUsername;
   final DateTime createdAt;
 

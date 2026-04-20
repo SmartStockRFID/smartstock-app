@@ -8,7 +8,7 @@ part of 'stock_cache.dart';
 
 StockCache _$StockCacheFromJson(Map<String, dynamic> json) => StockCache(
   products: (json['products'] as List<dynamic>)
-      .map((e) => CarPart.fromJson(e as Map<String, dynamic>))
+      .map((e) => Product.fromJson(e as Map<String, dynamic>))
       .toList(),
   savedAt: DateTime.parse(json['savedAt'] as String),
 );

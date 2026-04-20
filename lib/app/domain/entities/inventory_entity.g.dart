@@ -8,7 +8,7 @@ part of 'inventory_entity.dart';
 
 InventorySummary _$InventorySummaryFromJson(Map<String, dynamic> json) =>
     InventorySummary(
-      id: (json['id'] as num?)?.toInt(),
+      id: (json['id'] as num).toInt(),
       employeeUsername: json['employeeUsername'] as String,
       createdAt: DateTime.parse(json['createdAt'] as String),
     );

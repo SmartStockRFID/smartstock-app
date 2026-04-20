@@ -2,14 +2,13 @@
 
 import 'package:dio/dio.dart' as dio;
 import 'package:smart_stock/app/config/api/_middleware.dart';
-import 'package:smart_stock/app/config/env.dart';
+import 'package:smart_stock/app/config/constants.dart';
 import 'package:smart_stock/app/utils/internet.dart';
 import 'package:smart_stock/app/utils/logger.dart';
 
 final _apiInstance = dio.Dio();
 
 class APIConnector {
-  static final baseUrl = Enviroment.backendBaseURL()!;
   static const defaultHeaders = {
     dio.Headers.contentTypeHeader: 'application/json',
     dio.Headers.acceptHeader: 'application/json',
@@ -25,6 +24,7 @@ class APIConnector {
     await checkIfHasInternet();
 
     try {
+      final baseUrl = await AppConfig.getBackUrl();
       final url = Uri.parse('$baseUrl/$endpoint').toString();
 
       final response = await _apiInstance.fetch(

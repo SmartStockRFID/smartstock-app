@@ -6,8 +6,6 @@ import 'package:riverpod_annotation/experimental/json_persist.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:smart_stock/app/config/assets.dart';
 import 'package:smart_stock/app/config/dependencies.dart';
-import 'package:smart_stock/app/config/exceptions.dart';
-import 'package:smart_stock/app/config/preferences_manager.dart';
 import 'package:smart_stock/app/data/repositories/inventory_repository.dart';
 import 'package:smart_stock/app/domain/entities/inventory_entity.dart';
 import 'package:smart_stock/app/domain/firmware/reading_response.dart';
@@ -79,21 +77,19 @@ class InventoryManager extends _$InventoryManager {
     return const InventoryManagerState();
   }
 
-  Future<void> initOfflineInventory() async {
-    final currentUser = await CurrentUserStorage.getValue();
-    if (currentUser == null) {
+  Future<void> finishInventory() async {
+    await checkIfHasInternet();
+
+    if (state.currentInventory == null) {
       return;
     }
 
-    final newInventory = InventorySummary(
-      id: null,
-      employeeUsername: currentUser,
-      createdAt: DateTime.now(),
-    );
-    state = state.copyWith(currentInventory: newInventory);
+    await syncInventory();
+
+    await injector.get<InventoryRepository>().finishInventory(state.currentInventory!.id);
   }
 
-  Future<void> initOnlineInventory() async {
+  Future<void> initInventory() async {
     final newInventory = await injector.get<InventoryRepository>().initInventory();
     state = state.copyWith(currentInventory: newInventory);
   }
@@ -117,11 +113,7 @@ class InventoryManager extends _$InventoryManager {
     state = state.copyWith(currentInventory: inventory);
   }
 
-  Future<void> startInventoryFlow({required bool offline}) async {
-    final Future<void> Function() initInventory = offline
-        ? initOfflineInventory
-        : initOnlineInventory;
-
+  Future<void> startInventoryFlow() async {
     await Future.wait([
       initInventory(),
       ref.read(bleConnectionProvider).currentState.manager.enterOnReadMode(),
@@ -130,17 +122,9 @@ class InventoryManager extends _$InventoryManager {
 
   Future<void> syncInventory() async {
     await checkIfHasInternet();
-    InventorySummary targetInventory;
 
-    if (state.currentInventory?.id != null) {
-      targetInventory = state.currentInventory!;
-    } else {
-      final inventoryRepo = injector.get<InventoryRepository>();
-      targetInventory =
-          await inventoryRepo.getActiveInventory() ?? await inventoryRepo.initInventory();
-      if (targetInventory.id == null) {
-        throw const InternalSystemException("This shoudln't be reached");
-      }
+    if (state.currentInventory == null) {
+      return;
     }
 
     final notSyncedReadings = [...state.readings];
@@ -152,7 +136,10 @@ class InventoryManager extends _$InventoryManager {
       notSyncedReadings[i] = notSyncedReadings[i].copyWith(readTags: readings);
     }
 
-    await injector.get<InventoryRepository>().postReadings(targetInventory.id!, notSyncedReadings);
+    await injector.get<InventoryRepository>().postReadings(
+      state.currentInventory!.id,
+      notSyncedReadings,
+    );
     state = state.copyWith(lastSyncedAt: DateTime.now());
   }
 }
@@ -178,8 +165,6 @@ class InventoryManagerState {
 
   factory InventoryManagerState.fromJson(Map<String, dynamic> json) =>
       _$InventoryManagerStateFromJson(json);
-
-  int get readingsCount => readings.fold(0, (acc, r) => acc + r.tagCount);
 
   InventoryManagerState copyWith({
     InventorySummary? currentInventory,

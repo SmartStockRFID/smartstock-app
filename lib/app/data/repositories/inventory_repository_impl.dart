@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:smart_stock/app/config/api/inventory.dart';
 import 'package:smart_stock/app/config/exceptions.dart';
 import 'package:smart_stock/app/config/preferences_manager.dart';
@@ -10,10 +8,10 @@ import 'package:smart_stock/app/domain/interfaces/inventory_interfaces.dart';
 import 'package:smart_stock/app/utils/json.dart';
 
 class InventoryRepositoryImpl implements InventoryRepository {
-  // @override
-  // Future<void> finishInventory(int inventoryId) async {
-  //   await InventoryAPI.finishInventory(inventoryId);
-  // }
+  @override
+  Future<void> finishInventory(int inventoryId) async {
+    await InventoryAPI.finishInventory(inventoryId);
+  }
 
   @override
   Future<InventorySummary?> getActiveInventory() async {
@@ -28,18 +26,10 @@ class InventoryRepositoryImpl implements InventoryRepository {
       return null;
     }
 
-    throw HttpException('Falha ao finalizar inventário: ${response.statusCode} - ${response.data}');
-  }
-
-  // TODO: Fazer filtros de busca nessa rotax
-  @override
-  Future<List<InventorySummary>> getAllInventories() async {
-    final response = await InventoryAPI.getAllInventories();
-
-    final list = response.data;
-    checkIfIsList(list);
-
-    return InventorySummaryDTO.fromJsonList(list);
+    throw APIException(
+      'Unexpected success response on getActiveInventory - ${response.data}',
+      code: response.statusCode ?? -1,
+    );
   }
 
   @override
@@ -61,7 +51,7 @@ class InventoryRepositoryImpl implements InventoryRepository {
   @override
   Future<void> postReadings(int inventoryId, List<ProductReadings> readings) async {
     final List<Map<String, dynamic>> processedReadings = [];
-    
+
     for (final ProductReadings reading in readings) {
       for (final ReadTag readTag in reading.readTags) {
         processedReadings.add({

@@ -10,7 +10,7 @@ import 'package:smart_stock/app/bluetooth/permission_denied_state.dart';
 import 'package:smart_stock/app/config/env.dart';
 import 'package:smart_stock/app/utils/logger.dart';
 
-final Guid rfidServiceUUID = Guid(Enviroment.rfidServiceUUID()!);
+final Guid rfidServiceUUID = Guid(Enviroment.rfidServiceUUID());
 
 class ScanState extends RetryState {
   StreamSubscription? _scanSubscription;

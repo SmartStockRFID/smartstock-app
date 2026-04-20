@@ -1,4 +1,3 @@
-import 'package:smart_stock/app/domain/entities/event_entity.dart';
 import 'package:smart_stock/app/domain/entities/inventory_entity.dart';
 import 'package:smart_stock/app/domain/entities/reading_entity.dart';
 
@@ -16,23 +15,11 @@ class InventoryDetailDTO {
         )
         .toList();
 
-    final events = (json['eventos'] as List)
-        .map(
-          (e) => Event(
-            type: e['tipo'],
-            description: e['descricao'],
-            occurredAt: DateTime.parse(e['ocorreu_em']),
-            id: e['id'],
-          ),
-        )
-        .toList();
-
     return InventoryDetail(
       id: json['id'],
       employeeUsername: json['username_funcionario'],
       status: json['status'],
       readings: readings,
-      events: events,
       createdAt: DateTime.parse(json['created_at'] as String),
     );
   }
@@ -49,16 +36,6 @@ class InventoryDetailDTO {
               'id': r.id,
               'ultima_leitura': r.lastReading.toIso8601String(),
               'quantidade': r.quantity,
-            },
-          )
-          .toList(),
-      'eventos': inventory.events
-          .map(
-            (e) => {
-              'tipo': e.type,
-              'descricao': e.description,
-              'ocorreu_em': e.occurredAt.toIso8601String(),
-              'id': e.id,
             },
           )
           .toList(),

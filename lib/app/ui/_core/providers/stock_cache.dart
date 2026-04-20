@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:smart_stock/app/domain/entities/part_entity.dart';
+import 'package:smart_stock/app/domain/entities/product_entity.dart';
 import 'package:smart_stock/app/utils/logger.dart';
 
 part 'stock_cache.g.dart';
@@ -47,7 +47,7 @@ Future<void> writeStockCache(StockCache cache) async {
 @immutable
 class StockCache {
   final DateTime savedAt;
-  final List<CarPart> products;
+  final List<Product> products;
 
   const StockCache({required this.products, required this.savedAt});
 
