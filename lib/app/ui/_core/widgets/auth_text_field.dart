@@ -25,7 +25,7 @@ Widget buildInputField({
         borderSide: BorderSide(color: context.theme.colors.secondaryForeground, width: 1),
       ),
       focusedBorder: const OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.green, width: 1.5),
+        borderSide: BorderSide(color: Colors.blue, width: 1.5),
       ),
       enabledBorder: OutlineInputBorder(
         borderSide: BorderSide(color: context.theme.colors.secondaryForeground, width: 1),

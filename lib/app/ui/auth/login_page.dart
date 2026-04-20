@@ -2,7 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:smart_stock/app/config/api/auth.dart';
-import 'package:smart_stock/app/data/dtos/login_dto.dart';
+import 'package:smart_stock/app/data/dtos/auth/login_dto.dart';
 import 'package:smart_stock/app/routing/router.dart';
 import 'package:smart_stock/app/ui/auth/login_interface.dart';
 import 'package:smart_stock/app/utils/internet.dart';
@@ -19,6 +19,8 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStateMixin {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _newBackendServerURLFormKey = GlobalKey<FormState>();
+  final TextEditingController _newBackendServerURL = TextEditingController();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   late final _usernameSelectController = FSelectController<String>(vsync: this);
@@ -26,6 +28,8 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   @override
   Widget build(BuildContext context) {
     return LoginInterface(
+      newBackendServerURLFormKey: _newBackendServerURLFormKey,
+      newBackendServerURLController: _newBackendServerURL,
       formKey: _formKey,
       usernameController: _usernameController,
       passwordController: _passwordController,

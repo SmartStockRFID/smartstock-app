@@ -2,9 +2,9 @@
 // TODO: Lacks point "3) Drawbacks & the Flag + Queue Optimization implementation" to complete the article.
 
 import 'package:dio/dio.dart';
-import 'package:smart_stock/app/config/env.dart';
+import 'package:smart_stock/app/config/constants.dart';
 import 'package:smart_stock/app/config/token_storage.dart';
-import 'package:smart_stock/app/data/dtos/login_dto.dart';
+import 'package:smart_stock/app/data/dtos/auth/login_dto.dart';
 import 'package:smart_stock/app/utils/json.dart';
 
 class AuthorizationInterceptor extends Interceptor {
@@ -47,7 +47,7 @@ class AuthorizationInterceptor extends Interceptor {
 
   Future<String?> _refreshAccessToken() async {
     try {
-      final baseUrl = Enviroment.backendBaseURL();
+      final baseUrl = await AppConfig.getBackUrl();
       final path = '$baseUrl/auth/refresh';
 
       final tokens = await TokenStorage.getTokens();

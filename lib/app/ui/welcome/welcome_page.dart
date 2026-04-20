@@ -37,7 +37,7 @@ class WelcomeScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           spacing: 8,
           children: [
-            if (useNewlandTheme)
+            if (AppConfig.useNewlandTheme)
               SvgPicture.asset(Assets.newlandLogo, height: MediaQuery.of(context).size.height / 32)
             else
               Icon(
@@ -51,7 +51,7 @@ class WelcomeScreen extends StatelessWidget {
         Text(
           'RFID',
           style: typography.xl3.copyWith(
-            color: useNewlandTheme ? Colors.red : Colors.lightBlueAccent,
+            color: AppConfig.useNewlandTheme ? Colors.red : Colors.lightBlueAccent,
             height: 0,
             shadows: [const Shadow(color: Colors.black, offset: Offset(2, 2))],
             letterSpacing: 8,

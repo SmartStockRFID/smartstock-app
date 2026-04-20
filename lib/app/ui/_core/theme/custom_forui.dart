@@ -37,6 +37,7 @@ FBaseButtonStyle Function(FButtonStyle) createLargeStyle({
   required BuildContext context,
   required Color backgroundColor,
   required Color foregroundColor,
+  bool disabled = false,
 }) {
   final theme = FTheme.of(context);
   return (base) {
@@ -45,7 +46,7 @@ FBaseButtonStyle Function(FButtonStyle) createLargeStyle({
     final style = theme.style;
 
     final textStyle = theme.typography.lg.copyWith(
-      color: foregroundColor,
+      color: disabled ? context.theme.colors.disable(foregroundColor) : foregroundColor,
       height: 1, // CRUCIAL: Reseta a altura da linha para o texto ficar centralizado no botão
       fontWeight:
           FontWeight.w600, // Opcional: Avenir costuma ficar melhor um pouco mais grossa em botões
@@ -54,7 +55,9 @@ FBaseButtonStyle Function(FButtonStyle) createLargeStyle({
     return FButtonStyle(
       decoration: FWidgetStateMap.all(
         BoxDecoration(
-          color: backgroundColor, // <-- USA A COR DE FUNDO FORNECIDA
+          color: disabled
+              ? context.theme.colors.disable(backgroundColor)
+              : backgroundColor, // <-- USA A COR DE FUNDO FORNECIDA
           borderRadius: style.borderRadius,
         ),
       ),
@@ -65,7 +68,10 @@ FBaseButtonStyle Function(FButtonStyle) createLargeStyle({
             enabled: foregroundColor, // <-- USA A COR DE TEXTO FORNECIDA
             disabled: colors.disable(foregroundColor),
           ).copyWith(
-            padding: EdgeInsets.symmetric(horizontal: 32, vertical: useNewlandTheme ? 18 : 16),
+            padding: EdgeInsets.symmetric(
+              horizontal: 32,
+              vertical: AppConfig.useNewlandTheme ? 18 : 16,
+            ),
             textStyle: FWidgetStateMap.all(textStyle),
           ),
       iconContentStyle: FButtonIconContentStyle.inherit(

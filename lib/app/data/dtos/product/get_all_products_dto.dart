@@ -1,9 +1,9 @@
-import 'package:smart_stock/app/domain/entities/part_entity.dart';
+import 'package:smart_stock/app/domain/entities/product_entity.dart';
 
 // ignore: avoid_classes_with_only_static_members
-abstract final class GetAllCarPartsDTO {
-  static CarPart fromJson(Map<String, dynamic> json) {
-    return CarPart(
+abstract final class GetAllProductsDTO {
+  static Product fromJson(Map<String, dynamic> json) {
+    return Product(
       id: json['id'] as int,
       name: json['nome'] as String,
       productCode: json['codigo_produto'] as String,
@@ -13,7 +13,7 @@ abstract final class GetAllCarPartsDTO {
     );
   }
 
-  static List<CarPart> fromJsonList(List<dynamic> jsonList) {
+  static List<Product> fromJsonList(List<dynamic> jsonList) {
     return jsonList.map((jsonItem) => fromJson(jsonItem)).toList();
   }
 }

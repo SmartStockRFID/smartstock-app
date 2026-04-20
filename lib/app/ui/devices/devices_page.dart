@@ -13,9 +13,9 @@ import 'package:smart_stock/app/ui/_core/theme/custom_forui.dart';
 import 'package:smart_stock/app/ui/_core/widgets/app_bar.dart';
 import 'package:smart_stock/app/ui/_core/widgets/base_list_widget.dart';
 import 'package:smart_stock/app/ui/devices/logic/connect_ble_mutation.dart';
-import 'package:smart_stock/app/ui/shell/app_shell_page.dart';
+import 'package:smart_stock/app/ui/shell/widgets/first_session_toast_widget.dart';
 
-final Guid rfidServiceUUID = Guid(Enviroment.rfidServiceUUID()!);
+final Guid rfidServiceUUID = Guid(Enviroment.rfidServiceUUID());
 
 class DevicesList extends HookConsumerWidget with DevicesState {
   @override
@@ -134,7 +134,7 @@ class DevicesPage extends HookConsumerWidget with DevicesState {
     return Scaffold(
       appBar: baseAppBar(title: 'Leitores'),
       backgroundColor: Colors.white,
-      body: ToastRunner(child: DevicesList()),
+      body: FirstSessionToastRunner(child: DevicesList()),
     );
   }
 }

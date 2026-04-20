@@ -1,16 +1,53 @@
 // ignore_for_file: avoid_classes_with_only_static_members, prefer_function_declarations_over_variables
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+Future<SharedPreferences> getPrefs() async {
+  return SharedPreferences.getInstance();
+}
+
+typedef DeletePref = Future<void> Function();
 typedef GetPref<T> = Future<T> Function();
 typedef SetPref<T> = Future<void> Function(T value);
 typedef VoidSetPref = Future<void> Function();
-typedef DeletePref = Future<void> Function();
 
-Future<SharedPreferences> getPrefs() async {
-  return SharedPreferences.getInstance();
+class BackendApiUrlStorage {
+  static const _backendApiUrlKey = 'backend_api_url';
+
+  static final GetPref<String?> getValue = () async {
+    final prefs = await getPrefs();
+
+    return prefs.getString(_backendApiUrlKey);
+  };
+
+  static final SetPref<String> setValue = (url) async {
+    final prefs = await getPrefs();
+
+    await prefs.setString(_backendApiUrlKey, url);
+  };
+}
+
+class CurrentSessionTimestampStorage {
+  static const _currentUserSessionTimestampKey = 'current_user_timestamp';
+
+  static final GetPref<DateTime?> getValue = () async {
+    final prefs = await getPrefs();
+
+    final timestamp = prefs.getString(_currentUserSessionTimestampKey);
+
+    if (timestamp == null) {
+      return null;
+    }
+
+    return DateTime.parse(timestamp);
+  };
+
+  static final VoidSetPref setValue = () async {
+    final prefs = await getPrefs();
+
+    await prefs.setString(_currentUserSessionTimestampKey, DateTime.now().toIso8601String());
+  };
 }
 
 class CurrentUserStorage {
@@ -35,36 +72,19 @@ class CurrentUserStorage {
   };
 }
 
-class SavedLoginsStorage {
-  static const _savedLoginsKey = 'saved_logins';
+class FirmwareUpdateUrlStorage {
+  static const _firmwareUpdateUrlKey = 'firmware_update_url';
 
-  static final SetPref<String> saveValue = (String username) async {
+  static final GetPref<String?> getValue = () async {
     final prefs = await getPrefs();
 
-    final savedLogins = prefs.getStringList(_savedLoginsKey) ?? [];
-
-    savedLogins.addOrUpdate(username);
-
-    await prefs.setStringList(_savedLoginsKey, savedLogins);
+    return prefs.getString(_firmwareUpdateUrlKey);
   };
 
-  static final GetPref<List<String>?> getValues = () async {
+  static final SetPref<String> setValue = (url) async {
     final prefs = await getPrefs();
 
-    final savedLogins = prefs.getStringList(_savedLoginsKey);
-
-    return savedLogins;
-  };
-
-  // For development, only
-  static final DeletePref $deleteValues = () async {
-    if (!kDebugMode) {
-      return;
-    }
-
-    final prefs = await getPrefs();
-
-    await prefs.remove(_savedLoginsKey);
+    await prefs.setString(_firmwareUpdateUrlKey, url);
   };
 }
 
@@ -80,57 +100,35 @@ class FirstTimeOnAppStorage {
   static final GetPref getValue = () async {
     final prefs = await getPrefs();
 
-    bool? firsrTime = prefs.getBool(_firstTimeOnTheApp);
+    bool? firstTime = prefs.getBool(_firstTimeOnTheApp);
 
-    if (firsrTime == null) {
-      firsrTime = true;
-      await prefs.setBool(_firstTimeOnTheApp, firsrTime);
+    if (firstTime == null) {
+      firstTime = true;
+      await prefs.setBool(_firstTimeOnTheApp, firstTime);
     }
 
-    return firsrTime;
-  };
-
-  // For development, only
-  static final DeletePref $deleteValue = () async {
-    if (!kDebugMode) {
-      return;
-    }
-
-    final prefs = await getPrefs();
-
-    await prefs.remove(_firstTimeOnTheApp);
+    return firstTime;
   };
 }
 
-class CurrentSessionTimestampProvider {
-  static const _currentUserSessionTimestampKey = 'current_user_timestamp';
+class SavedLoginsStorage {
+  static const _savedLoginsKey = 'saved_logins';
 
-  static final GetPref<DateTime?> getValue = () async {
+  static final GetPref<List<String>?> getValues = () async {
     final prefs = await getPrefs();
 
-    final timestamp = prefs.getString(_currentUserSessionTimestampKey);
+    final savedLogins = prefs.getStringList(_savedLoginsKey);
 
-    if (timestamp == null) {
-      return null;
-    }
-
-    return DateTime.parse(timestamp);
+    return savedLogins;
   };
 
-  static final VoidSetPref setValue = () async {
+  static final SetPref<String> saveValue = (String username) async {
     final prefs = await getPrefs();
 
-    await prefs.setString(_currentUserSessionTimestampKey, DateTime.now().toIso8601String());
-  };
+    final savedLogins = prefs.getStringList(_savedLoginsKey) ?? [];
 
-  // For development, only
-  static final DeletePref $deleteValue = () async {
-    if (!kDebugMode) {
-      return;
-    }
+    savedLogins.addOrUpdate(username);
 
-    final prefs = await getPrefs();
-
-    await prefs.remove(_currentUserSessionTimestampKey);
+    await prefs.setStringList(_savedLoginsKey, savedLogins);
   };
 }

@@ -11,7 +11,7 @@ class App extends StatelessWidget {
 
   App({super.key});
 
-  final theme = useNewlandTheme
+  final theme = AppConfig.useNewlandTheme
       ? FThemes.red.light.copyWith(
           typography: FTypography.inherit(
             colors: FThemes.red.light.colors,
